@@ -6,8 +6,11 @@ Resolução CNE/CEB nº 1/2022).
 
 - 92 geradores, organizados por Planejar, Atividades, Avaliar, Engajar,
   Pesquisar, Materiais, Comunicar e Tecnologia
-- Bloco da BNCC de Computação em todos os geradores: 141 habilidades,
-  com código e texto oficial injetados no prompt
+- Formato de saída escolhido pelo professor em todos os geradores: texto
+  corrido, tabela, slides, documento para impressão, quiz ou mapa mental
+- Habilidades da BNCC e da BNCC de Computação selecionadas pela IA: o prompt
+  leva o código e o texto oficial das 141 habilidades de Computação (as da
+  etapa) e instrui a IA a escolher, justificar e marcar as habilidades usadas
 - Botões que copiam o prompt e abrem a IA recomendada para cada tarefa
 - Guias: IAs recomendadas, instalar no celular, publicar o app, BNCC de Computação
 
