@@ -237,6 +237,8 @@ a{color:var(--accent);text-underline-offset:3px}
 .bncc-item.on{background:var(--accent-soft)}
 .bncc-vazio{padding:16px 12px;font-size:12.8px;color:var(--muted);text-align:center}
 .bncc-nota{font-size:11.5px;color:var(--muted);margin-top:9px;line-height:1.45}
+.bncc-txt{font-size:12.8px;color:var(--ink-2);line-height:1.5;margin:0 0 10px}
+.bncc-ctrl.um{grid-template-columns:1fr;margin-bottom:0}
 .gb-item{border-bottom:1px solid var(--line);padding:10px 0}
 .gb-item:last-child{border-bottom:0}
 .gb-cod{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--accent);font-weight:500}
@@ -592,70 +594,79 @@ function competenciasDaEtapa(etapa){
   return BNCC_COMPETENCIAS.ef;
 }
 
+/* ---------- Formato de saída escolhido pelo professor ---------- */
+const FORMATOS = [
+  {id:"", nome:"Padrão do gerador", dica:"A IA segue a estrutura descrita em FORMATO DA RESPOSTA."},
+  {id:"texto", nome:"Texto corrido", dica:"Texto contínuo, com títulos e parágrafos.",
+   regra:"Entregue tudo em texto corrido, organizado com títulos e subtítulos e parágrafos bem construídos. Use listas só quando forem indispensáveis."},
+  {id:"tabela", nome:"Tabela", dica:"Conteúdo organizado em uma ou mais tabelas.",
+   regra:"Organize o conteúdo em uma ou mais tabelas (em Markdown), com colunas bem nomeadas. Fora das tabelas, escreva no máximo uma frase de introdução por tabela."},
+  {id:"slides", nome:"Apresentação em slides", dica:"Slide a slide, para colar no Gamma, Canva, PowerPoint ou Google Slides.",
+   regra:"Entregue o conteúdo como apresentação em slides, numerados (Slide 1, Slide 2...). Para cada slide: título curto, de 3 a 5 tópicos breves, sugestão de imagem ou recurso visual e notas do apresentador com o que o professor deve falar. Entre 8 e 15 slides, salvo se o conteúdo exigir outro número. O texto deve poder ser colado direto em um editor de apresentações ou em uma IA de slides (Gamma, Canva, Copilot)."},
+  {id:"documento", nome:"Documento para impressão", dica:"Pronto para imprimir e entregar aos estudantes ou à coordenação.",
+   regra:"Entregue um documento pronto para impressão: cabeçalho (escola, componente, ano/série, professor(a), data, nome do estudante quando couber), seções numeradas, espaço para respostas quando houver atividades e linguagem dirigida a quem vai ler o papel. Evite elementos que dependam de cor ou de tela."},
+  {id:"quiz", nome:"Quiz ou questionário", dica:"Questões com alternativas e gabarito comentado.",
+   regra:"Transforme o conteúdo em um quiz ou questionário: questões numeradas, com predominância de múltipla escolha (4 alternativas, uma correta e distratores plausíveis), alguma questão aberta quando fizer sentido, e ao final um gabarito comentado explicando por que cada alternativa está certa ou errada. O formato deve poder ser colado no Google Forms, Kahoot ou Wordwall."},
+  {id:"mapa", nome:"Mapa mental ou infográfico", dica:"Estrutura hierárquica, com código Mermaid para gerar o diagrama.",
+   regra:"Entregue o conteúdo como mapa mental ou infográfico: primeiro a estrutura hierárquica em tópicos (ideia central, ramos e sub-ramos com palavras-chave curtas); depois o mesmo mapa em código Mermaid (mindmap) dentro de um bloco de código, para gerar o diagrama no Mermaid Live, no Napkin ou no Canva."}
+];
+const formatoSel = {};
+
+function formatoUI(id){
+  const atualF = formatoSel[id] || "";
+  const f = FORMATOS.find(x=>x.id===atualF) || FORMATOS[0];
+  return `<div class="bncc fmt">
+    <div class="bncc-head"><span class="card-title">Formato de saída</span></div>
+    <div class="field">
+      <label for="f-formato-saida">Em que formato você quer receber o recurso?</label>
+      <select id="f-formato-saida">${FORMATOS.map(x=>`<option value="${x.id}"${x.id===atualF?" selected":""}>${esc(x.nome)}</option>`).join("")}</select>
+    </div>
+    <p class="bncc-nota" id="fmt-nota">${esc(f.dica)}</p>
+  </div>`;
+}
+function ligarFormato(g){
+  const sel = document.getElementById("f-formato-saida");
+  if(!sel) return;
+  sel.addEventListener("change", ()=>{
+    formatoSel[g.id] = sel.value;
+    const f = FORMATOS.find(x=>x.id===sel.value) || FORMATOS[0];
+    document.getElementById("fmt-nota").textContent = f.dica;
+    if(gerado[g.id]) render();
+  });
+}
+function blocoFormato(id){
+  const f = FORMATOS.find(x=>x.id===(formatoSel[id]||""));
+  if(!f || !f.regra) return "";
+  return "\n\n==================================================\nFORMATO DE SAÍDA ESCOLHIDO PELO PROFESSOR: " + f.nome.toUpperCase()
+    + "\n" + f.regra
+    + "\nMantenha todo o conteúdo pedido em FORMATO DA RESPOSTA, mas apresente-o neste formato. Se algum item não couber bem nele, adapte sem perder informação."
+    + "\nO quadro de habilidades pedido abaixo entra no início, adaptado a este formato (por exemplo, no primeiro slide ou antes da primeira questão).";
+}
+
+/* ---------- BNCC e BNCC de Computação: a escolha é da IA ---------- */
 function bnccUI(){
   return `<div class="bncc">
     <div class="bncc-head">
-      <span class="card-title">BNCC de Computação</span>
+      <span class="card-title">BNCC e BNCC de Computação</span>
       <span class="bncc-cont" id="bncc-cont"></span>
     </div>
-    <div class="bncc-ctrl">
-      <select id="bncc-etapa" aria-label="Etapa da BNCC de Computação"></select>
-      <input id="bncc-busca" type="search" placeholder="Filtrar por palavra ou código…" aria-label="Filtrar habilidades">
+    <p class="bncc-txt">Você não precisa escolher habilidades: o prompt pede que a IA selecione as da BNCC e da BNCC de Computação mais adequadas ao que você preencheu, cite o código e o texto de cada uma e justifique a escolha. Confira o quadro que ela devolver.</p>
+    <div class="bncc-ctrl um">
+      <select id="bncc-etapa" aria-label="Etapa de ensino"></select>
     </div>
-    <div class="bncc-lista" id="bncc-lista"></div>
     <p class="bncc-nota" id="bncc-nota"></p>
   </div>`;
 }
 
-function listaBNCC(g){
-  const caixa = document.getElementById("bncc-lista");
-  if(!caixa) return;
+function atualizaNotaBNCC(g){
   const etapa = etapaEfetiva(g);
-  const q = (document.getElementById("bncc-busca").value || "").trim().toLowerCase();
-  const sel = bnccSel[g.id] || (bnccSel[g.id] = []);
-  const itens = habsDaEtapa(etapa).filter(h => !q || (h.c + " " + h.t + " " + (h.x||"")).toLowerCase().includes(q));
-
-  if(!etapa){
-    caixa.innerHTML = '<div class="bncc-vazio">Escolha o ano/série no formulário ou a etapa aqui em cima para ver as habilidades.</div>';
-  } else if(!itens.length){
-    caixa.innerHTML = '<div class="bncc-vazio">Nenhuma habilidade encontrada com esse filtro.</div>';
-  } else {
-    let html = "", eixoAtual = null;
-    itens.forEach(h=>{
-      const eixo = h.x || "Competências específicas do Ensino Médio";
-      if(eixo !== eixoAtual){ html += `<div class="bncc-eixo">${esc(eixo)}</div>`; eixoAtual = eixo; }
-      const on = sel.includes(h.c);
-      html += `<label class="bncc-item ${on?"on":""}">
-        <input type="checkbox" value="${h.c}" ${on?"checked":""}>
-        <span><code>${h.c}</code> ${esc(h.t)}</span></label>`;
-    });
-    caixa.innerHTML = html;
-    caixa.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
-      cb.addEventListener("change", ()=>{
-        const lista = bnccSel[g.id];
-        const i = lista.indexOf(cb.value);
-        if(cb.checked && i < 0) lista.push(cb.value);
-        if(!cb.checked && i >= 0) lista.splice(i,1);
-        cb.closest(".bncc-item").classList.toggle("on", cb.checked);
-        atualizaContadorBNCC(g);
-        if(gerado[g.id]) render();
-      });
-    });
-  }
-  atualizaContadorBNCC(g);
-}
-
-function atualizaContadorBNCC(g){
-  const etapa = etapaEfetiva(g);
-  const n = (bnccSel[g.id]||[]).length;
   const cont = document.getElementById("bncc-cont");
   const nota = document.getElementById("bncc-nota");
-  if(cont) cont.textContent = n ? n + (n===1 ? " habilidade marcada" : " habilidades marcadas") : "nenhuma marcada";
+  if(cont) cont.textContent = etapa ? "a IA escolhe" : "";
   if(nota){
     nota.textContent = !etapa
-      ? "Sem a etapa, o prompt pede que a IA pergunte o ano antes de produzir — para não inventar códigos."
-      : (n ? "O prompt vai exigir que a produção contemple essas habilidades, com o código marcado em cada parte."
-           : "Sem marcar nada, o prompt leva todas as " + habsDaEtapa(etapa).length + " habilidades da etapa e pede que a IA escolha de 2 a 4 e justifique.");
+      ? "Sem o ano/série, o prompt pede que a IA pergunte a etapa antes de produzir, para não inventar códigos."
+      : "Etapa considerada: " + etapa + ". O prompt leva as " + habsDaEtapa(etapa).length + " habilidades oficiais de Computação dessa etapa para a IA escolher de 1 a 3, além de 2 a 4 habilidades da BNCC do componente.";
   }
 }
 
@@ -663,18 +674,16 @@ function ligarBNCC(g){
   const selEtapa = document.getElementById("bncc-etapa");
   if(!selEtapa) return;
   const auto = etapaDoFormulario(g);
-  selEtapa.innerHTML = `<option value="">${auto ? "Etapa do formulário: " + auto : "— escolha a etapa —"}</option>`
+  selEtapa.innerHTML = `<option value="">${auto ? "Etapa do formulário: " + auto : "Etapa: use o ano/série do formulário ou escolha aqui"}</option>`
     + BNCC_ETAPAS.map(e=>`<option value="${esc(e)}">${esc(e)}</option>`).join("");
   selEtapa.value = bnccManual[g.id] ? (bnccEtapa[g.id] || "") : "";
   selEtapa.addEventListener("change", ()=>{
     bnccEtapa[g.id] = selEtapa.value;
     bnccManual[g.id] = !!selEtapa.value;
-    bnccSel[g.id] = [];
-    listaBNCC(g);
+    atualizaNotaBNCC(g);
     if(gerado[g.id]) render();
   });
-  document.getElementById("bncc-busca").addEventListener("input", ()=>listaBNCC(g));
-  listaBNCC(g);
+  atualizaNotaBNCC(g);
 }
 
 function sincronizarBNCC(){
@@ -683,42 +692,44 @@ function sincronizarBNCC(){
   const selEtapa = document.getElementById("bncc-etapa");
   if(!selEtapa) return;
   const auto = etapaDoFormulario(atual);
-  selEtapa.options[0].textContent = auto ? "Etapa do formulário: " + auto : "— escolha a etapa —";
-  listaBNCC(atual);
+  selEtapa.options[0].textContent = auto ? "Etapa do formulário: " + auto : "Etapa: use o ano/série do formulário ou escolha aqui";
+  atualizaNotaBNCC(atual);
 }
 
 function blocoBNCC(id){
   const g = GERADORES.find(x=>x.id===id);
   if(!g) return "";
   const etapa = etapaEfetiva(g);
-  const marcadas = (bnccSel[id]||[]).map(c=>BNCC_HAB.find(h=>h.c===c)).filter(Boolean);
 
-  let b = "\n\n==================================================\nBNCC DE COMPUTAÇÃO — ALINHAMENTO OBRIGATÓRIO\n"
-        + "Esta produção deve estar alinhada ao Complemento à BNCC — Computação (Resolução CNE/CEB nº 1/2022).";
+  let b = "\n\n==================================================\nBNCC E BNCC DE COMPUTAÇÃO — SELEÇÃO DAS HABILIDADES PELA IA\n"
+        + "Esta produção deve estar alinhada à Base Nacional Comum Curricular (BNCC) e ao Complemento à BNCC — Computação (Resolução CNE/CEB nº 1/2022). "
+        + "O professor não escolheu habilidades: essa seleção é sua tarefa.";
 
   if(!etapa){
     return b + "\n\nO professor ainda não indicou a etapa de ensino. Antes de produzir qualquer coisa, pergunte qual é a etapa "
-      + "(Educação Infantil, qual ano do Ensino Fundamental ou Ensino Médio) e quais habilidades de Computação devem ser contempladas. "
-      + "Não cite nenhum código da BNCC de Computação sem ter em mãos o texto oficial correspondente — nunca invente códigos.";
+      + "(Educação Infantil, qual ano do Ensino Fundamental ou Ensino Médio). Depois, selecione e justifique as habilidades como descrito a seguir. "
+      + "Nunca cite um código da BNCC ou da BNCC de Computação sem ter certeza de que ele existe e corresponde à etapa — não invente códigos.";
   }
 
   const comp = competenciasDaEtapa(etapa);
-  const lista = marcadas.length ? marcadas : habsDaEtapa(etapa);
+  const lista = habsDaEtapa(etapa);
   b += "\n\nETAPA: " + etapa;
+  b += "\n\nCOMO SELECIONAR"
+     + "\n1. BNCC (componente curricular): selecione de 2 a 4 habilidades da BNCC do componente e da etapa informados que a produção realmente desenvolve. Cite o código alfanumérico e o texto da habilidade. Em curso técnico, relacione também as competências profissionais do curso."
+     + "\n2. BNCC de Computação: selecione de 1 a 3 habilidades da lista oficial abaixo que se integrem naturalmente ao conteúdo. Use somente códigos e textos desta lista, sem alterar uma palavra."
+     + "\n3. Justifique cada escolha em uma frase: por que essa habilidade, e não outra, serve a esta produção.";
   b += "\n\n" + comp.rotulo.toUpperCase() + "\n" + comp.itens.map((x,i)=>(i+1) + ". " + x).join("\n");
-  b += "\n\nHABILIDADES QUE A PRODUÇÃO DEVE CONTEMPLAR\n"
+  b += "\n\nHABILIDADES OFICIAIS DE COMPUTAÇÃO DESTA ETAPA (escolha entre elas)\n"
      + lista.map(h=>"- (" + h.c + ")" + (h.x ? " [" + h.x + "]" : "") + " " + h.t).join("\n");
-  if(!marcadas.length){
-    b += "\n\nO professor não marcou habilidades específicas. Escolha de 2 a 4 habilidades da lista acima que façam sentido para esta produção e justifique a escolha logo no início.";
-  }
   b += "\n\nCOMO INCORPORAR"
-     + "\n1. Comece a resposta com um quadro “BNCC de Computação”, com uma linha por habilidade contemplada: código, eixo e a descrição completa, copiados exatamente como estão acima."
+     + "\n1. Comece a resposta com um quadro “Habilidades selecionadas”, com uma linha por habilidade: documento (BNCC ou BNCC de Computação), código, descrição completa e justificativa da escolha."
      + "\n2. Dentro da produção, marque entre colchetes o código da habilidade mobilizada em cada parte — etapa da aula, questão, atividade, critério de avaliação. Exemplo: [EF06CO04]."
      + "\n3. Para cada habilidade, escreva a evidência observável de que o estudante a desenvolveu."
      + "\n4. Feche relacionando as habilidades contempladas às competências da etapa listadas acima."
      + "\n\nREGRAS DESTE BLOCO"
-     + "\n- Use somente os códigos e os textos fornecidos acima, sem alterar uma palavra. Não invente, não adapte e não arredonde códigos."
-     + "\n- Se alguma habilidade não puder ser contemplada com honestidade nesta produção, diga isso em vez de forçar o encaixe."
+     + "\n- Antes de responder, confira se cada código existe, corresponde à etapa e ao componente e está escrito corretamente. Não invente, não adapte e não arredonde códigos."
+     + "\n- Se não tiver certeza do código exato de uma habilidade da BNCC, escreva “[verificar código]” ao lado e recomende a conferência em basenacionalcomum.mec.gov.br."
+     + "\n- Se nenhuma habilidade puder ser contemplada com honestidade, diga isso em vez de forçar o encaixe."
      + "\n- A Computação entra integrada ao conteúdo do componente curricular: não transforme a produção em aula de informática.";
   return b;
 }
@@ -3894,9 +3905,10 @@ function guiaBNCCHtml(){
   <strong>Pensamento Computacional</strong>, <strong>Mundo Digital</strong> e <strong>Cultura Digital</strong> —
   no Ensino Médio, a organização é por competência específica.</div>
 
-  <p>Todo gerador deste app tem um bloco <strong>BNCC de Computação</strong> no formulário. Escolha ali as habilidades
-  e elas entram no prompt com o código e o texto na íntegra, junto com a exigência de que a IA marque, em cada parte
-  da produção, qual habilidade está sendo mobilizada.</p>
+  <p>Todo gerador deste app tem um bloco <strong>BNCC e BNCC de Computação</strong> no formulário. O professor não
+  escolhe habilidades: o prompt leva o código e o texto oficial das habilidades de Computação da etapa e instrui a IA
+  a selecionar as mais adequadas (e também as da BNCC do componente), justificar cada escolha e marcar, em cada parte
+  da produção, qual habilidade está sendo mobilizada. Esta lista serve para você conferir o que a IA escolheu.</p>
 
   <p><input id="guia-filtro" type="search" placeholder="Filtrar por código, palavra ou etapa…"
      style="width:100%;background:var(--paper);border:1px solid var(--line-strong);border-radius:6px;padding:9px 11px;font-size:14px"></p>
@@ -4094,7 +4106,6 @@ const busca = document.getElementById("busca");
 let atual = null;
 const valores = {};
 const gerado = {};
-const bnccSel = {};
 const bnccEtapa = {};
 
 const esc = s => String(s==null?"":s)
@@ -4204,7 +4215,7 @@ function telaInicial(){
 
         <ol class="steps">
           <li><span><b>Escolha um gerador</b>${GERADORES.length} ferramentas, organizadas por aquilo que você precisa fazer.</span></li>
-          <li><span><b>Preencha e clique em Gerar Prompt</b>Escolha também as habilidades da BNCC de Computação que a produção deve contemplar.</span></li>
+          <li><span><b>Preencha, escolha o formato e clique em Gerar Prompt</b>Texto, tabela, slides, documento, quiz ou mapa mental. As habilidades da BNCC e da BNCC de Computação ficam por conta da IA, que as seleciona e justifica.</span></li>
           <li><span><b>Clique na IA recomendada</b>O prompt é copiado e a ferramenta abre numa nova aba. É só colar com Ctrl+V.</span></li>
         </ol>
 
@@ -4225,9 +4236,12 @@ function telaInicial(){
           <p>Os ${N_MODELO} geradores marcados com o ponto cheio correspondem às ferramentas que existem no site dele.
           Os outros ${N_NOVO} foram acrescentados aqui, junto com os botões de IA e os guias. O código foi escrito
           do zero, mas a ideia e a organização vêm do trabalho dele — o crédito é dele.</p>
-          <p><strong>BNCC de Computação:</strong> todo gerador traz um bloco para escolher as habilidades do
-          Complemento à BNCC — Computação (CNE/CEB, 2022). O prompt sai com o código e o texto oficial de cada uma,
-          e exige que a IA marque onde cada habilidade é mobilizada. O guia lista as ${BNCC_HAB.length} habilidades.</p>
+          <p><strong>BNCC e BNCC de Computação:</strong> o professor não precisa escolher habilidades. Todo prompt
+          instrui a IA a selecionar as habilidades da BNCC e do Complemento à BNCC — Computação (CNE/CEB, 2022)
+          adequadas ao pedido, citar código e texto, justificar a escolha e marcar onde cada uma é mobilizada.
+          Para a Computação, o prompt leva o texto oficial das habilidades da etapa. O guia lista as ${BNCC_HAB.length} habilidades.</p>
+          <p><strong>Formato de saída:</strong> em todo gerador você escolhe como quer receber o recurso:
+          texto corrido, tabela, slides, documento para impressão, quiz ou mapa mental.</p>
           <p>A obra original está licenciada em CC BY-NC-SA 4.0 e esta adaptação mantém a mesma licença:
           uso não comercial, com atribuição e compartilhamento pela mesma licença.</p>
           <span class="lic">CC BY-NC-SA 4.0</span>
@@ -4335,6 +4349,7 @@ function abrir(id){
       <section class="card">
         <div class="card-head"><span class="card-title">Preencha</span></div>
         <div class="card-body"><div class="fields">${corpo}</div></div>
+        ${formatoUI(id)}
         ${bnccUI()}
         <div class="form-foot">
           <button class="btn btn-primary btn-lg" id="gerar">
@@ -4373,6 +4388,7 @@ function abrir(id){
     el.addEventListener("change", ()=>{ v[c.id]=el.value; if(gerado[id]) render(); sincronizarBNCC(); });
   });
 
+  ligarFormato(g);
   ligarBNCC(g);
 
   document.getElementById("gerar").addEventListener("click", ()=>{
@@ -4382,7 +4398,7 @@ function abrir(id){
     if(window.innerWidth < 1080 && cx) cx.scrollIntoView({behavior:"smooth", block:"start"});
   });
   document.getElementById("limpar").addEventListener("click", ()=>{
-    valores[id] = {}; gerado[id] = false; bnccSel[id] = []; bnccEtapa[id] = ""; abrir(id);
+    valores[id] = {}; gerado[id] = false; formatoSel[id] = ""; bnccEtapa[id] = ""; bnccManual[id] = false; abrir(id);
   });
   document.getElementById("copiar").addEventListener("click", copiar);
 
@@ -4418,7 +4434,7 @@ function render(){
 
   if(!gerado[atual.id]){
     area.innerHTML = `<div class="vazio-out"><b>Nada gerado ainda</b>
-      Preencha o que souber, escolha as habilidades da BNCC de Computação e clique em
+      Preencha o que souber, escolha o formato de saída e clique em
       <strong>Gerar Prompt</strong>. Nenhum campo é obrigatório.</div>`;
     cont.textContent = "";
     return;
@@ -4427,7 +4443,7 @@ function render(){
   let texto;
   try{ texto = atual.prompt(valores[atual.id] || {}).trim(); }
   catch(e){ texto = "Não foi possível montar o prompt: " + e.message; }
-  texto = texto + blocoBNCC(atual.id);
+  texto = texto + blocoFormato(atual.id) + blocoBNCC(atual.id);
   if(!document.getElementById("saida")) area.innerHTML = '<pre class="out" id="saida"></pre>';
   document.getElementById("saida").textContent = texto;
   cont.textContent = texto.length.toLocaleString("pt-BR") + " caracteres";
