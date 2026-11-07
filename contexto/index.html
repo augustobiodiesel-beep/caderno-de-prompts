@@ -1,0 +1,1345 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Caderno de Contexto</title>
+<meta name="description" content="Monte uma vez o contexto pedagógico do seu trabalho (perfil, escola e turma), alinhado à BNCC e à BNCC Computação, e use-o em qualquer IA. O Caderno de Memória da Turma deixa cada material melhor que o anterior.">
+<meta name="theme-color" content="#070d1f">
+<script>
+  (function(){
+    var t = null;
+    try { t = localStorage.getItem("cdc.tema"); } catch(e) {}
+    if(t !== "claro" && t !== "escuro"){
+      t = (window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches) ? "claro" : "escuro";
+    }
+    document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-d: "Sora", "Inter", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --r: 18px; --r-s: 12px;
+  --ease: cubic-bezier(.2,.7,.2,1);
+}
+:root[data-theme="escuro"]{
+  color-scheme: dark;
+  --bg: #060b1a;
+  --bg-2: #0a1430;
+  --surface: rgba(16, 30, 66, .62);
+  --surface-2: rgba(22, 40, 86, .7);
+  --surface-solid: #0e1b3d;
+  --border: rgba(110, 180, 255, .16);
+  --border-strong: rgba(110, 200, 255, .38);
+  --text: #e8f1ff;
+  --muted: #9db0d3;
+  --faint: #6f84ab;
+  --accent: #38d6ff;
+  --accent-2: #5b7cff;
+  --accent-ink: #04121f;
+  --good: #3ee3a6; --warn: #ffc857; --bad: #ff7a8a;
+  --glow: 0 0 0 1px rgba(56,214,255,.25), 0 10px 40px -10px rgba(56,214,255,.45);
+  --shadow: 0 20px 60px -30px rgba(0,0,0,.8);
+  --grid: rgba(90, 160, 255, .07);
+  --tile: linear-gradient(160deg, rgba(56,214,255,.34), rgba(91,124,255,.18));
+  --tile-border: rgba(120, 220, 255, .45);
+  --spot: radial-gradient(ellipse at 50% 0%, rgba(120,200,255,.22), transparent 60%);
+}
+:root[data-theme="claro"]{
+  color-scheme: light;
+  --bg: #eef4ff;
+  --bg-2: #f8fbff;
+  --surface: rgba(255,255,255,.82);
+  --surface-2: #ffffff;
+  --surface-solid: #ffffff;
+  --border: #d6e2f6;
+  --border-strong: #8fb8ee;
+  --text: #0b1834;
+  --muted: #4c5d80;
+  --faint: #7586a6;
+  --accent: #0a86d8;
+  --accent-2: #3f5fe0;
+  --accent-ink: #ffffff;
+  --good: #0f9f6e; --warn: #b7791f; --bad: #d0445a;
+  --glow: 0 0 0 1px rgba(10,134,216,.18), 0 12px 34px -14px rgba(10,134,216,.45);
+  --shadow: 0 18px 50px -30px rgba(20,50,110,.45);
+  --grid: rgba(40, 90, 170, .07);
+  --tile: linear-gradient(160deg, rgba(10,134,216,.92), rgba(63,95,224,.82));
+  --tile-border: rgba(255,255,255,.6);
+  --spot: radial-gradient(ellipse at 50% 0%, rgba(10,134,216,.14), transparent 60%);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; font-family:var(--font); color:var(--text); background:var(--bg);
+  font-size:16px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  min-height:100vh; overflow-x:hidden;
+  transition: background-color .35s var(--ease), color .35s var(--ease);
+}
+body::before{ /* grade e brilhos de fundo */
+  content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background:
+    radial-gradient(900px 500px at 85% -10%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
+    radial-gradient(700px 500px at -10% 30%, color-mix(in srgb, var(--accent-2) 16%, transparent), transparent 70%),
+    linear-gradient(var(--bg), var(--bg-2));
+}
+body::after{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at 50% 20%, #000 30%, transparent 80%);
+}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:8px}
+.wrap{max-width:1180px; margin:0 auto; padding:0 20px}
+@media (max-width:600px){ .wrap{padding:0 16px} }
+
+/* ---------- Barra superior ---------- */
+header.top{
+  position:sticky; top:0; z-index:30;
+  backdrop-filter: blur(14px) saturate(1.3); -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  border-bottom:1px solid var(--border);
+}
+.top-in{display:flex; align-items:center; gap:14px; height:66px}
+.logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text); flex-shrink:0}
+.logo-mark{
+  width:36px; height:36px; border-radius:11px; display:grid; place-items:center;
+  background:var(--tile); border:1px solid var(--tile-border); box-shadow:var(--glow); color:#fff;
+}
+.logo-mark svg{width:20px; height:20px}
+.logo b{font-family:var(--font-d); font-weight:700; font-size:17px; letter-spacing:-.01em}
+.logo small{display:block; font-size:11px; color:var(--muted); font-weight:500; letter-spacing:.06em; text-transform:uppercase; margin-top:-2px}
+nav.tabs{display:flex; gap:4px; margin-left:auto; overflow-x:auto; scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs a{
+  display:flex; align-items:center; gap:7px; white-space:nowrap;
+  padding:8px 13px; border-radius:999px; text-decoration:none; color:var(--muted);
+  font-weight:500; font-size:14.5px; border:1px solid transparent;
+  transition: all .2s var(--ease);
+}
+nav.tabs a svg{width:17px; height:17px}
+nav.tabs a:hover{color:var(--text); background:var(--surface)}
+nav.tabs a.on{color:var(--text); background:var(--surface-2); border-color:var(--border-strong); box-shadow:var(--glow)}
+.theme-btn{
+  flex-shrink:0; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; cursor:pointer;
+  background:var(--surface); color:var(--text); border:1px solid var(--border);
+  transition: transform .25s var(--ease), box-shadow .25s var(--ease), border-color .25s;
+}
+.theme-btn:hover{transform:rotate(-12deg); border-color:var(--border-strong); box-shadow:var(--glow)}
+.theme-btn svg{width:20px; height:20px}
+:root[data-theme="escuro"] .ico-sol{display:block} :root[data-theme="escuro"] .ico-lua{display:none}
+:root[data-theme="claro"] .ico-sol{display:none} :root[data-theme="claro"] .ico-lua{display:block}
+
+@media (max-width:860px){
+  .top-in{height:60px}
+  nav.tabs{
+    position:fixed; left:0; right:0; bottom:0; margin:0; z-index:40; justify-content:space-around;
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-top:1px solid var(--border);
+  }
+  nav.tabs a{flex-direction:column; gap:2px; font-size:11px; padding:6px 6px; border-radius:12px; flex:1; min-width:0}
+  nav.tabs a span{overflow:hidden; text-overflow:ellipsis; max-width:100%}
+  .theme-btn{margin-left:auto}
+  header.top{backdrop-filter:none; -webkit-backdrop-filter:none; background:var(--bg)}
+  .tiles{overflow:hidden}
+  .badge{letter-spacing:.08em; font-size:11px}
+  main{padding-bottom:90px}
+}
+@media (max-width:420px){ .logo small{display:none} }
+
+/* ---------- Estrutura ---------- */
+main{padding:28px 0 60px; min-height:70vh}
+.view{animation: entra .45s var(--ease)}
+@keyframes entra{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+.page-head{margin:10px 0 24px}
+.eyebrow{font-size:12px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--accent)}
+h1,h2,h3{font-family:var(--font-d); letter-spacing:-.02em; margin:0}
+.page-head h1{font-size:clamp(26px, 4vw, 36px); margin:6px 0 8px}
+.page-head p{color:var(--muted); margin:0; max-width:760px}
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r);
+  padding:22px; box-shadow:var(--shadow); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.card + .card{margin-top:18px}
+.grid2 > .card, .grid3 > .card, .passos > .card, .turmas > .card{margin-top:0}
+.card h2{font-size:19px; margin-bottom:4px; display:flex; align-items:center; gap:10px}
+.card .sub{color:var(--muted); font-size:14.5px; margin:0 0 16px}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}
+@media (max-width:860px){ .grid2,.grid3{grid-template-columns:1fr} }
+.ico-chip{
+  width:34px; height:34px; border-radius:10px; display:inline-grid; place-items:center; flex-shrink:0;
+  background:var(--tile); border:1px solid var(--tile-border); color:#fff; box-shadow:var(--glow);
+}
+.ico-chip svg{width:18px; height:18px}
+
+/* ---------- Formulários ---------- */
+.fields{display:grid; grid-template-columns:1fr 1fr; gap:14px 18px}
+.fields .full{grid-column:1/-1}
+@media (max-width:640px){ .fields{grid-template-columns:1fr} }
+.field label, .lbl{display:block; font-weight:600; font-size:14px; margin-bottom:6px}
+.field .hint{font-size:12.5px; color:var(--faint); margin-top:5px}
+input[type=text], input[type=number], input[type=date], select, textarea{
+  width:100%; font:inherit; font-size:15px; color:var(--text);
+  background:var(--surface-solid); border:1px solid var(--border); border-radius:var(--r-s);
+  padding:11px 13px; transition: border-color .2s, box-shadow .2s;
+}
+:root[data-theme="escuro"] input, :root[data-theme="escuro"] select, :root[data-theme="escuro"] textarea{background:rgba(5,12,30,.6)}
+textarea{min-height:84px; resize:vertical}
+input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
+.chips{display:flex; flex-wrap:wrap; gap:8px}
+.chip{
+  font:inherit; font-size:13.5px; cursor:pointer; padding:7px 12px; border-radius:999px;
+  color:var(--muted); background:transparent; border:1px solid var(--border);
+  transition: all .18s var(--ease);
+}
+.chip:hover{color:var(--text); border-color:var(--border-strong)}
+.chip[aria-pressed="true"]{color:var(--accent-ink); background:var(--accent); border-color:var(--accent); box-shadow:var(--glow)}
+.chip.neg[aria-pressed="true"]{background:var(--bad); border-color:var(--bad); color:#fff}
+.seg{display:inline-flex; padding:4px; gap:4px; border-radius:999px; background:var(--surface-solid); border:1px solid var(--border)}
+:root[data-theme="escuro"] .seg{background:rgba(5,12,30,.6)}
+.seg button{font:inherit; font-size:14px; font-weight:500; border:0; background:transparent; color:var(--muted); padding:8px 14px; border-radius:999px; cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink); box-shadow:var(--glow)}
+.stars{display:flex; gap:6px}
+.stars button{font-size:26px; line-height:1; background:none; border:0; cursor:pointer; color:var(--faint); padding:2px; transition: transform .15s}
+.stars button:hover{transform:scale(1.15)}
+.stars button.on{color:var(--warn); text-shadow:0 0 14px color-mix(in srgb, var(--warn) 60%, transparent)}
+.aviso{
+  display:flex; gap:10px; align-items:flex-start; font-size:13.5px; color:var(--muted);
+  background:color-mix(in srgb, var(--warn) 10%, transparent); border:1px solid color-mix(in srgb, var(--warn) 35%, transparent);
+  border-radius:var(--r-s); padding:10px 12px; margin-top:6px;
+}
+.aviso svg{width:18px; height:18px; color:var(--warn); flex-shrink:0; margin-top:1px}
+
+/* ---------- Botões ---------- */
+.btn{
+  font:inherit; font-weight:600; font-size:15px; cursor:pointer; text-decoration:none;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:11px 18px; border-radius:999px; border:1px solid var(--border); color:var(--text); background:var(--surface-2);
+  transition: transform .15s var(--ease), box-shadow .2s, border-color .2s, background .2s;
+}
+.btn svg{width:18px; height:18px}
+.btn:hover{transform:translateY(-1px); border-color:var(--border-strong)}
+.btn.pri{background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#fff; border-color:transparent; box-shadow:var(--glow)}
+:root[data-theme="escuro"] .btn.pri{color:#03101f}
+.btn.pri:hover{box-shadow:0 0 0 1px rgba(56,214,255,.4), 0 14px 44px -10px rgba(56,214,255,.6)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--bad); border-color:color-mix(in srgb, var(--bad) 40%, transparent); background:transparent}
+.btn.sm{padding:7px 12px; font-size:13.5px}
+.row{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+.row.end{justify-content:flex-end}
+.spacer{flex:1}
+
+/* ---------- Início / herói ---------- */
+.hero{display:grid; grid-template-columns:1.05fr .95fr; gap:30px; align-items:center; padding:24px 0 30px; position:relative}
+@media (max-width:900px){ .hero{grid-template-columns:1fr; padding-top:6px} }
+.hero h1{font-size:clamp(34px, 5.6vw, 60px); line-height:1.04; font-weight:800; margin:14px 0 16px}
+.hero h1 .grad{background:linear-gradient(100deg, var(--accent), var(--accent-2)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.hero p.lead{font-size:18px; color:var(--muted); max-width:560px; margin:0 0 24px}
+.badge{
+  display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--accent); padding:7px 12px; border-radius:999px; border:1px solid var(--border-strong); background:var(--surface);
+}
+.badge i{width:7px; height:7px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px var(--accent); animation:pulsa 2s infinite}
+@keyframes pulsa{50%{opacity:.35}}
+.tiles{position:relative; height:440px}
+@media (max-width:900px){ .tiles{height:330px} }
+.tiles::before{ /* foco de luz, como no cartaz de referência */
+  content:""; position:absolute; inset:-60px -20px 0; background:var(--spot); pointer-events:none;
+}
+.tile{
+  position:absolute; display:grid; place-items:center; border-radius:16px; color:#fff;
+  background:var(--tile); border:1px solid var(--tile-border);
+  box-shadow: 0 0 24px -4px color-mix(in srgb, var(--accent) 60%, transparent), inset 0 1px 0 rgba(255,255,255,.25);
+  animation: flutua 6s ease-in-out infinite; backdrop-filter: blur(4px);
+}
+.tile svg{width:46%; height:46%}
+.tile.fade{opacity:.35; box-shadow:none}
+@keyframes flutua{0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)}}
+.base{position:absolute; left:50%; bottom:4%; transform:translateX(-50%); width:70%; height:60px; border-radius:50%; pointer-events:none;
+  background:radial-gradient(ellipse at center, color-mix(in srgb, var(--accent) 45%, transparent), transparent 70%); filter:blur(6px)}
+.base::after{content:""; position:absolute; inset:22px 14%; border-radius:50%; border:1px solid color-mix(in srgb, var(--accent) 70%, transparent); box-shadow:0 0 18px var(--accent)}
+@media (prefers-reduced-motion: reduce){ .tile, .badge i, .view{animation:none} }
+
+.passos{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:10px}
+@media (max-width:860px){ .passos{grid-template-columns:1fr} }
+.passo{position:relative; overflow:hidden}
+.passo .num{font-family:var(--font-d); font-size:54px; font-weight:800; position:absolute; right:16px; top:4px; color:var(--accent); opacity:.13}
+.passo h3{font-size:18px; margin:14px 0 6px}
+.passo p{color:var(--muted); margin:0 0 14px; font-size:15px}
+.status{display:flex; gap:8px; align-items:center; font-size:13.5px; color:var(--muted)}
+.dot{width:9px; height:9px; border-radius:50%; background:var(--faint)}
+.dot.ok{background:var(--good); box-shadow:0 0 10px var(--good)}
+.porque{display:grid; grid-template-columns:repeat(2,1fr); gap:14px 26px; margin-top:6px}
+@media (max-width:700px){ .porque{grid-template-columns:1fr} }
+.porque div{display:flex; gap:12px}
+.porque p{margin:0; color:var(--muted); font-size:14.5px}
+.porque b{color:var(--text)}
+
+/* ---------- Turmas ---------- */
+.turmas{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:16px}
+.turma{padding:18px}
+.turma h3{font-size:17px; margin:0 0 4px}
+.turma .meta{font-size:13.5px; color:var(--muted)}
+.tag{display:inline-block; font-size:12px; font-weight:600; padding:3px 9px; border-radius:999px; border:1px solid var(--border-strong); color:var(--accent); margin:8px 6px 0 0}
+.vazio{text-align:center; padding:36px 20px; color:var(--muted)}
+.vazio > svg{width:44px; height:44px; color:var(--accent); opacity:.8}
+
+/* ---------- Pacote de contexto ---------- */
+.out-head{display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; margin-bottom:14px}
+.medidor{font-size:13px; color:var(--muted); display:flex; align-items:center; gap:8px}
+.medidor .bar{width:120px; height:6px; border-radius:6px; background:var(--border); overflow:hidden}
+.medidor .bar i{display:block; height:100%; background:linear-gradient(90deg, var(--good), var(--accent)); border-radius:6px}
+.camada{border:1px solid var(--border); border-radius:var(--r-s); margin-top:12px; overflow:hidden; background:var(--surface-solid)}
+:root[data-theme="escuro"] .camada{background:rgba(5,12,30,.55)}
+.camada.off{opacity:.45}
+.camada-h{display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid var(--border); font-weight:600; font-size:14.5px}
+.camada-h .n{font-family:var(--mono); font-size:12px; color:var(--accent); border:1px solid var(--border-strong); border-radius:7px; padding:1px 7px}
+.camada-h .k{margin-left:auto; font-size:11.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--faint)}
+.camada pre{margin:0; padding:12px 14px; font-family:var(--mono); font-size:12.8px; line-height:1.6; white-space:pre-wrap; word-break:break-word; color:var(--text); max-height:280px; overflow:auto}
+.coment{font-size:13.5px; color:var(--muted); padding:10px 14px; border-top:1px dashed var(--border); background:color-mix(in srgb, var(--accent) 7%, transparent); display:flex; gap:9px}
+.coment svg{width:17px; height:17px; color:var(--accent); flex-shrink:0; margin-top:2px}
+.ias{display:flex; flex-wrap:wrap; gap:10px; margin-top:6px}
+.ia{display:inline-flex; align-items:center; gap:8px; padding:9px 14px; border-radius:999px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); font:inherit; font-weight:600; font-size:14px; cursor:pointer; transition: all .15s}
+.ia:hover{border-color:var(--ia); box-shadow:0 0 0 1px var(--ia), 0 8px 26px -10px var(--ia); transform:translateY(-1px)}
+.ia svg{width:18px; height:18px; color:var(--ia)}
+.passos-uso{counter-reset:p; list-style:none; padding:0; margin:12px 0 0}
+.passos-uso li{counter-increment:p; position:relative; padding-left:34px; margin:8px 0; color:var(--muted); font-size:14.5px}
+.passos-uso li::before{content:counter(p); position:absolute; left:0; top:0; width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font-size:12px; font-weight:700; background:var(--accent); color:var(--accent-ink)}
+
+/* ---------- Caderno ---------- */
+.linha-tempo{list-style:none; margin:0; padding:0}
+.reg{display:grid; grid-template-columns:auto 1fr auto; gap:14px; padding:14px 0; border-bottom:1px solid var(--border); align-items:start}
+.reg:last-child{border-bottom:0}
+.reg .data{font-family:var(--mono); font-size:12.5px; color:var(--accent); border:1px solid var(--border-strong); border-radius:8px; padding:3px 8px; white-space:nowrap}
+.reg h4{margin:0; font-size:15px}
+.reg p{margin:4px 0 0; font-size:13.5px; color:var(--muted)}
+.reg .nota{color:var(--warn); letter-spacing:1px; white-space:nowrap}
+.sintese{font-family:var(--mono); font-size:13px; line-height:1.6; min-height:260px}
+.kpis{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px}
+.kpi{border:1px solid var(--border); border-radius:var(--r-s); padding:12px 14px; background:var(--surface-solid)}
+:root[data-theme="escuro"] .kpi{background:rgba(5,12,30,.55)}
+.kpi b{display:block; font-family:var(--font-d); font-size:24px}
+.kpi span{font-size:12.5px; color:var(--muted)}
+.spark{display:flex; align-items:flex-end; gap:4px; height:34px; margin-top:6px}
+.spark i{flex:1; max-width:14px; border-radius:3px 3px 0 0; background:linear-gradient(180deg, var(--accent), var(--accent-2)); opacity:.85}
+
+/* ---------- Diversos ---------- */
+.toast{
+  position:fixed; left:50%; bottom:28px; transform:translate(-50%, 30px); opacity:0; z-index:60; pointer-events:none;
+  background:var(--surface-2); color:var(--text); border:1px solid var(--border-strong); box-shadow:var(--glow);
+  padding:11px 18px; border-radius:999px; font-weight:600; font-size:14px; transition: all .3s var(--ease);
+}
+.toast.on{opacity:1; transform:translate(-50%, 0)}
+@media (max-width:860px){ .toast{bottom:96px} }
+footer{border-top:1px solid var(--border); padding:26px 0 40px; color:var(--faint); font-size:13px}
+footer a{color:var(--muted)}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+details summary{cursor:pointer; font-weight:600}
+hr.sep{border:0; border-top:1px solid var(--border); margin:18px 0}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="logo" href="#inicio" aria-label="Caderno de Contexto, início">
+      <span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><circle cx="12" cy="10" r="2.2"/><path d="M12 5.6v2.2M12 12.2v2.2M8.2 10h1.6M14.2 10h1.6"/></svg></span>
+      <span><b>Caderno de Contexto</b><small>IA com a cara da sua turma</small></span>
+    </a>
+    <nav class="tabs" id="tabs" aria-label="Seções"></nav>
+    <button class="theme-btn" id="tema" type="button" aria-label="Alternar entre modo claro e escuro" title="Alternar modo claro/escuro">
+      <svg class="ico-sol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+      <svg class="ico-lua" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="wrap" id="main"><div id="view"></div></main>
+
+<footer>
+  <div class="wrap">
+    <p>O Caderno de Contexto não produz os materiais: ele organiza o contexto que você leva para a IA de sua escolha. Você continua autor(a) e responsável pelo que for usado em aula.
+    Seus dados ficam só neste aparelho (armazenamento do navegador) e nada sobre os estudantes é pedido.</p>
+    <p>Habilidades e competências de Computação transcritas da Resolução CNE/CEB nº 1/2022 (Complemento à BNCC). Versão anterior: <a href="/">Caderno de Prompts</a>. Licença CC BY-NC-SA 4.0.</p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const SVG_T = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
+const SVG_F = 'viewBox="0 0 24 24" fill="currentColor"';
+
+const IAS = {
+  chatgpt:{nome:"ChatGPT", url:"https://chatgpt.com/", cor:"#10A37F",
+    icone:`<svg ${SVG_T}><path d="M12 2.7l8 4.6v9.4l-8 4.6-8-4.6V7.3z"/><path d="M12 7.4l3.9 2.3v4.6L12 16.6l-3.9-2.3V9.7z"/></svg>`},
+  claude:{nome:"Claude", url:"https://claude.ai/new", cor:"#D97757",
+    icone:`<svg ${SVG_T} stroke-width="2"><path d="M12 3.2v17.6M3.2 12h17.6M5.8 5.8l12.4 12.4M18.2 5.8L5.8 18.2"/></svg>`},
+  gemini:{nome:"Gemini", url:"https://gemini.google.com/app", cor:"#4285F4",
+    icone:`<svg ${SVG_F}><path d="M12 2.2c.55 4.95 4.28 8.68 9.23 9.23-4.95.55-8.68 4.28-9.23 9.23-.55-4.95-4.28-8.68-9.23-9.23C7.72 10.88 11.45 7.15 12 2.2z"/></svg>`},
+  copilot:{nome:"Copilot", url:"https://copilot.microsoft.com/", cor:"#2A8AC8",
+    icone:`<svg ${SVG_T} stroke-width="2"><path d="M4.6 15.6c0-5.1 2.6-8.7 6.2-8.7 2.7 0 3.9 2.1 4.5 4.5"/><path d="M19.4 8.4c0 5.1-2.6 8.7-6.2 8.7-2.7 0-3.9-2.1-4.5-4.5"/></svg>`},
+  deepseek:{nome:"DeepSeek", url:"https://chat.deepseek.com/", cor:"#4D6BFE",
+    icone:`<svg ${SVG_F}><path d="M3 12.6c3 .6 4.3-1.5 7.3-1.3 2.8.2 3.9 2.7 7.5 3 1.1.1 2.2-.1 3.2-.6-.7 3.3-4 5.7-8.2 5.7C7.2 19.4 3.6 16.5 3 12.6z"/><path d="M17.5 5.3L21 4l-1 3.6c-.6-1-1.4-1.8-2.5-2.3z"/></svg>`},
+  perplexity:{nome:"Perplexity", url:"https://www.perplexity.ai/", cor:"#20A0AE",
+    icone:`<svg ${SVG_T}><path d="M12 4.4v15.2"/><path d="M12 8.6L6.6 4.7v6.5H4.3v5.1h2.3v3.9L12 16.3"/><path d="M12 8.6l5.4-3.9v6.5h2.3v5.1h-2.3v3.9L12 16.3"/></svg>`},
+  notebooklm:{nome:"NotebookLM", url:"https://notebooklm.google.com/", cor:"#7B61FF",
+    icone:`<svg ${SVG_T}><rect x="4.4" y="3.2" width="15.2" height="17.6" rx="2.2"/><path d="M9 3.2v17.6"/><path d="M14.6 9.1l.85 2.05 2.05.85-2.05.85-.85 2.05-.85-2.05-2.05-.85 2.05-.85z"/></svg>`},
+  aistudio:{nome:"AI Studio", url:"https://aistudio.google.com/", cor:"#34A853",
+    icone:`<svg ${SVG_T}><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="4.6"/><path d="M12 7.3c.34 2.55 2.15 4.36 4.7 4.7-2.55.34-4.36 2.15-4.7 4.7-.34-2.55-2.15-4.36-4.7-4.7 2.55-.34 4.36-2.15 4.7-4.7z" fill="currentColor" stroke="none"/></svg>`},
+  gamma:{nome:"Gamma", url:"https://gamma.app/", cor:"#8B5CF6",
+    icone:`<svg ${SVG_F}><text x="12" y="18" text-anchor="middle" font-size="16" font-weight="700" font-family="Georgia,serif">&#947;</text></svg>`},
+  canva:{nome:"Canva", url:"https://www.canva.com/", cor:"#00A9B0",
+    icone:`<svg ${SVG_T}><circle cx="12" cy="12" r="9"/><path d="M15.4 9.3a4.4 4.4 0 0 0-6.3 6 4.4 4.4 0 0 0 6.5-.7" stroke-width="2"/></svg>`},
+  ideogram:{nome:"Ideogram", url:"https://ideogram.ai/", cor:"#E2556B",
+    icone:`<svg ${SVG_T}><rect x="3.4" y="3.4" width="17.2" height="17.2" rx="5"/><path d="M12 7.8v8.4" stroke-width="2.6"/></svg>`},
+  leonardo:{nome:"Leonardo", url:"https://leonardo.ai/", cor:"#C08A2E",
+    icone:`<svg ${SVG_F}><path d="M7.4 3h9.2l4 6-8.6 12L3.4 9z"/></svg>`},
+  bingimg:{nome:"Bing Imagens", url:"https://www.bing.com/images/create", cor:"#2A8AC8",
+    icone:`<svg ${SVG_T}><rect x="3.2" y="4.6" width="17.6" height="14.8" rx="2.4"/><circle cx="8.6" cy="10" r="1.6"/><path d="M3.8 17.4l5-4.9 3.4 3.3 3-2.5 5 4.2"/></svg>`},
+  napkin:{nome:"Napkin", url:"https://www.napkin.ai/", cor:"#8A948F",
+    icone:`<svg ${SVG_T}><circle cx="6" cy="6.6" r="2.5"/><circle cx="18" cy="12" r="2.5"/><circle cx="6" cy="17.4" r="2.5"/><path d="M8.4 7.7l7.2 3.1M8.4 16.3l7.2-3.1"/></svg>`},
+  v0:{nome:"v0", url:"https://v0.app/", cor:"#8A948F",
+    icone:`<svg ${SVG_F}><text x="12" y="16.8" text-anchor="middle" font-size="12" font-weight="700" font-family="Helvetica,Arial,sans-serif">v0</text></svg>`},
+  bolt:{nome:"Bolt", url:"https://bolt.new/", cor:"#3B82F6",
+    icone:`<svg ${SVG_F}><path d="M13.5 2L4.4 13.7h5.6L9.1 22l9.5-12.5h-6.1z"/></svg>`},
+  lovable:{nome:"Lovable", url:"https://lovable.dev/", cor:"#E8446C",
+    icone:`<svg ${SVG_F}><path d="M12 20.6l-1.4-1.3C5.5 14.7 2.4 11.9 2.4 8.4 2.4 5.6 4.6 3.4 7.4 3.4c1.6 0 3.1.7 4.1 1.9 1-1.2 2.5-1.9 4.1-1.9 2.8 0 5 2.2 5 5 0 3.5-3.1 6.3-8.2 10.9z"/></svg>`},
+  replit:{nome:"Replit", url:"https://replit.com/", cor:"#F26207",
+    icone:`<svg ${SVG_F}><rect x="4.2" y="3.6" width="6.6" height="6.2" rx="1.6"/><rect x="13.2" y="9.9" width="6.6" height="6.2" rx="1.6"/><rect x="4.2" y="14.2" width="6.6" height="6.2" rx="1.6"/></svg>`}
+};
+
+/* ============================================================
+   BNCC de Computação — Complemento à BNCC (CNE/CEB, 2022)
+   141 habilidades e as competências de cada etapa, transcritas
+   do documento oficial. Os textos são citação literal.
+   ============================================================ */
+const BNCC_ETAPAS = ["Educação Infantil", "1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "1º ao 5º ano (por etapa)", "6º ano", "7º ano", "8º ano", "9º ano", "6º ao 9º ano (por etapa)", "Ensino Médio"];
+const BNCC_COMPETENCIAS = {
+  ei:{rotulo:"Educação Infantil — premissas da Computação", itens:[
+    "Desenvolver o reconhecimento e a identificação de padrões, construindo conjuntos de objetos com base em diferentes critérios como: quantidade, forma, tamanho, cor e comportamento.",
+    "Vivenciar e identificar diferentes formas de interação mediadas por artefatos computacionais.",
+    "Criar e testar algoritmos brincando com objetos do ambiente e com movimentos do corpo de maneira individual ou em grupo.",
+    "Solucionar problemas decompondo-os em partes menores identificando passos, etapas ou ciclos que se repetem e que podem ser generalizadas ou reutilizadas para outros problemas."
+  ]},
+  ef:{rotulo:"Ensino Fundamental — competências de Computação", itens:[
+    "Compreender a Computação como uma área de conhecimento que contribui para explicar o mundo atual e ser um agente ativo e consciente de transformação capaz de analisar criticamente seus impactos sociais, ambientais, culturais, econômicos, científicos, tecnológicos, legais e éticos.",
+    "Reconhecer o impacto dos artefatos computacionais e os respectivos desafios para os indivíduos na sociedade, discutindo questões socioambientais, culturais, científicas, políticas e econômicas.",
+    "Expressar e partilhar informações, ideias, sentimentos e soluções computacionais utilizando diferentes linguagens e tecnologias da Computação de forma criativa, crítica, significativa, reflexiva e ética.",
+    "Aplicar os princípios e técnicas da Computação e suas tecnologias para identificar problemas e criar soluções computacionais, preferencialmente de forma cooperativa, bem como alicerçar descobertas em diversas áreas do conhecimento seguindo uma abordagem científica e inovadora, considerando os impactos sob diferentes contextos.",
+    "Avaliar as soluções e os processos envolvidos na resolução computacional de problemas de diversas áreas do conhecimento, sendo capaz de construir argumentações coerentes e consistentes, utilizando conhecimentos da Computação para argumentar em diferentes contextos com base em fatos e informações confiáveis com respeito à diversidade de opiniões, saberes, identidades e culturas.",
+    "Desenvolver projetos, baseados em problemas, desafios e oportunidades que façam sentido ao contexto ou interesse do estudante, de maneira individual e/ou cooperativa, fazendo uso da Computação e suas tecnologias, utilizando conceitos, técnicas e ferramentas computacionais que possibilitem automatizar processos em diversas áreas do conhecimento com base em princípios éticos, democráticos, sustentáveis e solidários, valorizando a diversidade de indivíduos e de grupos sociais, de maneira inclusiva.",
+    "Agir pessoal e coletivamente com respeito, autonomia, responsabilidade, flexibilidade, resiliência e determinação, identificando e reconhecendo seus direitos e deveres, recorrendo aos conhecimentos da Computação e suas tecnologias para tomar decisões frente às questões de diferentes naturezas."
+  ]},
+  em:{rotulo:"Ensino Médio — competências de Computação", itens:[
+    "Compreender as possibilidades e os limites da Computação para resolver problemas, tanto em termos de viabilidade quanto de eficiência, propondo e analisando soluções computacionais para diversos domínios do conhecimento, considerando diferentes aspectos.",
+    "Analisar criticamente artefatos computacionais, sendo capaz de identificar as vulnerabilidades dos ambientes e das soluções computacionais buscando garantir a integridade, privacidade, sigilo e segurança das informações.",
+    "Analisar situações do mundo contemporâneo, selecionando técnicas computacionais apropriadas para a solução de problemas.",
+    "Construir conhecimento usando técnicas e tecnologias computacionais, produzindo conteúdos e artefatos de forma criativa, com respeito às questões éticas e legais, que proporcionem experiências para si e os demais.",
+    "Desenvolver projetos para investigar desafios do mundo contemporâneo, construir soluções e tomar decisões éticas, democráticas e socialmente responsáveis, articulando conceitos, procedimentos e linguagens próprias da Computação preferencialmente de maneira colaborativa.",
+    "Expressar e partilhar informações, ideias, sentimentos e soluções computacionais utilizando diferentes plataformas, ferramentas, linguagens e tecnologias da Computação de forma fluente, criativa, crítica, significativa, reflexiva e ética.",
+    "Agir pessoal e coletivamente com respeito, autonomia, responsabilidade, flexibilidade, resiliência e determinação, identificando e reconhecendo seus direitos e deveres, recorrendo aos conhecimentos da Computação e suas tecnologias frente às questões de diferentes naturezas."
+  ]},
+};
+const BNCC_HAB = [
+  {c:"EI03CO01",e:"Educação Infantil",x:"Pensamento Computacional",t:"Reconhecer padrão de repetição em sequência de sons, movimentos, desenhos."},
+  {c:"EI03CO02",e:"Educação Infantil",x:"Pensamento Computacional",t:"Expressar as etapas para a realização de uma tarefa de forma clara e ordenada."},
+  {c:"EI03CO03",e:"Educação Infantil",x:"Pensamento Computacional",t:"Experienciar a execução de algoritmos brincando com objetos (des)plugados."},
+  {c:"EI03CO04",e:"Educação Infantil",x:"Pensamento Computacional",t:"Criar e representar algoritmos para resolver problemas."},
+  {c:"EI03CO05",e:"Educação Infantil",x:"Pensamento Computacional",t:"Comparar soluções algorítmicas para resolver um mesmo problema."},
+  {c:"EI03CO06",e:"Educação Infantil",x:"Pensamento Computacional",t:"Compreender decisões em dois estados (verdadeiro ou falso)."},
+  {c:"EI03CO07",e:"Educação Infantil",x:"Mundo Digital",t:"Reconhecer dispositivos eletrônicos (e não-eletrônicos), identificando quando estão ligados ou desligados (abertos ou fechados)."},
+  {c:"EI03CO08",e:"Educação Infantil",x:"Mundo Digital",t:"Compreender o conceito de interfaces para comunicação com objetos (des)plugados."},
+  {c:"EI03CO09",e:"Educação Infantil",x:"Mundo Digital",t:"Identificar dispositivos computacionais e as diferentes formas de interação."},
+  {c:"EI03CO10",e:"Educação Infantil",x:"Cultura Digital",t:"Utilizar tecnologia digital de maneira segura, consciente e respeitosa."},
+  {c:"EI03CO11",e:"Educação Infantil",x:"Cultura Digital",t:"Adotar hábitos saudáveis de uso de artefatos computacionais, seguindo recomendações de órgãos de saúde competentes."},
+  {c:"EF01CO01",e:"1º ano",x:"Pensamento Computacional",t:"Organizar objetos físicos ou digitais considerando diferentes características para esta organização, explicitando semelhanças (padrões) e diferenças."},
+  {c:"EF01CO02",e:"1º ano",x:"Mundo Digital",t:"Identificar e seguir sequências de passos aplicados no dia a dia para resolver problemas."},
+  {c:"EF01CO03",e:"1º ano",x:"Mundo Digital",t:"Reorganizar e criar sequências de passos em meios físicos ou digitais, relacionando essas sequências à palavra “Algoritmos”."},
+  {c:"EF01CO04",e:"1º ano",x:"Mundo Digital",t:"Reconhecer o que é a informação, que ela pode ser armazenada, transmitida como mensagem por diversos meios e descrita em várias linguagens."},
+  {c:"EF01CO05",e:"1º ano",x:"Mundo Digital",t:"Representar informação usando diferentes codificações."},
+  {c:"EF01CO06",e:"1º ano",x:"Cultura Digital",t:"Reconhecer e explorar artefatos computacionais voltados a atender necessidades pessoais ou coletivas."},
+  {c:"EF01CO07",e:"1º ano",x:"Cultura Digital",t:"Conhecer as possibilidades de uso seguro das tecnologias computacionais para proteção dos dados pessoais e para garantir a própria segurança."},
+  {c:"EF02CO01",e:"2º ano",x:"Pensamento Computacional",t:"Criar e comparar modelos (representações) de objetos, identificando padrões e atributos essenciais."},
+  {c:"EF02CO02",e:"2º ano",x:"Mundo Digital",t:"Criar e simular algoritmos representados em linguagem oral, escrita ou pictográfica, construídos como sequências com repetições simples (iterações definidas) com base em instruções preestabelecidas ou criadas, analisando como a precisão da instrução impacta na execução do algoritmo."},
+  {c:"EF02CO03",e:"2º ano",x:"Mundo Digital",t:"Identificar que máquinas diferentes executam conjuntos próprios de instruções e que podem ser usadas para definir algoritmos."},
+  {c:"EF02CO04",e:"2º ano",x:"Cultura Digital",t:"Diferenciar componentes físicos (hardware) e programas que fornecem as instruções (software) para o hardware."},
+  {c:"EF02CO05",e:"2º ano",x:"Cultura Digital",t:"Reconhecer as características e usos das tecnologias computacionais no cotidiano dentro e fora da escola."},
+  {c:"EF02CO06",e:"2º ano",x:"Cultura Digital",t:"Reconhecer os cuidados com a segurança no uso de dispositivos computacionais."},
+  {c:"EF03CO01",e:"3º ano",x:"Pensamento Computacional",t:"Associar os valores 'verdadeiro' e 'falso' a sentenças lógicas que dizem respeito a situações do dia a dia, fazendo uso de termos que indicam negação."},
+  {c:"EF03CO02",e:"3º ano",x:"Pensamento Computacional",t:"Criar e simular algoritmos representados em linguagem oral, escrita ou pictográfica, que incluam sequências e repetições simples com condição (iterações indefinidas), para resolver problemas de forma independente e em colaboração."},
+  {c:"EF03CO03",e:"3º ano",x:"Pensamento Computacional",t:"Aplicar a estratégia de decomposição para resolver problemas complexos, dividindo esse problema em partes menores, resolvendo-as e combinando suas soluções."},
+  {c:"EF03CO04",e:"3º ano",x:"Mundo Digital",t:"Relacionar o conceito de informação com o de dado."},
+  {c:"EF03CO05",e:"3º ano",x:"Mundo Digital",t:"Compreender que dados são estruturados em formatos específicos dependendo da informação armazenada."},
+  {c:"EF03CO06",e:"3º ano",x:"Mundo Digital",t:"Reconhecer que, para um computador realizar tarefas, ele se comunica com o mundo exterior com o uso de interfaces físicas (dispositivos de entrada e saída)."},
+  {c:"EF03CO07",e:"3º ano",x:"Cultura Digital",t:"Utilizar diferentes navegadores e ferramentas de busca para pesquisar e acessar informações."},
+  {c:"EF03CO08",e:"3º ano",x:"Cultura Digital",t:"Usar ferramentas computacionais em situações didáticas para se expressar em diferentes formatos digitais."},
+  {c:"EF03CO09",e:"3º ano",x:"Cultura Digital",t:"Reconhecer o potencial impacto do compartilhamento de informações pessoais ou de seus pares em meio digital."},
+  {c:"EF04CO01",e:"4º ano",x:"Pensamento Computacional",t:"Reconhecer objetos do mundo real e/ou digital que podem ser representados através de matrizes que estabelecem uma organização na qual cada componente está em uma posição definida por coordenadas, fazendo manipulações simples sobre estas representações."},
+  {c:"EF04CO02",e:"4º ano",x:"Pensamento Computacional",t:"Reconhecer objetos do mundo real e/ou digital que podem ser representados através de registros que estabelecem uma organização na qual cada componente é identificado por um nome, fazendo manipulações sobre estas representações."},
+  {c:"EF04CO03",e:"4º ano",x:"Pensamento Computacional",t:"Criar e simular algoritmos representados em linguagem oral, escrita ou pictográfica, que incluam sequências e repetições simples e aninhadas (iterações definidas e indefinidas), para resolver problemas de forma independente e em colaboração."},
+  {c:"EF04CO04",e:"4º ano",x:"Mundo Digital",t:"Entender que para guardar, manipular e transmitir dados deve-se codificá-los de alguma forma que seja compreendida pela máquina (formato digital)."},
+  {c:"EF04CO05",e:"4º ano",x:"Cultura Digital",t:"Codificar diferentes informações para representação em computador (binária, ASCII, atributos de pixel, como RGB etc.)."},
+  {c:"EF04CO06",e:"4º ano",x:"Cultura Digital",t:"Usar diferentes ferramentas computacionais para criação de conteúdo (textos, apresentações, vídeos etc.)."},
+  {c:"EF04CO07",e:"4º ano",x:"Cultura Digital",t:"Demonstrar postura ética nas atividades de coleta, transferência, guarda e uso de dados."},
+  {c:"EF04CO08",e:"4º ano",x:"Cultura Digital",t:"Reconhecer a importância de verificar a confiabilidade das fontes de informações obtidas na Internet."},
+  {c:"EF05CO01",e:"5º ano",x:"Pensamento Computacional",t:"Reconhecer objetos do mundo real e/ou digital que podem ser representados através de listas que estabelecem uma organização na qual há um número variável de itens dispostos em sequência, fazendo manipulações simples sobre estas representações."},
+  {c:"EF05CO02",e:"5º ano",x:"Pensamento Computacional",t:"Reconhecer objetos do mundo real e digital que podem ser representados através de grafos que estabelecem uma organização com uma quantidade variável de vértices conectados por arestas, fazendo manipulações simples sobre estas representações."},
+  {c:"EF05CO03",e:"5º ano",x:"Pensamento Computacional",t:"Realizar operações de negação, conjunção e disjunção sobre sentenças lógicas e valores 'verdadeiro' e 'falso'."},
+  {c:"EF05CO04",e:"5º ano",x:"Mundo Digital",t:"Criar e simular algoritmos representados em linguagem oral, escrita ou pictográfica, que incluam sequências, repetições e seleções condicionais para resolver problemas de forma independente e em colaboração."},
+  {c:"EF05CO05",e:"5º ano",x:"Mundo Digital",t:"Identificar os componentes principais de um computador (dispositivos de entrada/saída, processadores e armazenamento)."},
+  {c:"EF05CO06",e:"5º ano",x:"Mundo Digital",t:"Reconhecer que os dados podem ser armazenados em um dispositivo local ou remoto."},
+  {c:"EF05CO07",e:"5º ano",x:"Mundo Digital",t:"Reconhecer a necessidade de um sistema operacional para a execução de programas e gerenciamento do hardware."},
+  {c:"EF05CO08",e:"5º ano",x:"Cultura Digital",t:"Acessar as informações na Internet de forma crítica para distinguir os conteúdos confiáveis de não confiáveis."},
+  {c:"EF05CO09",e:"5º ano",x:"Cultura Digital",t:"Usar informações considerando aplicações e limites dos direitos autorais em diferentes mídias digitais."},
+  {c:"EF05CO10",e:"5º ano",x:"Cultura Digital",t:"Expressar-se crítica e criativamente na compreensão das mudanças tecnológicas no mundo do trabalho e sobre a evolução da sociedade."},
+  {c:"EF05CO11",e:"5º ano",x:"Cultura Digital",t:"Identificar a adequação de diferentes tecnologias computacionais na resolução de problemas."},
+  {c:"EF15CO01",e:"1º ao 5º ano (por etapa)",x:"Pensamento Computacional",t:"Identificar as principais formas de organizar e representar a informação de maneira estruturada (matrizes, registros, listas e grafos) ou não estruturada (números, palavras, valores verdade)."},
+  {c:"EF15CO02",e:"1º ao 5º ano (por etapa)",x:"Pensamento Computacional",t:"Construir e simular algoritmos, de forma independente ou em colaboração, que resolvam problemas simples e do cotidiano com uso de sequências, seleções condicionais e repetições de instruções."},
+  {c:"EF15CO03",e:"1º ao 5º ano (por etapa)",x:"Pensamento Computacional",t:"Realizar operações de negação, conjunção e disjunção sobre sentenças lógicas e valores 'verdadeiro' e 'falso'."},
+  {c:"EF15CO04",e:"1º ao 5º ano (por etapa)",x:"Pensamento Computacional",t:"Aplicar a estratégia de decomposição para resolver problemas complexos, dividindo esse problema em partes menores, resolvendo-as e combinando suas soluções."},
+  {c:"EF15CO05",e:"1º ao 5º ano (por etapa)",x:"Mundo Digital",t:"Codificar a informação de diferentes formas, entendendo a importância desta codificação para o armazenamento, manipulação e transmissão em dispositivos computacionais."},
+  {c:"EF15CO06",e:"1º ao 5º ano (por etapa)",x:"Cultura Digital",t:"Conhecer os componentes básicos de dispositivos computacionais, entendendo os princípios de seu funcionamento."},
+  {c:"EF15CO07",e:"1º ao 5º ano (por etapa)",x:"Cultura Digital",t:"Conhecer o conceito de Sistema Operacional e sua importância na integração entre software e hardware."},
+  {c:"EF15CO08",e:"1º ao 5º ano (por etapa)",x:"Cultura Digital",t:"Reconhecer e utilizar tecnologias computacionais para pesquisar e acessar informações, expressar-se crítica e criativamente e resolver problemas."},
+  {c:"EF15CO09",e:"1º ao 5º ano (por etapa)",x:"Cultura Digital",t:"Entender que as tecnologias devem ser utilizadas de maneira segura, ética e responsável, respeitando direitos autorais, de imagem e as leis vigentes."},
+  {c:"EF06CO01",e:"6º ano",x:"Pensamento Computacional",t:"Classificar informações, agrupando-as em coleções (conjuntos) e associando cada coleção a um “tipo de dados”."},
+  {c:"EF06CO02",e:"6º ano",x:"Pensamento Computacional",t:"Elaborar algoritmos que envolvam instruções sequenciais, de repetição e de seleção usando uma linguagem de programação."},
+  {c:"EF06CO03",e:"6º ano",x:"Pensamento Computacional",t:"Descrever com precisão a solução de um problema, construindo o programa que implementa a solução descrita."},
+  {c:"EF06CO04",e:"6º ano",x:"Pensamento Computacional",t:"Construir soluções de problemas usando a técnica de decomposição e automatizar tais soluções usando uma linguagem de programação."},
+  {c:"EF06CO05",e:"6º ano",x:"Pensamento Computacional",t:"Identificar os recursos ou insumos necessários (entradas) para a resolução de problemas, bem como os resultados esperados (saídas), determinando os respectivos tipos de dados, e estabelecendo a definição de problema como uma relação entre entrada e saída."},
+  {c:"EF06CO06",e:"6º ano",x:"Pensamento Computacional",t:"Comparar diferentes casos particulares (instâncias) de um mesmo problema, identificando as semelhanças e diferenças entre eles, e criar um algoritmo para resolver todos, fazendo uso de variáveis (parâmetros) para permitir o tratamento de todos os casos de forma genérica."},
+  {c:"EF06CO07",e:"6º ano",x:"Cultura Digital",t:"Entender o processo de transmissão de dados, como a informação é quebrada em pedaços, transmitida em pacotes através de múltiplos equipamentos, e reconstruída no destino."},
+  {c:"EF06CO08",e:"6º ano",x:"Cultura Digital",t:"Compreender e utilizar diferentes formas de armazenar, manipular, compactar e recuperar arquivos, documentos e metadados."},
+  {c:"EF06CO09",e:"6º ano",x:"Cultura Digital",t:"Apresentar conduta e linguagem apropriadas ao se comunicar em ambiente digital, considerando a ética e o respeito."},
+  {c:"EF06CO10",e:"6º ano",x:"Cultura Digital",t:"Analisar o consumo de tecnologia na sociedade, compreendendo criticamente o caminho da produção dos recursos bem como aspectos ligados à obsolescência e a sustentabilidade."},
+  {c:"EF07CO01",e:"7º ano",x:"Pensamento Computacional",t:"Criar soluções de problemas para os quais seja adequado o uso de registros e matrizes unidimensionais para descrever suas informações e automatizá-las usando uma linguagem de programação."},
+  {c:"EF07CO02",e:"7º ano",x:"Pensamento Computacional",t:"Analisar programas para detectar e remover erros, ampliando a confiança na sua correção."},
+  {c:"EF07CO03",e:"7º ano",x:"Pensamento Computacional",t:"Construir soluções computacionais de problemas de diferentes áreas do conhecimento, de forma individual e colaborativa, selecionando as estruturas de dados e técnicas adequadas, aperfeiçoando e articulando saberes escolares."},
+  {c:"EF07CO04",e:"7º ano",x:"Pensamento Computacional",t:"Explorar propriedades básicas de grafos."},
+  {c:"EF07CO05",e:"7º ano",x:"Mundo Digital",t:"Criar algoritmos fazendo uso da decomposição e do reúso no processo de solução de forma colaborativa e cooperativa e automatizá-los usando uma linguagem de programação."},
+  {c:"EF07CO06",e:"7º ano",x:"Mundo Digital",t:"Compreender o papel de protocolos para a transmissão de dados."},
+  {c:"EF07CO07",e:"7º ano",x:"Mundo Digital",t:"Identificar problemas de segurança cibernética e experimentar formas de proteção."},
+  {c:"EF07CO08",e:"7º ano",x:"Cultura Digital",t:"Demonstrar empatia sobre opiniões divergentes na web."},
+  {c:"EF07CO09",e:"7º ano",x:"Cultura Digital",t:"Reconhecer e debater sobre cyberbullying."},
+  {c:"EF07CO10",e:"7º ano",x:"Cultura Digital",t:"Identificar os impactos ambientais do descarte de peças de computadores e eletrônicos, bem como sua relação com a sustentabilidade."},
+  {c:"EF07CO11",e:"7º ano",x:"Cultura Digital",t:"Criar, documentar e publicar, de forma individual ou colaborativa, produtos (vídeos, podcasts, web sites) usando recursos de tecnologia."},
+  {c:"EF08CO01",e:"8º ano",x:"Pensamento Computacional",t:"Construir soluções de problemas usando a técnica de recursão e automatizar tais soluções usando uma linguagem de programação."},
+  {c:"EF08CO02",e:"8º ano",x:"Mundo Digital",t:"Criar soluções de problemas para os quais seja adequado o uso de listas para descrever suas informações e automatizá-las usando uma linguagem de programação, empregando ou não a recursão como uma técnica de resolver o problema."},
+  {c:"EF08CO03",e:"8º ano",x:"Mundo Digital",t:"Utilizar algoritmos clássicos de manipulação sobre listas."},
+  {c:"EF08CO04",e:"8º ano",x:"Mundo Digital",t:"Construir soluções computacionais de problemas de diferentes áreas do conhecimento, de forma individual e colaborativa, selecionando as estruturas de dados e técnicas adequadas, aperfeiçoando e articulando saberes escolares."},
+  {c:"EF08CO05",e:"8º ano",x:"Mundo Digital",t:"Compreender os conceitos de paralelismo, concorrência e armazenamento/ processamento distribuídos."},
+  {c:"EF08CO06",e:"8º ano",x:"Mundo Digital",t:"Entender como é a estrutura e funcionamento da internet."},
+  {c:"EF08CO07",e:"8º ano",x:"Cultura Digital",t:"Compartilhar informações por meio de redes sociais, compreendendo a sua dinâmica de funcionamento, de forma responsável e avaliando sua confiabilidade, considerando o respeito e a ética."},
+  {c:"EF08CO08",e:"8º ano",x:"Cultura Digital",t:"Distinguir os tipos de dados pessoais que são solicitados em espaços digitais e os riscos associados."},
+  {c:"EF08CO09",e:"8º ano",x:"Cultura Digital",t:"Analisar criticamente as políticas de termos de uso das redes sociais e demais plataformas."},
+  {c:"EF08CO10",e:"8º ano",x:"Cultura Digital",t:"Discutir questões sobre segurança e privacidade relacionadas ao uso dos ambientes virtuais."},
+  {c:"EF08CO11",e:"8º ano",x:"Cultura Digital",t:"Avaliar a precisão, relevância, adequação, abrangência e vieses que ocorrem em fontes de informação eletrônica."},
+  {c:"EF09CO01",e:"9º ano",x:"Pensamento Computacional",t:"Criar soluções de problemas para os quais seja adequado o uso de árvores e grafos para descrever suas informações e automatizá-las usando uma linguagem de programação."},
+  {c:"EF09CO02",e:"9º ano",x:"Mundo Digital",t:"Construir soluções computacionais de problemas de diferentes áreas do conhecimento, de forma individual e colaborativa, selecionando as estruturas de dados e técnicas adequadas, aperfeiçoando e articulando saberes escolares."},
+  {c:"EF09CO03",e:"9º ano",x:"Mundo Digital",t:"Usar autômatos para descrever comportamentos de forma abstrata automatizando-os através de uma linguagem de programação baseada em eventos."},
+  {c:"EF09CO04",e:"9º ano",x:"Mundo Digital",t:"Compreender o funcionamento de malwares e outros ataques cibernéticos."},
+  {c:"EF09CO05",e:"9º ano",x:"Cultura Digital",t:"Analisar técnicas de criptografia para armazenamento e transmissão de dados."},
+  {c:"EF09CO06",e:"9º ano",x:"Cultura Digital",t:"Analisar problemas sociais de sua cidade e estado a partir de ambientes digitais, propondo soluções."},
+  {c:"EF09CO07",e:"9º ano",x:"Cultura Digital",t:"Avaliar aplicações e implicações políticas, socioambientais e culturais das tecnologias digitais para propor alternativas aos desafios do mundo contemporâneo, incluindo aqueles relativos ao mundo do trabalho."},
+  {c:"EF09CO08",e:"9º ano",x:"Cultura Digital",t:"Discutir como a distribuição desigual de recursos de computação em uma economia global levanta questões de equidade, acesso e poder."},
+  {c:"EF09CO09",e:"9º ano",x:"Cultura Digital",t:"Criar ou utilizar conteúdo em meio digital, compreendendo questões éticas relacionadas a direitos autorais e de uso de imagem."},
+  {c:"EF09CO10",e:"9º ano",x:"Cultura Digital",t:"Avaliar a veracidade, credibilidade e relevância da informação em seus diferentes formatos, sendo capaz de identificar o propósito pelo qual foi disseminada."},
+  {c:"EF69CO01",e:"6º ao 9º ano (por etapa)",x:"Pensamento Computacional",t:"Classificar informações, agrupando-as em coleções (conjuntos) e associando cada coleção a um “tipo de dado”."},
+  {c:"EF69CO02",e:"6º ao 9º ano (por etapa)",x:"Pensamento Computacional",t:"Elaborar algoritmos que envolvam instruções sequenciais, de repetição e de seleção usando uma linguagem de programação."},
+  {c:"EF69CO03",e:"6º ao 9º ano (por etapa)",x:"Pensamento Computacional",t:"Descrever com precisão a solução de um problema, construindo o programa que implementa a solução descrita."},
+  {c:"EF69CO04",e:"6º ao 9º ano (por etapa)",x:"Pensamento Computacional",t:"Construir soluções de problemas usando a técnica de decomposição e automatizar tais soluções usando uma linguagem de programação."},
+  {c:"EF69CO05",e:"6º ao 9º ano (por etapa)",x:"Pensamento Computacional",t:"Identificar os recursos ou insumos necessários (entradas) para a resolução de problemas, bem como os resultados esperados (saídas), determinando os respectivos tipos de dados, e estabelecendo a definição de problema como uma relação entre entrada e saída."},
+  {c:"EF69CO06",e:"6º ao 9º ano (por etapa)",x:"Pensamento Computacional",t:"Comparar diferentes casos particulares (instâncias) de um mesmo problema, identificando as semelhanças e diferenças entre eles, e criar um algoritmo para resolver todos, fazendo uso de variáveis (parâmetros) para permitir o tratamento de todos os casos de forma genérica."},
+  {c:"EF69CO07",e:"6º ao 9º ano (por etapa)",x:"Mundo Digital",t:"Entender o processo de transmissão de dados, como a informação é quebrada em pedaços, transmitida em pacotes através de múltiplos equipamentos, e reconstruída no destino."},
+  {c:"EF69CO08",e:"6º ao 9º ano (por etapa)",x:"Cultura Digital",t:"Compreender e utilizar diferentes formas de armazenar, manipular, compactar e recuperar arquivos, documentos e metadados. Sistemas distribuídos e internet Fundamentos de sistemas distribuídos Entender os fundamentos de sistemas distribuídos e da internet."},
+  {c:"EF69CO09",e:"6º ao 9º ano (por etapa)",x:"Cultura Digital",t:"Compreender os conceitos de paralelismo, concorrência e armazenamento/ processamento distribuídos."},
+  {c:"EF69CO10",e:"6º ao 9º ano (por etapa)",x:"Cultura Digital",t:"Entender como é a estrutura e funcionamento da internet."},
+  {c:"EF69CO11",e:"6º ao 9º ano (por etapa)",x:"Cultura Digital",t:"Apresentar conduta e linguagem apropriadas ao se comunicar em ambiente digital, considerando a ética e o respeito."},
+  {c:"EF69CO12",e:"6º ao 9º ano (por etapa)",x:"Cultura Digital",t:"Analisar o consumo de tecnologia na sociedade, compreendendo criticamente o caminho da produção dos recursos bem como aspectos ligados à obsolescência e a sustentabilidade."},
+  {c:"EM13CO01",e:"Ensino Médio",x:null,t:"Explorar e construir a solução de problemas por meio da reutilização de partes de soluções existentes."},
+  {c:"EM13CO02",e:"Ensino Médio",x:null,t:"Explorar e construir a solução de problemas por meio de refinamentos, utilizando diversos níveis de abstração desde a especificação até a implementação."},
+  {c:"EM13CO03",e:"Ensino Médio",x:null,t:"Identificar o comportamento dos algoritmos no que diz respeito ao consumo de recursos como tempo de execução, espaço de memória e energia, entre outros."},
+  {c:"EM13CO04",e:"Ensino Médio",x:null,t:"Reconhecer o conceito de metaprogramação como uma forma de generalização na construção de programas, permitindo que algoritmos sejam entrada ou saída para outros algoritmos."},
+  {c:"EM13CO05",e:"Ensino Médio",x:null,t:"Identificar os limites da Computação para diferenciar o que pode ou não ser automatizado, buscando uma compreensão mais ampla dos limites dos processos mentais envolvidos na resolução de problemas."},
+  {c:"EM13CO06",e:"Ensino Médio",x:null,t:"Avaliar software levando em consideração diferentes características e métricas associadas."},
+  {c:"EM13CO07",e:"Ensino Médio",x:null,t:"Compreender as diferentes tecnologias, bem como equipamentos, protocolos e serviços envolvidos no funcionamento de redes de computadores, identificando suas possibilidades de escala e confiabilidade."},
+  {c:"EM13CO08",e:"Ensino Médio",x:null,t:"Entender como mudanças na tecnologia afetam a segurança, incluindo novas maneiras de preservar sua privacidade e dados pessoais on-line, reportando suspeitas e buscando ajuda em situações de risco. Analisar situações do mundo contemporâneo, selecionando técnicas computacionais apropriadas para a solução de problemas."},
+  {c:"EM13CO09",e:"Ensino Médio",x:null,t:"Identificar tecnologias digitais, sua presença e formas de uso, nas diferentes atividades no mundo do trabalho."},
+  {c:"EM13CO10",e:"Ensino Médio",x:null,t:"Conhecer os fundamentos da Inteligência Artificial, comparando-a com a inteligência humana, analisando suas potencialidades, riscos e limites."},
+  {c:"EM13CO11",e:"Ensino Médio",x:null,t:"Criar e explorar modelos computacionais simples para simular e fazer previsões, identificando sua importância no desenvolvimento científico."},
+  {c:"EM13CO12",e:"Ensino Médio",x:null,t:"Produzir, analisar, gerir e compartilhar informações a partir de dados, utilizando princípios de ciência de dados."},
+  {c:"EM13CO13",e:"Ensino Médio",x:null,t:"Analisar e utilizar as diferentes formas de representação e consulta a dados em formato digital para pesquisas científicas."},
+  {c:"EM13CO14",e:"Ensino Médio",x:null,t:"Avaliar a confiabilidade das informações encontradas em meio digital, investigando seus modos de construção e considerando a autoria, a estrutura e o propósito da mensagem."},
+  {c:"EM13CO15",e:"Ensino Médio",x:null,t:"Analisar a interação entre usuários e artefatos computacionais, abordando aspectos da experiência do usuário e promovendo reflexão sobre a qualidade do uso dos artefatos nas esferas do trabalho, do lazer e do estudo."},
+  {c:"EM13CO16",e:"Ensino Médio",x:null,t:"Desenvolver projetos com robótica, utilizando artefatos físicos ou simuladores."},
+  {c:"EM13CO17",e:"Ensino Médio",x:null,t:"Construir redes virtuais de interação e colaboração, favorecendo o desenvolvimento de projetos de forma segura, legal e ética."},
+  {c:"EM13CO18",e:"Ensino Médio",x:null,t:"Planejar e gerenciar projetos integrados às áreas de conhecimento de forma colaborativa, solucionando problemas, usando diversos artefatos computacionais."},
+  {c:"EM13CO19",e:"Ensino Médio",x:null,t:"Expor, argumentar e negociar propostas, produtos e serviços, utilizando diferentes mídias e ferramentas digitais."},
+  {c:"EM13CO20",e:"Ensino Médio",x:null,t:"Criar conteúdos, disponibilizando-os em ambientes virtuais para publicação e compartilhamento, avaliando a confiabilidade e as consequências da disseminação dessas informações."},
+  {c:"EM13CO21",e:"Ensino Médio",x:null,t:"Comunicar ideias complexas de forma clara por meio de objetos digitais como mapas conceituais, infográficos, hipertextos e outros."},
+  {c:"EM13CO22",e:"Ensino Médio",x:null,t:"Produzir e publicar conteúdo como textos, imagens, áudios, vídeos e suas associações, bem como ferramentas para sua integração, organização e apresentação, utilizando diferentes mídias digitais."},
+  {c:"EM13CO23",e:"Ensino Médio",x:null,t:"Analisar criticamente as experiências em comunidades virtuais e as relações advindas da interação e comunicação com outras pessoas, bem como seus impactos na sociedade."},
+  {c:"EM13CO24",e:"Ensino Médio",x:null,t:"Identificar e reconhecer como as redes sociais e artefatos computacionais em geral interferem na saúde física e mental de seus usuários."},
+  {c:"EM13CO25",e:"Ensino Médio",x:null,t:"Dialogar em ambientes virtuais com segurança e respeito às diferenças culturais e pessoais, reconhecendo e denunciando atitudes abusivas."},
+  {c:"EM13CO26",e:"Ensino Médio",x:null,t:"Aplicar os conceitos e pressupostos do direito digital em sua conduta e experiências com o cotidiano da cultura digital, bem como na produção e uso de artefatos computacionais."},
+];
+
+
+/* ---------- BNCC de Computação: do formulário para o prompt ---------- */
+const MAPA_ANO_BNCC = {
+  "Berçário / Maternal":"Educação Infantil","G4 (4 anos)":"Educação Infantil","G5 (5 anos)":"Educação Infantil",
+  "1º ano — Fundamental I":"1º ano","2º ano — Fundamental I":"2º ano","3º ano — Fundamental I":"3º ano",
+  "4º ano — Fundamental I":"4º ano","5º ano — Fundamental I":"5º ano",
+  "6º ano — Fundamental II":"6º ano","7º ano — Fundamental II":"7º ano",
+  "8º ano — Fundamental II":"8º ano","9º ano — Fundamental II":"9º ano",
+  "1ª série — Ensino Médio":"Ensino Médio","2ª série — Ensino Médio":"Ensino Médio","3ª série — Ensino Médio":"Ensino Médio",
+  "EJA I":"1º ao 5º ano (por etapa)","EJA II":"6º ao 9º ano (por etapa)",
+  "Curso técnico":"Ensino Médio","Ensino superior":"Ensino Médio"
+};
+const BNCC_PAR = {
+  "1º ano":"1º ao 5º ano (por etapa)","2º ano":"1º ao 5º ano (por etapa)","3º ano":"1º ao 5º ano (por etapa)",
+  "4º ano":"1º ao 5º ano (por etapa)","5º ano":"1º ao 5º ano (por etapa)",
+  "6º ano":"6º ao 9º ano (por etapa)","7º ano":"6º ao 9º ano (por etapa)",
+  "8º ano":"6º ao 9º ano (por etapa)","9º ano":"6º ao 9º ano (por etapa)"
+};
+const FORMATOS = [
+  {id:"", nome:"Padrão do gerador", dica:"A IA segue a estrutura descrita em FORMATO DA RESPOSTA."},
+  {id:"texto", nome:"Texto corrido", dica:"Texto contínuo, com títulos e parágrafos.",
+   regra:"Entregue tudo em texto corrido, organizado com títulos e subtítulos e parágrafos bem construídos. Use listas só quando forem indispensáveis."},
+  {id:"tabela", nome:"Tabela", dica:"Conteúdo organizado em uma ou mais tabelas.",
+   regra:"Organize o conteúdo em uma ou mais tabelas (em Markdown), com colunas bem nomeadas. Fora das tabelas, escreva no máximo uma frase de introdução por tabela."},
+  {id:"slides", nome:"Apresentação em slides", dica:"Slide a slide, para colar no Gamma, Canva, PowerPoint ou Google Slides.",
+   regra:"Entregue o conteúdo como apresentação em slides, numerados (Slide 1, Slide 2...). Para cada slide: título curto, de 3 a 5 tópicos breves, sugestão de imagem ou recurso visual e notas do apresentador com o que o professor deve falar. Entre 8 e 15 slides, salvo se o conteúdo exigir outro número. O texto deve poder ser colado direto em um editor de apresentações ou em uma IA de slides (Gamma, Canva, Copilot)."},
+  {id:"documento", nome:"Documento para impressão", dica:"Pronto para imprimir e entregar aos estudantes ou à coordenação.",
+   regra:"Entregue um documento pronto para impressão: cabeçalho (escola, componente, ano/série, professor(a), data, nome do estudante quando couber), seções numeradas, espaço para respostas quando houver atividades e linguagem dirigida a quem vai ler o papel. Evite elementos que dependam de cor ou de tela."},
+  {id:"quiz", nome:"Quiz ou questionário", dica:"Questões com alternativas e gabarito comentado.",
+   regra:"Transforme o conteúdo em um quiz ou questionário: questões numeradas, com predominância de múltipla escolha (4 alternativas, uma correta e distratores plausíveis), alguma questão aberta quando fizer sentido, e ao final um gabarito comentado explicando por que cada alternativa está certa ou errada. O formato deve poder ser colado no Google Forms, Kahoot ou Wordwall."},
+  {id:"mapa", nome:"Mapa mental ou infográfico", dica:"Estrutura hierárquica, com código Mermaid para gerar o diagrama.",
+   regra:"Entregue o conteúdo como mapa mental ou infográfico: primeiro a estrutura hierárquica em tópicos (ideia central, ramos e sub-ramos com palavras-chave curtas); depois o mesmo mapa em código Mermaid (mindmap) dentro de um bloco de código, para gerar o diagrama no Mermaid Live, no Napkin ou no Canva."}
+];
+
+
+/* ============================================================
+   Caderno de Contexto — engenharia de contexto para professores
+   Camadas: 1 referência curricular · 2 perfil docente · 3 escola
+   4 turma · 5 memória da turma · 6 regras de trabalho · 7 pedido
+   ============================================================ */
+
+const I = (d, extra="") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ${extra}>${d}</svg>`;
+const ICO = {
+  casa: I('<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>'),
+  perfil: I('<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5c1.2-3.8 4-5.6 7.5-5.6s6.3 1.8 7.5 5.6"/>'),
+  turma: I('<circle cx="8" cy="9" r="3"/><circle cx="16.5" cy="9.5" r="2.5"/><path d="M2.8 19.5c.8-3 2.8-4.6 5.2-4.6s4.4 1.6 5.2 4.6"/><path d="M13.6 15.2c.9-.6 1.9-.9 2.9-.9 2 0 3.6 1.3 4.3 3.9"/>'),
+  gerar: I('<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="3"/>'),
+  caderno: I('<path d="M5 3.5h11a3 3 0 0 1 3 3V21H8a3 3 0 0 1-3-3z"/><path d="M5 18a3 3 0 0 1 3-3h11"/><path d="M9 7.5h6M9 10.5h4"/>'),
+  escola: I('<path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M9.5 21v-5h5v5"/><path d="M12 9.5v.01"/>'),
+  copiar: I('<rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/><path d="M15.5 8.5V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5"/>'),
+  baixar: I('<path d="M12 3.5v12M7 11l5 5 5-5"/><path d="M4 20.5h16"/>'),
+  mais: I('<path d="M12 5v14M5 12h14"/>'),
+  lixo: I('<path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13M9 7V4h6v3"/>'),
+  editar: I('<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>'),
+  luz: I('<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.2h5c0-.9.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/>'),
+  alerta: I('<path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5M12 17.2v.01"/>'),
+  escudo: I('<path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.2 7.5 9.5 4.3-1.3 7.5-4.9 7.5-9.5V6z"/><path d="m9 12 2 2 4-4"/>'),
+  camadas: I('<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>'),
+  memoria: I('<path d="M12 7.5V12l3 2"/><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3 4v4h4"/>'),
+  bncc: I('<path d="M4 4.5h7v15H4zM13 4.5h7v15h-7z"/><path d="M6.5 8.5h2M6.5 11.5h2M15.5 8.5h2M15.5 11.5h2"/>'),
+  seta: I('<path d="M5 12h14M13 6l6 6-6 6"/>'),
+  enviar: I('<path d="M21 3 10 14"/><path d="M21 3l-7 18-4-7-7-4z"/>'),
+  importar: I('<path d="M12 20.5v-12M7 13l5-5 5 5"/><path d="M4 3.5h16"/>'),
+  /* ícones dos ladrilhos flutuantes */
+  chat: I('<path d="M4 5h16v11H9l-5 4z"/>'), wifi: I('<path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.6 15.8a5 5 0 0 1 6.8 0"/><path d="M12 19.2v.01"/>'),
+  engrenagem: I('<circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.9 1.9M16.6 16.6l1.9 1.9M5.5 18.5l1.9-1.9M16.6 7.4l1.9-1.9"/>'),
+  grafico: I('<path d="M4 20V4M4 20h16"/><path d="m7 15 4-4 3 3 5-6"/>'), cerebro: I('<rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/><path d="M10 10h4v4h-4z"/>'),
+  globo: I('<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 3.6 5.4 3.6 8.5s-1.1 5.9-3.6 8.5c-2.5-2.6-3.6-5.4-3.6-8.5S9.5 6.1 12 3.5z"/>'),
+  nuvem: I('<path d="M7 18.5a4.5 4.5 0 0 1-.6-9 6 6 0 0 1 11.4 1.6A3.8 3.8 0 0 1 17.5 18.5z"/>'), calendario: I('<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4M7.5 13h2M11 13h2M14.5 13h2M7.5 16.5h2M11 16.5h2"/>'),
+  video: I('<rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="m16 10 5-3v10l-5-3z"/>'), livro: I('<path d="M12 6.5C10 5 7 4.5 3.5 5v13.5c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5c-3.5-.5-6.5 0-8.5 1.5z"/><path d="M12 6.5V20"/>'),
+  lampada: I('<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.2h5c0-.9.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/>'),
+  codigo: I('<path d="m8.5 8-4 4 4 4M15.5 8l4 4-4 4M13.5 5l-3 14"/>'), lupa: I('<circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5.5 5.5"/>'),
+  joystick: I('<path d="M6.5 8h11a4 4 0 0 1 4 4.5l-.6 3.6a2.5 2.5 0 0 1-4.3 1.2L14.4 15H9.6l-2.2 2.3a2.5 2.5 0 0 1-4.3-1.2l-.6-3.6A4 4 0 0 1 6.5 8z"/><path d="M7.5 11v3M6 12.5h3M16 12h.01M18 13.5h.01"/>'),
+};
+
+/* ---------- Listas pré-carregadas ---------- */
+const ETAPAS_TURMA = [
+  ["1º ano do Ensino Fundamental","1º ano"],["2º ano do Ensino Fundamental","2º ano"],["3º ano do Ensino Fundamental","3º ano"],
+  ["4º ano do Ensino Fundamental","4º ano"],["5º ano do Ensino Fundamental","5º ano"],["6º ano do Ensino Fundamental","6º ano"],
+  ["7º ano do Ensino Fundamental","7º ano"],["8º ano do Ensino Fundamental","8º ano"],["9º ano do Ensino Fundamental","9º ano"],
+  ["1ª série do Ensino Médio","Ensino Médio"],["2ª série do Ensino Médio","Ensino Médio"],["3ª série do Ensino Médio","Ensino Médio"],
+  ["4ª série (técnico integrado)","Ensino Médio"],["Curso técnico subsequente","Ensino Médio"],["EJA — Ensino Médio","Ensino Médio"]
+];
+const FORMACOES = ["Formação geral básica","Técnico integrado ao Ensino Médio","Técnico concomitante","Técnico subsequente","Itinerário de formação técnica e profissional"];
+const EIXOS = ["Ambiente e Saúde","Controle e Processos Industriais","Desenvolvimento Educacional e Social","Gestão e Negócios","Informação e Comunicação","Infraestrutura","Produção Alimentícia","Produção Cultural e Design","Produção Industrial","Recursos Naturais","Segurança","Turismo, Hospitalidade e Lazer","Militar"];
+const CURSOS = ["Técnico em Informática","Técnico em Informática para Internet","Técnico em Desenvolvimento de Sistemas","Técnico em Redes de Computadores","Técnico em Administração","Técnico em Logística","Técnico em Recursos Humanos","Técnico em Enfermagem","Técnico em Análises Clínicas","Técnico em Agropecuária","Técnico em Agroindústria","Técnico em Edificações","Técnico em Eletrotécnica","Técnico em Eletrônica","Técnico em Mecânica","Técnico em Química","Técnico em Meio Ambiente","Técnico em Guia de Turismo","Técnico em Hospedagem","Técnico em Multimídia","Técnico em Segurança do Trabalho","Técnico em Nutrição e Dietética"];
+const RECURSOS = ["Laboratório de informática","Laboratório técnico do curso","Projetor","Internet estável","Internet instável","Sem internet em sala","Celulares dos estudantes","Tablets ou notebooks","Kits de robótica ou eletrônica","Biblioteca","Quadro e papel apenas"];
+const METODOLOGIAS = ["Aprendizagem baseada em projetos","Aprendizagem baseada em problemas","Sala de aula invertida","Rotação por estações","Gamificação","Estudo de caso","Atividades desplugadas","Trabalho em grupo","Aula expositiva dialogada","Prática de laboratório"];
+const INTERESSES = ["Jogos","Redes sociais","Esportes","Música","Tecnologia","Empreendedorismo","Meio ambiente","Mercado de trabalho","Cultura local","Vestibular e ENEM"];
+const DIFICULDADES = ["Leitura e interpretação","Matemática básica","Escrita","Concentração","Pouco acesso à internet em casa","Defasagem de conteúdos anteriores","Faltas frequentes","Turma muito heterogênea","Timidez para participar"];
+const TIPOS = ["Plano de aula","Sequência didática","Avaliação ou prova","Rubrica de avaliação","Lista de exercícios","Estudo de caso","Roteiro de prática de laboratório","Projeto (aprendizagem baseada em projetos)","Atividade desplugada","Texto de apoio ou material de leitura","Atividade de revisão","Adaptação de atividade (DUA)","Situação-problema do mundo do trabalho","Jogo ou dinâmica"];
+const TAGS_POS = ["Engajou a turma","Prática funcionou","Nível adequado","Formato ajudou","Boa ligação com o mundo do trabalho","Trabalho em grupo funcionou","Tempo bem dimensionado"];
+const TAGS_NEG = ["Muito longo","Faltou prática","Nível alto demais","Nível fácil demais","Pouco engajamento","Linguagem difícil","Faltou tempo","Recursos indisponíveis","Formato não ajudou","Habilidades inadequadas"];
+const RECOMENDA = {
+  "Muito longo":"Reduzir a extensão das atividades e dos textos; preferir menos itens, mais bem explorados.",
+  "Faltou prática":"Incluir mais atividades práticas, mão na massa ou de laboratório.",
+  "Nível alto demais":"Baixar o nível de complexidade, partir de exemplos resolvidos e progredir aos poucos.",
+  "Nível fácil demais":"Aumentar o desafio, com tarefas de níveis mais altos da taxonomia de Bloom (analisar, avaliar, criar).",
+  "Pouco engajamento":"Usar estratégias mais ativas e ligadas aos interesses da turma.",
+  "Linguagem difícil":"Simplificar a linguagem dirigida aos estudantes.",
+  "Faltou tempo":"Ajustar a proposta ao tempo real de aula, com uma versão mínima e extensões opcionais.",
+  "Recursos indisponíveis":"Prever alternativas sem internet ou desplugadas para cada atividade.",
+  "Formato não ajudou":"Experimentar outro formato de saída.",
+  "Habilidades inadequadas":"Conferir com mais rigor a correspondência das habilidades com a etapa e o componente."
+};
+const COMPETENCIA_5 = "Compreender, utilizar e criar tecnologias digitais de informação e comunicação de forma crítica, significativa, reflexiva e ética nas diversas práticas sociais (incluindo as escolares) para se comunicar, acessar e disseminar informações, produzir conhecimentos, resolver problemas e exercer protagonismo e autoria na vida pessoal e coletiva.";
+const COMPETENCIAS_GERAIS = ["1 Conhecimento","2 Pensamento científico, crítico e criativo","3 Repertório cultural","4 Comunicação","5 Cultura digital","6 Trabalho e projeto de vida","7 Argumentação","8 Autoconhecimento e autocuidado","9 Empatia e cooperação","10 Responsabilidade e cidadania"];
+const IAS_USO = ["chatgpt","gemini","claude","copilot","deepseek"];
+
+/* ---------- Estado (fica só neste aparelho) ---------- */
+const CHAVE = "cdc.v1";
+const VAZIO = () => ({perfil:{}, escola:{}, turmas:[], registros:[], sinteses:{}, ultimo:{}, pedido:{}});
+let S = VAZIO();
+try { const raw = localStorage.getItem(CHAVE); if(raw) S = Object.assign(VAZIO(), JSON.parse(raw)); } catch(e) {}
+function salvar(){ try { localStorage.setItem(CHAVE, JSON.stringify(S)); } catch(e) { toast("Não foi possível salvar neste navegador"); } }
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const hoje = () => new Date().toISOString().slice(0,10);
+const dataBR = iso => { if(!iso) return ""; const [a,m,d] = iso.split("-"); return `${d}/${m}/${a}`; };
+const lista = arr => (arr || []).filter(Boolean).join("; ");
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+/* ---------- Tema claro/escuro ---------- */
+$("#tema").addEventListener("click", () => {
+  const novo = document.documentElement.getAttribute("data-theme") === "escuro" ? "claro" : "escuro";
+  document.documentElement.setAttribute("data-theme", novo);
+  try { localStorage.setItem("cdc.tema", novo); } catch(e) {}
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", novo === "escuro" ? "#070d1f" : "#eef4ff");
+});
+
+/* ---------- Avisos rápidos ---------- */
+let tt;
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("on"), 2200); }
+async function copiar(texto, msg){
+  try { await navigator.clipboard.writeText(texto); }
+  catch(e){
+    const ta = document.createElement("textarea"); ta.value = texto; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch(_) {} ta.remove();
+  }
+  toast(msg || "Copiado!");
+}
+function baixar(nome, texto, tipo){
+  const b = new Blob([texto], {type: tipo || "text/markdown;charset=utf-8"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = nome;
+  document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+
+/* ---------- Componentes de formulário ---------- */
+function campoTexto(id, rot, val, ph, extra){ return `<div class="field ${extra||""}"><label for="${id}">${rot}</label><input type="text" id="${id}" value="${esc(val)}" placeholder="${esc(ph||"")}"></div>`; }
+function campoArea(id, rot, val, ph, extra, hint){ return `<div class="field ${extra||""}"><label for="${id}">${rot}</label><textarea id="${id}" placeholder="${esc(ph||"")}">${esc(val)}</textarea>${hint?`<div class="hint">${hint}</div>`:""}</div>`; }
+function campoSel(id, rot, opcoes, val, extra, vazio){
+  return `<div class="field ${extra||""}"><label for="${id}">${rot}</label><select id="${id}">${vazio!==false?`<option value="">${vazio||"Selecione"}</option>`:""}${opcoes.map(o=>{ const v = Array.isArray(o)?o[0]:o; return `<option${v===val?" selected":""}>${esc(v)}</option>`; }).join("")}</select></div>`;
+}
+function campoChips(id, rot, opcoes, sel, neg){
+  return `<div class="field full"><span class="lbl">${rot}</span><div class="chips" data-chips="${id}">${opcoes.map(o=>`<button type="button" class="chip${neg&&neg.includes(o)?" neg":""}" aria-pressed="${(sel||[]).includes(o)}">${esc(o)}</button>`).join("")}</div></div>`;
+}
+function ligarChips(){
+  $$("[data-chips] .chip").forEach(b => b.addEventListener("click", () => b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") !== "true")));
+}
+const lerChips = id => $$(`[data-chips="${id}"] .chip[aria-pressed="true"]`).map(b => b.textContent);
+const val = id => { const e = document.getElementById(id); return e ? e.value.trim() : ""; };
+
+/* ---------- Navegação ---------- */
+const ABAS = [
+  {id:"inicio", nome:"Início", ico:"casa"},
+  {id:"contexto", nome:"Meu contexto", ico:"perfil"},
+  {id:"turmas", nome:"Turmas", ico:"turma"},
+  {id:"gerar", nome:"Gerar", ico:"gerar"},
+  {id:"caderno", nome:"Caderno", ico:"caderno"},
+];
+function montarAbas(atual){
+  $("#tabs").innerHTML = ABAS.map(a => `<a href="#${a.id}" class="${a.id===atual?"on":""}" ${a.id===atual?'aria-current="page"':""}>${ICO[a.ico]}<span>${a.nome}</span></a>`).join("");
+}
+function rota(){
+  const [id, arg] = (location.hash.slice(1) || "inicio").split("/");
+  const aba = ABAS.find(a => a.id === id) ? id : "inicio";
+  montarAbas(aba);
+  const v = $("#view");
+  v.className = ""; void v.offsetWidth; v.className = "view";
+  ({inicio:telaInicio, contexto:telaContexto, turmas:telaTurmas, gerar:telaGerar, caderno:telaCaderno})[aba](arg);
+  window.scrollTo({top:0, behavior:"instant" in window ? "instant" : "auto"});
+}
+window.addEventListener("hashchange", rota);
+
+const perfilOk = () => !!(S.perfil.componentes);
+const escolaOk = () => !!(S.escola.tipo || S.escola.cursos || (S.escola.recursos||[]).length);
+
+/* ============================================================
+   INÍCIO
+   ============================================================ */
+function telaInicio(){
+  const tiles = [
+    ["chat",  4, 26, 70, 0], ["wifi", 26, 6, 54, .6], ["engrenagem", 44, 30, 96, 1.2], ["grafico", 74, 10, 62, .3],
+    ["cerebro", 20, 46, 84, 1.8], ["globo", 66, 40, 70, .9], ["nuvem", 84, 30, 50, 2.2], ["calendario", 6, 60, 58, 1.5],
+    ["livro", 46, 62, 66, .4], ["video", 76, 62, 56, 2.6], ["lampada", 30, 76, 48, 1], ["codigo", 62, 80, 46, 2], ["joystick", 88, 50, 44, 1.4], ["lupa", 2, 8, 40, 2.8]
+  ];
+  const nT = S.turmas.length, nR = S.registros.length;
+  $("#view").innerHTML = `
+  <section class="hero">
+    <div>
+      <span class="badge"><i></i>Engenharia de contexto para professores</span>
+      <h1>A IA trabalha melhor quando <span class="grad">conhece sua turma</span>.</h1>
+      <p class="lead">Conte uma vez quem você é, como é sua escola e como são suas turmas. O Caderno monta o contexto pedagógico, alinhado à BNCC e à BNCC Computação, para você usar em qualquer IA. E a cada aula registrada, o próximo material sai melhor.</p>
+      <div class="row">
+        <a class="btn pri" href="#${perfilOk() ? (nT ? "gerar" : "turmas") : "contexto"}">${ICO.seta}${perfilOk() ? (nT ? "Gerar um contexto" : "Cadastrar uma turma") : "Começar agora"}</a>
+        <a class="btn ghost" href="#caderno">${ICO.caderno}Caderno de Memória</a>
+      </div>
+    </div>
+    <div class="tiles" aria-hidden="true">
+      ${tiles.map(([ic, x, y, s, d], i) => `<span class="tile${i%5===4?" fade":""}" style="left:${x}%; top:${y}%; width:${s}px; height:${s}px; animation-delay:-${d}s">${ICO[ic]}</span>`).join("")}
+      <span class="base"></span>
+    </div>
+  </section>
+
+  <section class="passos">
+    <a class="card passo" href="#contexto" style="text-decoration:none; color:inherit">
+      <span class="num">1</span><span class="ico-chip">${ICO.perfil}</span>
+      <h3>Configure uma vez</h3>
+      <p>Seu perfil docente e sua escola: componentes, curso técnico, recursos e o mundo do trabalho da região. Cerca de 5 minutos.</p>
+      <span class="status"><i class="dot ${perfilOk()?"ok":""}"></i>Perfil ${perfilOk()?"preenchido":"pendente"} · <i class="dot ${escolaOk()?"ok":""}"></i>Escola ${escolaOk()?"preenchida":"pendente"}</span>
+    </a>
+    <a class="card passo" href="#gerar" style="text-decoration:none; color:inherit">
+      <span class="num">2</span><span class="ico-chip">${ICO.gerar}</span>
+      <h3>Peça em três perguntas</h3>
+      <p>Para qual turma, que material sobre qual tema e em que formato. Você recebe o pacote de contexto para colar na IA de sua escolha.</p>
+      <span class="status"><i class="dot ${nT?"ok":""}"></i>${nT} turma${nT===1?"":"s"} cadastrada${nT===1?"":"s"}</span>
+    </a>
+    <a class="card passo" href="#caderno" style="text-decoration:none; color:inherit">
+      <span class="num">3</span><span class="ico-chip">${ICO.memoria}</span>
+      <h3>Registre e melhore</h3>
+      <p>Depois da aula, um minuto: o que funcionou e o que mudaria. Isso vira a memória da turma, e a IA passa a levar em conta o que ela já viveu.</p>
+      <span class="status"><i class="dot ${nR?"ok":""}"></i>${nR} registro${nR===1?"":"s"} no Caderno</span>
+    </a>
+  </section>
+
+  <section class="card" style="margin-top:18px">
+    <h2><span class="ico-chip">${ICO.luz}</span>Por que contexto, e não só prompt?</h2>
+    <p class="sub">Os modelos de IA atuais entendem bem pedidos simples. O que falta para eles é saber da sua realidade.</p>
+    <div class="porque">
+      <div><span class="ico-chip">${ICO.camadas}</span><p><b>Sete camadas organizadas.</b> Referência curricular, perfil, escola, turma, memória, regras de trabalho e o pedido da vez, cada uma curta e com título.</p></div>
+      <div><span class="ico-chip">${ICO.bncc}</span><p><b>BNCC a partir do texto oficial.</b> O contexto leva o código e o texto das habilidades de Computação da etapa. A IA escolhe e justifica; você valida.</p></div>
+      <div><span class="ico-chip">${ICO.memoria}</span><p><b>Memória que melhora o resultado.</b> O que já foi trabalhado e o que funcionou entra no contexto da próxima aula, sem repetir o que não deu certo.</p></div>
+      <div><span class="ico-chip">${ICO.escudo}</span><p><b>Privacidade por padrão.</b> Nada sobre os estudantes é pedido. Tudo fica neste aparelho, e você pode exportar ou apagar quando quiser.</p></div>
+    </div>
+  </section>`;
+}
+
+/* ============================================================
+   MEU CONTEXTO (camadas 2 e 3)
+   ============================================================ */
+function telaContexto(){
+  const p = S.perfil, e = S.escola;
+  $("#view").innerHTML = `
+  <div class="page-head"><span class="eyebrow">Camadas 2 e 3 · preenchidas uma vez</span><h1>Meu contexto</h1>
+    <p>Essas informações entram em todo pacote de contexto. Você pode mudar quando quiser.</p></div>
+  <section class="card">
+    <h2><span class="ico-chip">${ICO.perfil}</span>Perfil docente</h2>
+    <p class="sub">O que a IA precisa saber sobre você para falar a sua língua.</p>
+    <div class="fields">
+      ${campoTexto("p-comp", "Componentes ou unidades curriculares que leciona", p.componentes, "Ex.: Matemática; Lógica de Programação; Banco de Dados", "full")}
+      ${campoTexto("p-form", "Área de formação", p.formacao, "Ex.: Licenciatura em Matemática")}
+      ${campoSel("p-ia", "Familiaridade com IA", ["Iniciante","Uso às vezes","Uso com frequência"], p.ia)}
+      ${campoChips("p-met", "Metodologias que você costuma usar", METODOLOGIAS, p.metodologias)}
+      ${campoSel("p-ling", "Como prefere as respostas da IA", ["Diretas e objetivas","Detalhadas, com exemplos","Passo a passo, para quem está começando"], p.linguagem)}
+      ${campoSel("p-fmt", "Formato que mais usa (sugestão inicial)", FORMATOS.filter(f=>f.id).map(f=>f.nome), p.formato)}
+    </div>
+  </section>
+  <section class="card">
+    <h2><span class="ico-chip">${ICO.escola}</span>Contexto da escola</h2>
+    <p class="sub">Condições reais de trabalho. Não informe nomes de pessoas.</p>
+    <div class="fields">
+      ${campoSel("e-tipo", "Tipo de escola", ["Escola estadual de educação profissional","Instituto Federal","Escola de Ensino Médio com itinerário técnico","Escola de Ensino Fundamental","Outra"], e.tipo)}
+      ${campoSel("e-eixo", "Eixo tecnológico principal", EIXOS, e.eixo, "", "Não se aplica / vários")}
+      <div class="field full"><label for="e-cursos">Cursos técnicos da escola</label><input type="text" id="e-cursos" list="l-cursos" value="${esc(e.cursos)}" placeholder="Ex.: Técnico em Informática; Técnico em Administração"><datalist id="l-cursos">${CURSOS.map(c=>`<option value="${esc(c)}">`).join("")}</datalist></div>
+      ${campoChips("e-rec", "Recursos disponíveis", RECURSOS, e.recursos)}
+      ${campoArea("e-terr", "Território e mundo do trabalho", e.territorio, "Ex.: região agrícola com cooperativas; polo de comércio e serviços; empresas de tecnologia na capital", "full", "Ajuda a IA a criar situações-problema reais para a sua região.")}
+    </div>
+  </section>
+  <div class="row end" style="margin-top:18px"><button class="btn pri" id="salvar-ctx">${ICO.escudo}Salvar meu contexto</button></div>`;
+  ligarChips();
+  $("#salvar-ctx").addEventListener("click", () => {
+    S.perfil = {componentes:val("p-comp"), formacao:val("p-form"), ia:val("p-ia"), metodologias:lerChips("p-met"), linguagem:val("p-ling"), formato:val("p-fmt")};
+    S.escola = {tipo:val("e-tipo"), eixo:val("e-eixo"), cursos:val("e-cursos"), recursos:lerChips("e-rec"), territorio:val("e-terr")};
+    salvar(); toast("Contexto salvo");
+    setTimeout(()=>{ location.hash = S.turmas.length ? "gerar" : "turmas"; }, 500);
+  });
+}
+
+/* ============================================================
+   TURMAS (camada 4)
+   ============================================================ */
+function telaTurmas(arg){
+  if(arg){ return formTurma(arg === "nova" ? null : S.turmas.find(t => t.id === arg)); }
+  $("#view").innerHTML = `
+  <div class="page-head row"><div><span class="eyebrow">Camada 4 · uma vez por turma</span><h1>Turmas</h1>
+    <p>O perfil coletivo de cada turma. Sem nomes nem dados pessoais de estudantes.</p></div><span class="spacer"></span>
+    <a class="btn pri" href="#turmas/nova">${ICO.mais}Nova turma</a></div>
+  ${S.turmas.length ? `<div class="turmas">${S.turmas.map(t => {
+      const n = S.registros.filter(r => r.turmaId === t.id).length;
+      return `<article class="card turma"><h3>${esc(t.nome)}</h3><div class="meta">${esc(t.etapa)}${t.curso?" · "+esc(t.curso):""}</div>
+      <span class="tag">${esc(t.formacao||"")}</span>${t.n?`<span class="tag">${esc(t.n)} estudantes</span>`:""}<span class="tag">${n} registro${n===1?"":"s"}</span>
+      <div class="row" style="margin-top:14px"><a class="btn sm pri" href="#gerar/${t.id}">${ICO.gerar}Gerar</a><a class="btn sm" href="#caderno/${t.id}">${ICO.caderno}Caderno</a><a class="btn sm ghost" href="#turmas/${t.id}" aria-label="Editar turma">${ICO.editar}</a></div></article>`;
+    }).join("")}</div>`
+  : `<div class="card vazio">${ICO.turma}<h2 style="justify-content:center; margin:10px 0 6px">Nenhuma turma ainda</h2><p>Cadastre a primeira para começar a gerar contextos.</p><a class="btn pri" href="#turmas/nova">${ICO.mais}Cadastrar turma</a></div>`}`;
+}
+function formTurma(t){
+  const novo = !t; t = t || {};
+  $("#view").innerHTML = `
+  <div class="page-head"><span class="eyebrow">Camada 4 · perfil da turma</span><h1>${novo ? "Nova turma" : "Editar turma"}</h1>
+    <p>Descreva a turma como coletivo. Nada que permita identificar um estudante.</p></div>
+  <section class="card">
+    <div class="fields">
+      ${campoTexto("t-nome", "Como você chama esta turma", t.nome, "Ex.: 2ª série A — Informática", "full")}
+      ${campoSel("t-etapa", "Etapa e ano", ETAPAS_TURMA, t.etapa)}
+      ${campoSel("t-form", "Formação", FORMACOES, t.formacao)}
+      <div class="field"><label for="t-curso">Curso técnico (se houver)</label><input type="text" id="t-curso" list="l-cursos2" value="${esc(t.curso)}" placeholder="Ex.: Técnico em Informática"><datalist id="l-cursos2">${CURSOS.map(c=>`<option value="${esc(c)}">`).join("")}</datalist></div>
+      ${campoTexto("t-comp", "Componente que você leciona nesta turma", t.componente || (S.perfil.componentes||"").split(/[;,]/)[0], "Ex.: Matemática")}
+      <div class="field"><label for="t-n">Número aproximado de estudantes</label><input type="number" id="t-n" min="1" max="80" value="${esc(t.n)}"></div>
+      ${campoSel("t-tempo", "Tempo de aula", ["50 minutos","1 hora","100 minutos (aula dupla)","2 horas","3 horas ou mais"], t.tempo)}
+      ${campoChips("t-int", "Interesses da turma", INTERESSES, t.interesses)}
+      ${campoChips("t-dif", "Dificuldades recorrentes", DIFICULDADES, t.dificuldades)}
+      ${campoArea("t-aces", "Necessidades de acessibilidade (descritas sem identificar)", t.acessibilidade, "Ex.: há estudantes com baixa visão; um estudante surdo com intérprete de Libras", "full")}
+      ${campoArea("t-obs", "Mais alguma coisa sobre a turma? (opcional)", t.obs, "Ex.: turma participativa, gosta de desafios em grupo", "full")}
+    </div>
+    <div class="aviso">${ICO.alerta}<span>Não escreva nomes, apelidos, laudos ou situações que permitam reconhecer um estudante. O contexto vai para a IA que você escolher.</span></div>
+  </section>
+  <div class="row" style="margin-top:18px">${novo ? "" : `<button class="btn danger" id="t-del">${ICO.lixo}Excluir turma</button>`}<span class="spacer"></span><a class="btn ghost" href="#turmas">Cancelar</a><button class="btn pri" id="t-salvar">${ICO.escudo}Salvar turma</button></div>`;
+  ligarChips();
+  $("#t-salvar").addEventListener("click", () => {
+    const d = {id:t.id || uid(), nome:val("t-nome") || "Turma sem nome", etapa:val("t-etapa"), formacao:val("t-form"), curso:val("t-curso"), componente:val("t-comp"),
+      n:val("t-n"), tempo:val("t-tempo"), interesses:lerChips("t-int"), dificuldades:lerChips("t-dif"), acessibilidade:val("t-aces"), obs:val("t-obs")};
+    if(!d.etapa){ toast("Escolha a etapa e o ano"); $("#t-etapa").focus(); return; }
+    const i = S.turmas.findIndex(x => x.id === d.id);
+    if(i >= 0) S.turmas[i] = d; else S.turmas.push(d);
+    salvar(); toast("Turma salva"); location.hash = "turmas";
+  });
+  if(!novo) $("#t-del").addEventListener("click", () => {
+    if(!confirm("Excluir esta turma e todos os registros do Caderno dela?")) return;
+    S.turmas = S.turmas.filter(x => x.id !== t.id); S.registros = S.registros.filter(r => r.turmaId !== t.id);
+    delete S.sinteses[t.id]; delete S.ultimo[t.id]; salvar(); toast("Turma excluída"); location.hash = "turmas";
+  });
+}
+
+/* ============================================================
+   MEMÓRIA DA TURMA (camada 5) — síntese por regras simples
+   ============================================================ */
+function registrosDe(tid){ return S.registros.filter(r => r.turmaId === tid).sort((a,b) => (b.data||"").localeCompare(a.data||"") || (b.criado||0) - (a.criado||0)); }
+function sinteseAuto(tid){
+  const regs = registrosDe(tid);
+  if(!regs.length) return "";
+  const recentes = regs.slice(0, 6), antigos = regs.slice(6);
+  const out = [];
+  const media = (regs.reduce((s,r)=>s+(+r.nota||0),0) / regs.length).toFixed(1).replace(".", ",");
+  out.push(`Aulas registradas: ${regs.length} · média das avaliações: ${media}/5`);
+  out.push("\nJá trabalhado (mais recente primeiro):");
+  recentes.forEach(r => out.push(`- ${dataBR(r.data)}: ${r.material || "Material"}${r.tema ? " — " + r.tema : ""}${r.habilidades ? " (habilidades: " + r.habilidades + ")" : ""} · nota ${r.nota || "?"}/5`));
+  if(antigos.length){
+    const temas = [...new Set(antigos.map(r => r.tema).filter(Boolean))].slice(0, 8);
+    out.push(`- Antes disso: ${antigos.length} aula${antigos.length>1?"s":""}${temas.length ? " sobre " + temas.join(", ") : ""}.`);
+  }
+  const habs = [...new Set(regs.flatMap(r => (r.habilidades||"").split(/[,;\s]+/).filter(x => /^[A-Z]{2}\d{2}[A-Z]{2,4}\d{2,3}$/i.test(x)).map(x=>x.toUpperCase())))];
+  if(habs.length) out.push(`- Habilidades já contempladas: ${habs.join(", ")}.`);
+  const conta = tags => { const c = {}; regs.forEach(r => (r.tags||[]).filter(t => tags.includes(t)).forEach(t => c[t] = (c[t]||0)+1)); return Object.entries(c).sort((a,b)=>b[1]-a[1]); };
+  const pos = conta(TAGS_POS), neg = conta(TAGS_NEG);
+  const falas = cond => regs.filter(cond).map(r => (r.livre||"").trim()).filter(Boolean).slice(0, 3).map(s => s.length > 170 ? s.slice(0,167) + "..." : s);
+  out.push("\nO que funcionou:");
+  if(pos.length) out.push(`- ${pos.map(([t,n]) => `${t}${n>1?` (${n}x)`:""}`).join("; ")}.`);
+  falas(r => +r.nota >= 4).forEach(s => out.push(`- "${s}"`));
+  if(!pos.length && !falas(r => +r.nota >= 4).length) out.push("- Ainda sem registros positivos.");
+  out.push("\nO que não funcionou:");
+  if(neg.length) out.push(`- ${neg.map(([t,n]) => `${t}${n>1?` (${n}x)`:""}`).join("; ")}.`);
+  falas(r => +r.nota <= 2).forEach(s => out.push(`- "${s}"`));
+  if(!neg.length && !falas(r => +r.nota <= 2).length) out.push("- Nada registrado.");
+  out.push("\nRecomendações para a próxima aula:");
+  const recs = neg.map(([t]) => RECOMENDA[t]).filter(Boolean);
+  if(pos.length) recs.unshift(`Manter o que deu certo: ${pos.slice(0,3).map(p=>p[0].toLowerCase()).join(", ")}.`);
+  const ult = regs[0];
+  if(ult && (ult.mudaria||"").trim()) recs.push(`Na última aula, o(a) professor(a) disse que mudaria: ${ult.mudaria.trim()}`);
+  if(regs.length >= 3){
+    const ult3 = regs.slice(0,3).reduce((s,r)=>s+(+r.nota||0),0)/3, ant = regs.slice(3).length ? regs.slice(3).reduce((s,r)=>s+(+r.nota||0),0)/regs.slice(3).length : null;
+    if(ant !== null) recs.push(ult3 >= ant ? "As avaliações recentes estão estáveis ou melhores: siga na mesma linha." : "As avaliações recentes caíram: revise as estratégias das últimas aulas.");
+  }
+  recs.push("Dar progressão ao que já foi trabalhado, sem repetir atividades.");
+  [...new Set(recs)].forEach(r => out.push(`- ${r}`));
+  let txt = out.join("\n");
+  if(txt.length > 2800) txt = txt.slice(0, 2780) + "\n[...síntese resumida]";
+  return txt;
+}
+const sinteseDe = tid => (S.sinteses[tid] && S.sinteses[tid].trim()) ? S.sinteses[tid] : sinteseAuto(tid);
+
+/* ============================================================
+   MONTAGEM DO PACOTE DE CONTEXTO
+   ============================================================ */
+function etapaBNCC(t){ const e = ETAPAS_TURMA.find(x => x[0] === t.etapa); return e ? e[1] : "Ensino Médio"; }
+function habsComputacao(etapa){ const par = BNCC_PAR[etapa]; return BNCC_HAB.filter(h => h.e === etapa || (par && h.e === par)); }
+function compsComputacao(etapa){ return etapa === "Ensino Médio" ? BNCC_COMPETENCIAS.em : BNCC_COMPETENCIAS.ef; }
+const tecnica = t => /técnic/i.test(t.formacao || "") || !!t.curso;
+
+function montarCamadas(t, ped){
+  const etapa = etapaBNCC(t), habs = habsComputacao(etapa), comps = compsComputacao(etapa);
+  const porEixo = {}; habs.forEach(h => (porEixo[h.x] = porEixo[h.x] || []).push(h));
+  const p = S.perfil, e = S.escola;
+  const c = [];
+
+  // Abertura: como usar
+  c.push({n:"0", nome:"Como usar este contexto", tipo:"fixa", txt:
+`# CONTEXTO PEDAGÓGICO — CADERNO DE CONTEXTO
+Você vai apoiar um(a) professor(a) de escola pública de educação básica técnica. Abaixo estão o contexto do trabalho dele(a), organizado em camadas, as regras de trabalho e, por último, o pedido. Leia tudo antes de responder. Use o contexto para adequar o material à realidade da turma; não o repita na resposta.`,
+  nota:"A abertura diz à IA o que é cada parte. Textos com títulos claros são mais bem aproveitados pelos modelos."});
+
+  // 1 Referência curricular
+  let r1 = `## 1. REFERÊNCIA CURRICULAR (fonte oficial)
+Etapa da BNCC: ${etapa}${t.etapa && t.etapa !== etapa ? ` (${t.etapa})` : ""}
+Competência geral 5 da BNCC (Cultura digital): ${COMPETENCIA_5}
+Competências gerais da BNCC: ${COMPETENCIAS_GERAIS.join("; ")}.
+
+Competências de Computação da etapa (${comps.rotulo}):
+${comps.itens.map((x,i) => `${i+1}. ${x}`).join("\n")}
+
+Habilidades da BNCC Computação para esta etapa (código — texto oficial), por eixo:
+${Object.entries(porEixo).map(([x, hs]) => `[${x}]\n` + hs.map(h => `${h.c} — ${h.t}`).join("\n")).join("\n")}`;
+  if(ped.habsBNCC) r1 += `\n\nHabilidades da BNCC do componente, fornecidas pelo(a) professor(a) a partir do documento oficial:\n${ped.habsBNCC}`;
+  else r1 += `\n\nHabilidades da BNCC do componente ${ped.componente || t.componente || "informado"}: selecione-as do documento oficial da BNCC para a etapa, sempre com código e texto. Se não tiver certeza de um código, escreva [VERIFICAR] ao lado.`;
+  if(tecnica(t)) r1 += `\n\nFormação técnica: ${t.curso || e.cursos || "curso técnico"}${e.eixo ? `, eixo tecnológico ${e.eixo}` : ""}. Considere o perfil profissional de conclusão do curso no Catálogo Nacional de Cursos Técnicos (4ª ed., Resolução CNE/CEB nº 2/2020) e as Diretrizes da Educação Profissional e Tecnológica (Resolução CNE/CP nº 1/2021).`;
+  r1 += `\n\nPrincípios da Cultura Digital a observar: uso crítico, ético e responsável da tecnologia; segurança e privacidade; direitos autorais e citação de fontes; verificação de informações; impactos sociais da tecnologia (Política Nacional de Educação Digital, Lei nº 14.533/2023).`;
+  c.push({n:"1", nome:"Referência curricular", tipo:"fixa", txt:r1,
+    nota:`O App insere o texto oficial das ${habs.length} habilidades de Computação desta etapa. A IA escolhe entre elas, em vez de lembrar de memória, o que reduz códigos inventados. Para os demais componentes, cole as habilidades no campo opcional do pedido.`});
+
+  // 2 Perfil docente
+  const r2 = [`## 2. PERFIL DOCENTE`,
+    p.componentes && `- Componentes que leciona: ${p.componentes}`,
+    p.formacao && `- Formação: ${p.formacao}`,
+    p.ia && `- Familiaridade com IA: ${p.ia}`,
+    (p.metodologias||[]).length && `- Metodologias que costuma usar: ${lista(p.metodologias)}`,
+    p.linguagem && `- Prefere respostas: ${p.linguagem.toLowerCase()}`].filter(Boolean);
+  c.push({n:"2", nome:"Perfil docente", tipo:"editável", txt: r2.length > 1 ? r2.join("\n") : "## 2. PERFIL DOCENTE\n- (não informado)", vazio: r2.length <= 1,
+    nota:"Ajuda a IA a falar a sua língua e a partir das metodologias que você já domina."});
+
+  // 3 Escola
+  const r3 = [`## 3. CONTEXTO DA ESCOLA`,
+    e.tipo && `- Tipo de escola: ${e.tipo}`,
+    e.cursos && `- Cursos técnicos: ${e.cursos}`,
+    e.eixo && `- Eixo tecnológico: ${e.eixo}`,
+    (e.recursos||[]).length && `- Recursos disponíveis: ${lista(e.recursos)}`,
+    e.territorio && `- Território e mundo do trabalho: ${e.territorio}`].filter(Boolean);
+  c.push({n:"3", nome:"Contexto da escola", tipo:"editável", txt: r3.length > 1 ? r3.join("\n") : "## 3. CONTEXTO DA ESCOLA\n- (não informado)", vazio: r3.length <= 1,
+    nota:"É o conhecimento contextual que só você tem: recursos reais e atividades produtivas da região, para situações-problema que façam sentido."});
+
+  // 4 Turma
+  const r4 = [`## 4. PERFIL DA TURMA (coletivo, sem dados pessoais)`,
+    `- Turma: ${t.nome} — ${t.etapa}${t.formacao ? `, ${t.formacao}` : ""}${t.curso ? `, ${t.curso}` : ""}`,
+    (ped.componente || t.componente) && `- Componente: ${ped.componente || t.componente}`,
+    t.n && `- Número aproximado de estudantes: ${t.n}`,
+    t.tempo && `- Tempo de aula: ${t.tempo}`,
+    (t.interesses||[]).length && `- Interesses: ${lista(t.interesses)}`,
+    (t.dificuldades||[]).length && `- Dificuldades recorrentes: ${lista(t.dificuldades)}`,
+    t.acessibilidade && `- Acessibilidade: ${t.acessibilidade}`,
+    t.obs && `- Observações: ${t.obs}`].filter(Boolean);
+  c.push({n:"4", nome:"Perfil da turma", tipo:"editável", txt:r4.join("\n"),
+    nota:"A turma descrita como coletivo. Permite ajustar nível, linguagem, tempo e alternativas de acessibilidade."});
+
+  // 5 Memória
+  const mem = sinteseDe(t.id);
+  c.push({n:"5", nome:"Memória da turma", tipo:"memória", vazio:!mem,
+    txt: `## 5. MEMÓRIA DA TURMA (síntese do Caderno de Memória)\n${mem || "- Ainda não há aulas registradas para esta turma."}`,
+    nota:"Síntese curta dos registros pós-aula. É o que faz cada material sair melhor que o anterior: a IA dá progressão e evita o que não funcionou."});
+
+  // 6 Regras
+  c.push({n:"6", nome:"Regras de trabalho", tipo:"fixa", txt:
+`## 6. REGRAS DE TRABALHO
+1. Atue como professor(a) especialista no componente e na etapa indicados, com experiência em escola pública de educação técnica.
+2. Comece pelo que o estudante deve aprender: selecione, entre as habilidades da camada 1, de 2 a 4 da BNCC do componente${tecnica(t) ? " (ou competências profissionais do curso)" : ""} e ao menos 1 da BNCC Computação. Cite código e texto e justifique cada escolha em uma frase.
+3. Depois, defina como a aprendizagem será evidenciada (avaliação) e só então as atividades (planejamento reverso). Indique o nível cognitivo pretendido (taxonomia de Bloom revisada) e evite atividades só de memorização.
+4. Use a memória da turma (camada 5): dê progressão ao que já foi trabalhado, repita o que funcionou e evite o que não funcionou.
+5. Prefira metodologias ativas, contextualize no território e no mundo do trabalho (camada 3) e respeite os recursos disponíveis.
+6. Ofereça alternativas segundo o Desenho Universal para a Aprendizagem (múltiplas formas de representação, engajamento e expressão).
+7. Não peça nem invente dados pessoais de estudantes. Indique fontes, sinalize com [VERIFICAR] o que precisa ser conferido, evite estereótipos e respeite direitos autorais.
+8. Se faltar uma informação essencial, faça até 2 perguntas antes de produzir. Se não faltar, produza direto.
+9. Antes de responder, confira o material contra estas regras e verifique se os códigos citados correspondem à etapa e ao componente.
+10. Ao final, apresente um QUADRO DE HABILIDADES (código | texto | por que foi escolhida | onde aparece no material) e ofereça 3 ajustes possíveis (por exemplo, mais curto, mais prático, versão impressa).`,
+    nota:"As regras fixas de qualidade: alinhamento curricular, planejamento reverso, DUA, ética e autoverificação. O quadro final torna a escolha das habilidades visível para você validar."});
+
+  // 7 Pedido
+  const f = FORMATOS.find(x => x.id === ped.formato);
+  const r7 = [`## 7. PEDIDO`,
+    `- Material: ${ped.tipo || "(escolha o material)"}`,
+    `- Tema ou conteúdo: ${ped.tema || "(informe o tema)"}`,
+    ped.detalhes && `- Detalhes: ${ped.detalhes}`,
+    `- Formato de saída: ${f && f.id ? f.nome : "à sua escolha, o mais útil para o material"}`,
+    f && f.regra && `  ${f.regra}`,
+    f && f.regra && `  O quadro de habilidades entra adaptado a este formato (por exemplo, no último slide ou depois da última questão).`].filter(Boolean);
+  c.push({n:"7", nome:"Pedido", tipo:"pedido", txt:r7.join("\n"),
+    nota:"A única parte que muda a cada uso. Na entrega persistente, é só isso que você envia."});
+  return c;
+}
+const textoCamadas = (cs, quais) => cs.filter(x => !quais || quais.includes(x.n)).map(x => x.txt).join("\n\n");
+const contaPalavras = s => (s.match(/\S+/g) || []).length;
+
+/* ============================================================
+   GERAR (3 perguntas)
+   ============================================================ */
+function telaGerar(arg){
+  if(!S.turmas.length){
+    $("#view").innerHTML = `<div class="page-head"><span class="eyebrow">Pacote de contexto</span><h1>Gerar</h1></div>
+    <div class="card vazio">${ICO.turma}<h2 style="justify-content:center; margin:10px 0 6px">Primeiro, cadastre uma turma</h2><p>O contexto é montado para uma turma real.${perfilOk() ? "" : " Vale também preencher seu perfil e sua escola."}</p>
+    <div class="row" style="justify-content:center">${perfilOk() ? "" : `<a class="btn" href="#contexto">${ICO.perfil}Meu contexto</a>`}<a class="btn pri" href="#turmas/nova">${ICO.mais}Cadastrar turma</a></div></div>`;
+    return;
+  }
+  const ped = Object.assign({turma: arg || S.pedido.turma || S.turmas[0].id, formato:(FORMATOS.find(f=>f.nome===S.perfil.formato)||{}).id || "", entrega:"conversa", comentada:false}, S.pedido, arg ? {turma:arg} : {});
+  if(!S.turmas.find(t => t.id === ped.turma)) ped.turma = S.turmas[0].id;
+  $("#view").innerHTML = `
+  <div class="page-head"><span class="eyebrow">Três perguntas · menos de um minuto</span><h1>Gerar pacote de contexto</h1>
+    <p>Escolha a turma, o material e o formato. O Caderno junta tudo o que já sabe e entrega o contexto pronto para a IA.</p></div>
+  <div class="grid2" style="align-items:start">
+    <section class="card">
+      <h2><span class="ico-chip">${ICO.gerar}</span>O pedido</h2>
+      <p class="sub">Camada 7: a única parte que muda a cada uso.</p>
+      <div class="fields">
+        <div class="field full"><label for="g-turma">1. Para qual turma?</label><select id="g-turma">${S.turmas.map(t=>`<option value="${t.id}"${t.id===ped.turma?" selected":""}>${esc(t.nome)} · ${esc(t.etapa)}</option>`).join("")}</select></div>
+        ${campoSel("g-tipo", "2. Que material?", TIPOS, ped.tipo, "")}
+        ${campoTexto("g-comp", "Componente", ped.componente || "", "")}
+        ${campoTexto("g-tema", "Sobre qual tema ou conteúdo?", ped.tema, "Ex.: funções do 1º grau aplicadas a orçamento", "full")}
+        <div class="field full"><label for="g-fmt">3. Em que formato você quer receber?</label><select id="g-fmt">${FORMATOS.map(f=>`<option value="${f.id}"${f.id===ped.formato?" selected":""}>${f.id ? esc(f.nome) : "Deixar a IA escolher"}</option>`).join("")}</select><div class="hint" id="g-fmt-dica"></div></div>
+        <details class="full"><summary>Opcional: detalhes e habilidades da BNCC do componente</summary>
+          <div class="fields" style="margin-top:12px">
+            ${campoArea("g-det", "Detalhes do pedido", ped.detalhes, "Ex.: para a aula de revisão antes da prova; com uma atividade em dupla", "full")}
+            ${campoArea("g-habs", "Habilidades da BNCC do componente (cole do documento oficial)", ped.habsBNCC, "Ex.: EM13MAT101 — Interpretar criticamente situações econômicas...", "full", "Quando você cola o texto oficial, a IA escolhe entre essas habilidades, como já acontece com as de Computação.")}
+          </div>
+        </details>
+      </div>
+      <hr class="sep">
+      <span class="lbl">Como você vai usar?</span>
+      <div class="seg" role="group" aria-label="Forma de entrega">
+        <button type="button" data-ent="conversa" aria-pressed="${ped.entrega==="conversa"}">Colar numa conversa</button>
+        <button type="button" data-ent="persistente" aria-pressed="${ped.entrega==="persistente"}">Projeto ou assistente fixo</button>
+      </div>
+      <ol class="passos-uso" id="g-passos"></ol>
+    </section>
+    <section class="card" id="g-saida"></section>
+  </div>`;
+  const comp = $("#g-comp");
+  const atualizaComp = () => { const t = S.turmas.find(x => x.id === $("#g-turma").value); if(!ped.componente || ped._auto){ comp.value = t.componente || ""; ped._auto = true; } };
+  atualizaComp();
+  const ler = () => {
+    Object.assign(ped, {turma:$("#g-turma").value, tipo:val("g-tipo"), componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
+    S.pedido = Object.assign({}, ped); delete S.pedido._auto;
+    if(ped.tipo || ped.tema) S.ultimo[ped.turma] = {material:ped.tipo, tema:ped.tema, formato:ped.formato};
+    salvar();
+  };
+  $("#g-turma").addEventListener("change", () => { ped._auto = true; atualizaComp(); ler(); desenhar(); });
+  comp.addEventListener("input", () => { ped._auto = false; });
+  ["g-tipo","g-comp","g-tema","g-fmt","g-det","g-habs"].forEach(id => $("#"+id).addEventListener("input", () => { ler(); desenhar(); }));
+  $$("[data-ent]").forEach(b => b.addEventListener("click", () => {
+    ped.entrega = b.dataset.ent; $$("[data-ent]").forEach(x => x.setAttribute("aria-pressed", x === b)); ler(); desenhar();
+  }));
+
+  function desenhar(){
+    const t = S.turmas.find(x => x.id === ped.turma);
+    const f = FORMATOS.find(x => x.id === ped.formato);
+    $("#g-fmt-dica").textContent = f && f.id ? f.dica : "A IA escolhe o formato mais útil para o material.";
+    const cs = montarCamadas(t, ped);
+    const persist = ped.entrega === "persistente";
+    const pacote = textoCamadas(cs), fixo = textoCamadas(cs, ["0","1","2","3","4","5","6"]), pedido = textoCamadas(cs, ["7"]);
+    const palavras = contaPalavras(persist ? pedido : pacote);
+    const pct = Math.min(100, Math.round(contaPalavras(pacote) / 2500 * 100));
+    $("#g-passos").innerHTML = persist
+      ? `<li>Crie um Projeto (ChatGPT ou Claude), um Gem (Gemini) ou um agente (Copilot) com o nome da turma.</li><li>Cole o <b>contexto fixo</b> nas instruções ou anexe o arquivo .md. Atualize quando a memória mudar.</li><li>A cada aula, envie só o <b>pedido</b> nesse projeto.</li><li>Valide as habilidades no quadro final e registre a aula no Caderno.</li>`
+      : `<li>Copie o pacote completo.</li><li>Abra a IA de sua preferência e cole como primeira mensagem.</li><li>Confira o material e valide as habilidades no quadro final.</li><li>Depois da aula, registre no Caderno: o próximo sai melhor.</li>`;
+    const ok = ped.tipo && ped.tema;
+    $("#g-saida").innerHTML = `
+      <div class="out-head">
+        <h2 style="margin:0"><span class="ico-chip">${ICO.camadas}</span>Seu pacote de contexto</h2>
+        <label class="row" style="gap:8px; font-size:14px; cursor:pointer"><input type="checkbox" id="g-com" ${ped.comentada?"checked":""}> Versão comentada</label>
+      </div>
+      <div class="medidor" title="Contexto enxuto: modelos aproveitam melhor textos curtos e organizados">
+        <span>${palavras} palavras ${persist ? "a enviar por aula" : "no pacote"}</span><span class="bar"><i style="width:${pct}%"></i></span><span>${pct < 70 ? "enxuto" : "longo"}</span>
+      </div>
+      ${ok ? "" : `<div class="aviso">${ICO.alerta}<span>Escolha o material e informe o tema para completar o pedido.</span></div>`}
+      <div class="row" style="margin-top:14px">
+        ${persist
+          ? `<button class="btn pri" data-copiar="fixo">${ICO.copiar}Copiar contexto fixo</button><button class="btn" data-copiar="pedido">${ICO.enviar}Copiar só o pedido</button>`
+          : `<button class="btn pri" data-copiar="pacote">${ICO.copiar}Copiar pacote completo</button>`}
+        <button class="btn ghost" id="g-md">${ICO.baixar}Baixar .md</button>
+      </div>
+      <span class="lbl" style="margin-top:16px">Copiar e abrir na IA</span>
+      <div class="ias">${IAS_USO.map(k => { const ia = IAS[k]; return `<button class="ia" style="--ia:${ia.cor}" data-ia="${k}">${ia.icone}${ia.nome}</button>`; }).join("")}</div>
+      ${cs.map(x => `<div class="camada${x.vazio ? " off" : ""}${persist && x.n === "7" ? "" : ""}">
+          <div class="camada-h"><span class="n">${x.n}</span>${esc(x.nome)}<span class="k">${x.tipo}${persist ? (x.n === "7" ? " · por aula" : " · fixo") : ""}</span></div>
+          <pre>${esc(x.txt)}</pre>
+          ${ped.comentada ? `<div class="coment">${ICO.luz}<span>${esc(x.nota)}</span></div>` : ""}
+        </div>`).join("")}
+      <div class="row" style="margin-top:16px"><a class="btn" href="#caderno/${t.id}/registrar">${ICO.caderno}Registrar esta aula depois</a></div>`;
+    $("#g-com").addEventListener("change", e => { ped.comentada = e.target.checked; ler(); desenhar(); });
+    const textos = {pacote, fixo, pedido};
+    const marcar = () => { S.ultimo[t.id] = {material:ped.tipo, tema:ped.tema, formato:ped.formato}; salvar(); };
+    $$("[data-copiar]").forEach(b => b.addEventListener("click", () => { marcar(); copiar(textos[b.dataset.copiar], b.dataset.copiar === "pedido" ? "Pedido copiado" : "Contexto copiado"); }));
+    $$("[data-ia]").forEach(b => b.addEventListener("click", () => {
+      marcar(); const ia = IAS[b.dataset.ia];
+      copiar(persist ? pedido : pacote, `Copiado! Cole no ${ia.nome}`);
+      window.open(ia.url, "_blank", "noopener");
+    }));
+    $("#g-md").addEventListener("click", () => {
+      marcar();
+      const nome = (t.nome || "turma").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/gi,"-").toLowerCase();
+      baixar(`contexto-${nome}.md`, persist ? fixo : pacote);
+    });
+  }
+  desenhar();
+}
+
+/* ============================================================
+   CADERNO DE MEMÓRIA DA TURMA
+   ============================================================ */
+function telaCaderno(arg){
+  const parts = location.hash.slice(1).split("/");
+  if(!S.turmas.length){
+    $("#view").innerHTML = `<div class="page-head"><span class="eyebrow">Camada 5 · memória</span><h1>Caderno de Memória da Turma</h1></div>
+    <div class="card vazio">${ICO.caderno}<h2 style="justify-content:center; margin:10px 0 6px">Cadastre uma turma para começar</h2><p>Cada turma tem seu próprio caderno.</p><a class="btn pri" href="#turmas/nova">${ICO.mais}Cadastrar turma</a></div>
+    ${cardDados()}`;
+    ligarDados(); return;
+  }
+  const tid = S.turmas.find(t => t.id === arg) ? arg : (S.pedido.turma && S.turmas.find(t=>t.id===S.pedido.turma) ? S.pedido.turma : S.turmas[0].id);
+  const t = S.turmas.find(x => x.id === tid);
+  const regs = registrosDe(tid);
+  const abrirForm = parts[2] === "registrar";
+  const ult = S.ultimo[tid] || {};
+  const media = regs.length ? (regs.reduce((s,r)=>s+(+r.nota||0),0)/regs.length).toFixed(1).replace(".", ",") : "–";
+  const serie = regs.slice(0, 12).reverse();
+  const editada = !!(S.sinteses[tid] && S.sinteses[tid].trim());
+  $("#view").innerHTML = `
+  <div class="page-head row"><div><span class="eyebrow">Camada 5 · um minuto depois da aula</span><h1>Caderno de Memória da Turma</h1>
+    <p>O que acontece em aula vira contexto para a próxima. Registre sempre a turma como coletivo.</p></div><span class="spacer"></span>
+    <div class="field" style="min-width:240px"><label for="c-turma" class="sr">Turma</label><select id="c-turma">${S.turmas.map(x=>`<option value="${x.id}"${x.id===tid?" selected":""}>${esc(x.nome)}</option>`).join("")}</select></div></div>
+
+  <div class="grid2" style="align-items:start">
+    <div>
+      <section class="card">
+        <h2><span class="ico-chip">${ICO.mais}</span>Registrar aula</h2>
+        <p class="sub">${ult.material ? `Último pedido: ${esc(ult.material)}${ult.tema ? " — " + esc(ult.tema) : ""}.` : "Três perguntas rápidas."}</p>
+        <div class="fields">
+          <div class="field"><label for="r-data">Data</label><input type="date" id="r-data" value="${hoje()}"></div>
+          ${campoSel("r-mat", "Material usado", TIPOS, ult.material)}
+          ${campoTexto("r-tema", "Tema", ult.tema, "", "full")}
+          <div class="field full"><span class="lbl">1. Como foi a aula?</span><div class="stars" id="r-nota" role="radiogroup" aria-label="Nota de 1 a 5">${[1,2,3,4,5].map(n=>`<button type="button" data-n="${n}" role="radio" aria-checked="false" aria-label="${n} de 5">★</button>`).join("")}</div></div>
+          ${campoChips("r-tags", "2. O que funcionou e o que não funcionou?", TAGS_POS.concat(TAGS_NEG), [], TAGS_NEG)}
+          ${campoArea("r-livre", "Comentário (opcional)", "", "Ex.: a turma se envolveu na simulação do orçamento, mas a parte escrita ficou longa", "full")}
+          ${campoTexto("r-mud", "O que você mudaria na próxima? (opcional)", "", "Ex.: começar pelo problema real, antes da teoria", "full")}
+          ${campoTexto("r-habs", "3. Habilidades efetivamente trabalhadas", "", "Ex.: EM13MAT101, EM13CO05 (confirme ou corrija as sugeridas pela IA)", "full")}
+        </div>
+        <div class="aviso">${ICO.alerta}<span>Não escreva nomes ou situações que identifiquem estudantes. Fale da turma como um todo.</span></div>
+        <div class="row end" style="margin-top:14px"><button class="btn pri" id="r-salvar">${ICO.memoria}Salvar no Caderno</button></div>
+      </section>
+      <section class="card">
+        <h2><span class="ico-chip">${ICO.calendario}</span>Aulas registradas</h2>
+        ${regs.length ? `<ul class="linha-tempo">${regs.map(r => `<li class="reg"><span class="data">${dataBR(r.data)}</span>
+          <div><h4>${esc(r.material || "Aula")}${r.tema ? " — " + esc(r.tema) : ""}</h4>
+          <p>${(r.tags||[]).map(esc).join(" · ") || "Sem marcações"}${r.livre ? `<br>“${esc(r.livre)}”` : ""}${r.habilidades ? `<br>Habilidades: ${esc(r.habilidades)}` : ""}</p></div>
+          <div style="text-align:right"><span class="nota" aria-label="Nota ${r.nota} de 5">${"★".repeat(+r.nota||0)}</span><br><button class="btn sm ghost" data-del="${r.id}" aria-label="Apagar registro">${ICO.lixo}</button></div></li>`).join("")}</ul>`
+        : `<p class="sub" style="margin:0">Nenhuma aula registrada para ${esc(t.nome)} ainda.</p>`}
+      </section>
+    </div>
+    <div>
+      <section class="card">
+        <h2><span class="ico-chip">${ICO.memoria}</span>Memória da turma</h2>
+        <p class="sub">Esta síntese entra como camada 5 em todo pacote de ${esc(t.nome)}. ${editada ? "<b>Você editou esta síntese.</b>" : "Gerada automaticamente a partir dos registros."}</p>
+        <div class="kpis">
+          <div class="kpi"><b>${regs.length}</b><span>aulas registradas</span></div>
+          <div class="kpi"><b>${media}</b><span>média das avaliações</span></div>
+          <div class="kpi"><span>evolução das notas</span><div class="spark">${serie.length ? serie.map(r => `<i style="height:${(+r.nota||0)*20}%" title="${dataBR(r.data)}: ${r.nota}/5"></i>`).join("") : ""}</div></div>
+        </div>
+        <label for="c-sint" class="sr">Síntese</label>
+        <textarea id="c-sint" class="sintese" placeholder="A síntese aparece aqui depois do primeiro registro.">${esc(sinteseDe(tid))}</textarea>
+        <div class="row" style="margin-top:12px">
+          <button class="btn sm pri" id="c-salvar-sint">${ICO.editar}Salvar edição</button>
+          <button class="btn sm" id="c-regen" ${editada ? "" : "disabled"}>${ICO.memoria}Voltar à automática</button>
+          <button class="btn sm ghost" id="c-pedido-ia" ${regs.length ? "" : "disabled"}>${ICO.enviar}Pedir síntese à IA</button>
+        </div>
+        <div class="row" style="margin-top:14px"><a class="btn" href="#gerar/${tid}">${ICO.gerar}Gerar o próximo material</a></div>
+      </section>
+      ${cardDados()}
+    </div>
+  </div>`;
+  ligarChips(); ligarDados();
+  $("#c-turma").addEventListener("change", e => { location.hash = "caderno/" + e.target.value; });
+  let nota = 0;
+  $$("#r-nota button").forEach(b => b.addEventListener("click", () => {
+    nota = +b.dataset.n; $$("#r-nota button").forEach(x => { const on = +x.dataset.n <= nota; x.classList.toggle("on", on); x.setAttribute("aria-checked", +x.dataset.n === nota); });
+  }));
+  $("#r-salvar").addEventListener("click", () => {
+    if(!nota){ toast("Dê uma nota de 1 a 5 para a aula"); return; }
+    const livre = val("r-livre") + " " + val("r-mud");
+    if(/\b(?:[A-ZÁÉÍÓÚÂÊÔÃÕÇ][a-záéíóúâêôãõç]{2,})\s(?:[A-ZÁÉÍÓÚÂÊÔÃÕÇ][a-záéíóúâêôãõç]{2,})\b/.test(livre.replace(/^\s*\S+/, ""))
+        && !confirm("Parece haver um nome próprio no comentário. Confirme que ele não identifica nenhum estudante. Salvar assim mesmo?")) return;
+    S.registros.push({id:uid(), criado:Date.now(), turmaId:tid, data:val("r-data") || hoje(), material:val("r-mat"), tema:val("r-tema"), nota, tags:lerChips("r-tags"),
+      livre:val("r-livre"), mudaria:val("r-mud"), habilidades:val("r-habs")});
+    salvar(); toast("Aula registrada. A memória foi atualizada");
+    if(location.hash === "#caderno/" + tid) rota(); else location.hash = "caderno/" + tid;
+  });
+  $$("[data-del]").forEach(b => b.addEventListener("click", () => {
+    if(!confirm("Apagar este registro?")) return;
+    S.registros = S.registros.filter(r => r.id !== b.dataset.del); salvar(); rota();
+  }));
+  $("#c-salvar-sint").addEventListener("click", () => { S.sinteses[tid] = $("#c-sint").value; salvar(); toast("Síntese salva"); rota(); });
+  $("#c-regen").addEventListener("click", () => { delete S.sinteses[tid]; salvar(); toast("Síntese automática restaurada"); rota(); });
+  $("#c-pedido-ia").addEventListener("click", () => {
+    const txt = `Abaixo estão registros de aulas de uma turma (${t.nome}, ${t.etapa}), feitos pelo(a) professor(a), sem dados pessoais de estudantes.
+Escreva uma síntese de no máximo uma página, em tópicos, com três partes: (1) o que já foi trabalhado (conteúdos e habilidades), (2) o que funcionou e o que não funcionou (estratégias, formatos, nível), (3) recomendações para a próxima aula. Dê mais peso aos registros recentes e mais bem avaliados. Não invente informações.
+
+REGISTROS:
+${regs.map(r => `- ${dataBR(r.data)} | ${r.material || ""} | ${r.tema || ""} | nota ${r.nota}/5 | ${(r.tags||[]).join(", ")} | ${r.livre || ""} | mudaria: ${r.mudaria || ""} | habilidades: ${r.habilidades || ""}`).join("\n")}`;
+    copiar(txt, "Pedido de síntese copiado. Cole na IA e traga o resultado para cá");
+  });
+  if(abrirForm) setTimeout(() => $("#r-nota button").focus(), 100);
+}
+function cardDados(){
+  return `<section class="card">
+    <h2><span class="ico-chip">${ICO.escudo}</span>Seus dados</h2>
+    <p class="sub">Tudo fica neste navegador. Exporte para guardar uma cópia ou levar para outro aparelho.</p>
+    <div class="row"><button class="btn sm" id="d-exp">${ICO.baixar}Exportar</button>
+    <label class="btn sm" style="cursor:pointer">${ICO.importar}Importar<input type="file" id="d-imp" accept="application/json,.json" hidden></label>
+    <span class="spacer"></span><button class="btn sm danger" id="d-apagar">${ICO.lixo}Apagar tudo</button></div>
+  </section>`;
+}
+function ligarDados(){
+  $("#d-exp").addEventListener("click", () => baixar(`caderno-de-contexto-${hoje()}.json`, JSON.stringify(S, null, 2), "application/json"));
+  $("#d-imp").addEventListener("change", e => {
+    const f = e.target.files[0]; if(!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      try { const d = JSON.parse(rd.result); if(!d || !Array.isArray(d.turmas)) throw 0;
+        if(!confirm("Substituir os dados deste aparelho pelos do arquivo?")) return;
+        S = Object.assign(VAZIO(), d); salvar(); toast("Dados importados"); rota();
+      } catch(_) { toast("Arquivo inválido"); }
+    };
+    rd.readAsText(f);
+  });
+  $("#d-apagar").addEventListener("click", () => {
+    if(!confirm("Apagar perfil, escola, turmas e todo o Caderno deste aparelho? Não dá para desfazer.")) return;
+    S = VAZIO(); salvar(); toast("Dados apagados"); location.hash = "inicio"; rota();
+  });
+}
+
+rota();
+</script>
+</body>
+</html>
