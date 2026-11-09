@@ -317,6 +317,53 @@ input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accen
 .passos-uso li{counter-increment:p; position:relative; padding-left:34px; margin:8px 0; color:var(--muted); font-size:14.5px}
 .passos-uso li::before{content:counter(p); position:absolute; left:0; top:0; width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font-size:12px; font-weight:700; background:var(--accent); color:var(--accent-ink)}
 
+.passos-uso.h{display:grid; grid-template-columns:repeat(4,1fr); gap:10px 18px}
+.passos-uso.h li{margin:0}
+@media (max-width:900px){ .passos-uso.h{grid-template-columns:1fr 1fr} }
+@media (max-width:560px){ .passos-uso.h{grid-template-columns:1fr} }
+.fields.f4{grid-template-columns:repeat(4, minmax(0,1fr))}
+.fields.f4 .tema{grid-column:span 3}
+.fields.f4 .mat-outro[hidden] + * + * + .tema{grid-column:1/-1}
+@media (max-width:1000px){ .fields.f4{grid-template-columns:1fr 1fr} .fields.f4 .tema, .fields.f4 .mat-outro[hidden] + * + * + .tema{grid-column:1/-1} }
+@media (max-width:640px){ .fields.f4{grid-template-columns:1fr} }
+.check{display:inline-flex; align-items:center; gap:8px; font-size:14px; cursor:pointer; padding:6px 12px; border-radius:999px; border:1px solid var(--border)}
+.check:hover{border-color:var(--border-strong)}
+.check input{width:16px; height:16px; accent-color:var(--accent); cursor:pointer}
+.acoes{display:flex; flex-wrap:wrap; gap:14px 28px; align-items:flex-end; margin-top:14px; padding-bottom:16px; border-bottom:1px solid var(--border)}
+.acoes-ia .lbl{margin-bottom:4px}
+.camadas{display:grid; grid-template-columns:repeat(auto-fill, minmax(330px, 1fr)); gap:14px; margin-top:16px; align-items:stretch}
+.camadas .camada{margin-top:0; display:flex; flex-direction:column}
+.camadas .camada pre{flex:1}
+@media (max-width:560px){ .camadas{grid-template-columns:1fr} }
+.contador{display:inline-flex; align-items:stretch; border:1px solid var(--border-strong); border-radius:var(--r-s); overflow:hidden; background:var(--surface-solid)}
+.contador input[type=number]{width:70px; text-align:center; border:0; border-radius:0; font-weight:700; font-size:17px; -moz-appearance:textfield; appearance:textfield}
+.contador input::-webkit-outer-spin-button, .contador input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+.cont-btn{font:inherit; font-size:22px; font-weight:700; width:48px; border:0; cursor:pointer; color:var(--accent-ink); background:linear-gradient(135deg, var(--accent), var(--accent-2)); transition:filter .15s, transform .1s}
+.cont-btn:hover{filter:brightness(1.12)}
+.cont-btn:active{transform:scale(.94)}
+.cont-btn:disabled{opacity:.35; cursor:not-allowed; filter:grayscale(.6)}
+.chip-add{display:inline-flex; gap:6px; align-items:center; flex-wrap:wrap}
+.chip-add input[type=text]{width:auto; min-width:220px; padding:7px 12px; font-size:13.5px; border-radius:999px; border-style:dashed}
+
+/* ---------- Affordance: tudo que é clicável parece clicável ---------- */
+.btn, .ia{box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 3px 0 0 var(--edge, color-mix(in srgb, var(--border-strong) 80%, transparent)), 0 8px 18px -12px rgba(0,0,0,.6)}
+.btn:hover, .ia:hover{transform:translateY(-2px); border-color:var(--accent); box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 5px 0 0 var(--edge, color-mix(in srgb, var(--accent) 55%, transparent)), 0 14px 26px -12px color-mix(in srgb, var(--accent) 70%, transparent)}
+.btn:active, .ia:active, .chip:active{transform:translateY(2px); box-shadow:0 1px 0 0 var(--edge, var(--border-strong))}
+.btn.pri{--edge: color-mix(in srgb, var(--accent-2) 70%, #000)}
+.btn.ghost{border-color:var(--border-strong)}
+.btn.danger{--edge: color-mix(in srgb, var(--bad) 55%, transparent)}
+.btn:disabled, .btn[disabled]{opacity:.45; cursor:not-allowed; transform:none; box-shadow:none}
+.ia svg:last-child{width:14px; height:14px; color:var(--muted); transition:transform .15s}
+.ia:hover svg:last-child{transform:translateX(3px); color:var(--ia)}
+.chip{box-shadow:0 2px 0 0 var(--border)}
+.chip:not([aria-pressed="true"])::before{content:"+ "; color:var(--accent); font-weight:700}
+.chip[aria-pressed="true"]::before{content:"✓ "; font-weight:700}
+.chip.neg:not([aria-pressed="true"])::before{color:var(--bad)}
+.seg button:not([aria-pressed="true"]):hover{background:color-mix(in srgb, var(--accent) 12%, transparent); color:var(--text)}
+.stars button{cursor:pointer}
+.btn:focus-visible, .ia:focus-visible, .chip:focus-visible, .seg button:focus-visible, .cont-btn:focus-visible, summary:focus-visible, nav.tabs a:focus-visible, .theme-btn:focus-visible, .stars button:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+@media (prefers-reduced-motion: reduce){ .btn, .ia, .chip{transition:none} .btn:hover, .ia:hover{transform:none} }
+
 /* ---------- Caderno ---------- */
 .linha-tempo{list-style:none; margin:0; padding:0}
 .reg{display:grid; grid-template-columns:auto 1fr auto; gap:14px; padding:14px 0; border-bottom:1px solid var(--border); align-items:start}
@@ -345,7 +392,12 @@ input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accen
 footer{border-top:1px solid var(--border); padding:26px 0 40px; color:var(--faint); font-size:13px}
 footer a{color:var(--muted)}
 .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
-details summary{cursor:pointer; font-weight:600}
+details summary{cursor:pointer; font-weight:600; display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:999px; border:1px dashed var(--border-strong); color:var(--accent); list-style:none; transition:background .15s, border-color .15s}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"+"; font-size:17px; line-height:1; font-weight:700}
+details[open] summary::before{content:"−"}
+details summary:hover{background:color-mix(in srgb, var(--accent) 10%, transparent); border-style:solid}
+[hidden]{display:none !important}
 hr.sep{border:0; border-top:1px solid var(--border); margin:18px 0}
 </style>
 </head>
@@ -682,11 +734,12 @@ const ETAPAS_TURMA = [
 const FORMACOES = ["Formação geral básica","Técnico integrado ao Ensino Médio","Técnico concomitante","Técnico subsequente","Itinerário de formação técnica e profissional"];
 const EIXOS = ["Ambiente e Saúde","Controle e Processos Industriais","Desenvolvimento Educacional e Social","Gestão e Negócios","Informação e Comunicação","Infraestrutura","Produção Alimentícia","Produção Cultural e Design","Produção Industrial","Recursos Naturais","Segurança","Turismo, Hospitalidade e Lazer","Militar"];
 const CURSOS = ["Técnico em Informática","Técnico em Informática para Internet","Técnico em Desenvolvimento de Sistemas","Técnico em Redes de Computadores","Técnico em Administração","Técnico em Logística","Técnico em Recursos Humanos","Técnico em Enfermagem","Técnico em Análises Clínicas","Técnico em Agropecuária","Técnico em Agroindústria","Técnico em Edificações","Técnico em Eletrotécnica","Técnico em Eletrônica","Técnico em Mecânica","Técnico em Química","Técnico em Meio Ambiente","Técnico em Guia de Turismo","Técnico em Hospedagem","Técnico em Multimídia","Técnico em Segurança do Trabalho","Técnico em Nutrição e Dietética"];
-const RECURSOS = ["Laboratório de informática","Laboratório técnico do curso","Projetor","Internet estável","Internet instável","Sem internet em sala","Celulares dos estudantes","Tablets ou notebooks","Kits de robótica ou eletrônica","Biblioteca","Quadro e papel apenas"];
+const RECURSOS = ["Laboratório de informática","Laboratório técnico do curso","Projetor","Internet estável","Internet instável","Sem internet em sala","Celulares dos estudantes","Tablets ou notebooks","Kits de robótica ou eletrônica","Biblioteca","Quadro e papel"];
 const METODOLOGIAS = ["Aprendizagem baseada em projetos","Aprendizagem baseada em problemas","Sala de aula invertida","Rotação por estações","Gamificação","Estudo de caso","Atividades desplugadas","Trabalho em grupo","Aula expositiva dialogada","Prática de laboratório"];
 const INTERESSES = ["Jogos","Redes sociais","Esportes","Música","Tecnologia","Empreendedorismo","Meio ambiente","Mercado de trabalho","Cultura local","Vestibular e ENEM"];
 const DIFICULDADES = ["Leitura e interpretação","Matemática básica","Escrita","Concentração","Pouco acesso à internet em casa","Defasagem de conteúdos anteriores","Faltas frequentes","Turma muito heterogênea","Timidez para participar"];
 const TIPOS = ["Plano de aula","Sequência didática","Avaliação ou prova","Rubrica de avaliação","Lista de exercícios","Estudo de caso","Roteiro de prática de laboratório","Projeto (aprendizagem baseada em projetos)","Atividade desplugada","Texto de apoio ou material de leitura","Atividade de revisão","Adaptação de atividade (DUA)","Situação-problema do mundo do trabalho","Jogo ou dinâmica"];
+const TIPOS_ORD = [...TIPOS].sort((a,b) => a.localeCompare(b, "pt-BR"));
 const TAGS_POS = ["Engajou a turma","Prática funcionou","Nível adequado","Formato ajudou","Boa ligação com o mundo do trabalho","Trabalho em grupo funcionou","Tempo bem dimensionado"];
 const TAGS_NEG = ["Muito longo","Faltou prática","Nível alto demais","Nível fácil demais","Pouco engajamento","Linguagem difícil","Faltou tempo","Recursos indisponíveis","Formato não ajudou","Habilidades inadequadas"];
 const RECOMENDA = {
@@ -710,6 +763,7 @@ const CHAVE = "cdc.v1";
 const VAZIO = () => ({perfil:{}, escola:{}, turmas:[], registros:[], sinteses:{}, ultimo:{}, pedido:{}});
 let S = VAZIO();
 try { const raw = localStorage.getItem(CHAVE); if(raw) S = Object.assign(VAZIO(), JSON.parse(raw)); } catch(e) {}
+if(S.escola && Array.isArray(S.escola.recursos)) S.escola.recursos = S.escola.recursos.map(r => r === "Quadro e papel apenas" ? "Quadro e papel" : r);
 function salvar(){ try { localStorage.setItem(CHAVE, JSON.stringify(S)); } catch(e) { toast("Não foi possível salvar neste navegador"); } }
 const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -750,12 +804,49 @@ function campoArea(id, rot, val, ph, extra, hint){ return `<div class="field ${e
 function campoSel(id, rot, opcoes, val, extra, vazio){
   return `<div class="field ${extra||""}"><label for="${id}">${rot}</label><select id="${id}">${vazio!==false?`<option value="">${vazio||"Selecione"}</option>`:""}${opcoes.map(o=>{ const v = Array.isArray(o)?o[0]:o; return `<option${v===val?" selected":""}>${esc(v)}</option>`; }).join("")}</select></div>`;
 }
-function campoChips(id, rot, opcoes, sel, neg){
-  return `<div class="field full"><span class="lbl">${rot}</span><div class="chips" data-chips="${id}">${opcoes.map(o=>`<button type="button" class="chip${neg&&neg.includes(o)?" neg":""}" aria-pressed="${(sel||[]).includes(o)}">${esc(o)}</button>`).join("")}</div></div>`;
+function campoChips(id, rot, opcoes, sel, neg, editavel){
+  const extras = editavel ? (sel||[]).filter(o => o && !opcoes.includes(o)) : [];
+  const chip = (o, pressed) => `<button type="button" class="chip${neg&&neg.includes(o)?" neg":""}" aria-pressed="${pressed}">${esc(o)}</button>`;
+  return `<div class="field full"><span class="lbl">${rot}</span><div class="chips" data-chips="${id}">${opcoes.map(o=>chip(o, (sel||[]).includes(o))).join("")}${extras.map(o=>chip(o, true)).join("")}${editavel ? `<span class="chip-add"><input type="text" id="${id}-novo" placeholder="Escreva outra opção" aria-label="Adicionar outra opção"><button type="button" class="btn sm" data-add-chip="${id}">${ICO.mais}Adicionar</button></span>` : ""}</div>${editavel ? `<div class="hint">Clique para marcar ou desmarcar. Você pode adicionar as suas; as desmarcadas que você criou somem ao salvar.</div>` : ""}</div>`;
 }
 function ligarChips(){
   $$("[data-chips] .chip").forEach(b => b.addEventListener("click", () => b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") !== "true")));
+  $$("[data-add-chip]").forEach(btn => {
+    const id = btn.dataset.addChip, inp = document.getElementById(id + "-novo");
+    const add = () => {
+      const v = inp.value.trim().replace(/\s+/g, " ");
+      if(!v) { inp.focus(); return; }
+      const ja = $$(`[data-chips="${id}"] .chip`).find(c => c.textContent.toLowerCase() === v.toLowerCase());
+      if(ja){ ja.setAttribute("aria-pressed", "true"); }
+      else {
+        const c = document.createElement("button"); c.type = "button"; c.className = "chip"; c.textContent = v; c.setAttribute("aria-pressed", "true");
+        c.addEventListener("click", () => c.setAttribute("aria-pressed", c.getAttribute("aria-pressed") !== "true"));
+        btn.parentNode.before(c);
+      }
+      inp.value = ""; inp.focus(); toast(`“${v}” adicionada`);
+    };
+    btn.addEventListener("click", add);
+    inp.addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); add(); } });
+  });
 }
+function campoMaterial(id, rot, v, extra){
+  const outro = !!v && v !== "Outro" && !TIPOS.includes(v);
+  const sel = outro ? "Outro" : v;
+  return campoSel(id, rot, [...TIPOS_ORD, "Outro"], sel, extra)
+    + `<div class="field ${extra||""} mat-outro" id="${id}-o-w"${sel === "Outro" ? "" : " hidden"}><label for="${id}-o">Qual material você quer?</label><input type="text" id="${id}-o" value="${outro ? esc(v) : ""}" placeholder="Informe o recurso desejado. Ex.: podcast, mapa mental"></div>`;
+}
+function ligarMaterial(id, cb){
+  const s = document.getElementById(id), o = document.getElementById(id + "-o");
+  s.addEventListener("change", () => { const ehOutro = s.value === "Outro"; document.getElementById(id + "-o-w").hidden = !ehOutro; if(ehOutro) o.focus(); cb && cb(); });
+  o.addEventListener("input", () => cb && cb());
+}
+const lerMaterial = id => val(id) === "Outro" ? val(id + "-o") : val(id);
+const aulasDe = t => {
+  if(+t.aulas > 0) return +t.aulas;
+  const x = t.tempo || "";
+  return /100|2 horas/.test(x) ? 2 : /3 horas/.test(x) ? 4 : 1;
+};
+const tempoTxt = n => `${n} aula${n > 1 ? "s" : ""} de 50 minutos (${n * 50} minutos no total)`;
 const lerChips = id => $$(`[data-chips="${id}"] .chip[aria-pressed="true"]`).map(b => b.textContent);
 const val = id => { const e = document.getElementById(id); return e ? e.value.trim() : ""; };
 
@@ -859,7 +950,7 @@ function telaContexto(){
       ${campoTexto("p-comp", "Componentes ou unidades curriculares que leciona", p.componentes, "Ex.: Matemática; Lógica de Programação; Banco de Dados", "full")}
       ${campoTexto("p-form", "Área de formação", p.formacao, "Ex.: Licenciatura em Matemática")}
       ${campoSel("p-ia", "Familiaridade com IA", ["Iniciante","Uso às vezes","Uso com frequência"], p.ia)}
-      ${campoChips("p-met", "Metodologias que você costuma usar", METODOLOGIAS, p.metodologias)}
+      ${campoChips("p-met", "Metodologias que você costuma usar", METODOLOGIAS, p.metodologias, null, true)}
       ${campoSel("p-ling", "Como prefere as respostas da IA", ["Diretas e objetivas","Detalhadas, com exemplos","Passo a passo, para quem está começando"], p.linguagem)}
       ${campoSel("p-fmt", "Formato que mais usa (sugestão inicial)", FORMATOS.filter(f=>f.id).map(f=>f.nome), p.formato)}
     </div>
@@ -915,7 +1006,12 @@ function formTurma(t){
       <div class="field"><label for="t-curso">Curso técnico (se houver)</label><input type="text" id="t-curso" list="l-cursos2" value="${esc(t.curso)}" placeholder="Ex.: Técnico em Informática"><datalist id="l-cursos2">${CURSOS.map(c=>`<option value="${esc(c)}">`).join("")}</datalist></div>
       ${campoTexto("t-comp", "Componente que você leciona nesta turma", t.componente || (S.perfil.componentes||"").split(/[;,]/)[0], "Ex.: Matemática")}
       <div class="field"><label for="t-n">Número aproximado de estudantes</label><input type="number" id="t-n" min="1" max="80" value="${esc(t.n)}"></div>
-      ${campoSel("t-tempo", "Tempo de aula", ["50 minutos","1 hora","100 minutos (aula dupla)","2 horas","3 horas ou mais"], t.tempo)}
+      <div class="field"><span class="lbl" id="t-aulas-l">Tempo de aula (aulas de 50 min)</span>
+        <div class="contador" role="group" aria-labelledby="t-aulas-l">
+          <button type="button" class="cont-btn" data-cont="-1" aria-label="Uma aula a menos">−</button>
+          <input type="number" id="t-aulas" min="1" max="10" step="1" value="${aulasDe(t)}" aria-label="Quantidade de aulas de 50 minutos">
+          <button type="button" class="cont-btn" data-cont="1" aria-label="Uma aula a mais">+</button>
+        </div><div class="hint" id="t-aulas-txt"></div></div>
       ${campoChips("t-int", "Interesses da turma", INTERESSES, t.interesses)}
       ${campoChips("t-dif", "Dificuldades recorrentes", DIFICULDADES, t.dificuldades)}
       ${campoArea("t-aces", "Necessidades de acessibilidade (descritas sem identificar)", t.acessibilidade, "Ex.: há estudantes com baixa visão; um estudante surdo com intérprete de Libras", "full")}
@@ -925,9 +1021,15 @@ function formTurma(t){
   </section>
   <div class="row" style="margin-top:18px">${novo ? "" : `<button class="btn danger" id="t-del">${ICO.lixo}Excluir turma</button>`}<span class="spacer"></span><a class="btn ghost" href="#turmas">Cancelar</a><button class="btn pri" id="t-salvar">${ICO.escudo}Salvar turma</button></div>`;
   ligarChips();
+  const aulasInp = $("#t-aulas");
+  const aulasN = () => Math.min(10, Math.max(1, Math.round(+aulasInp.value || 1)));
+  const aulasMostra = () => { const n = aulasN(); $("#t-aulas-txt").textContent = `${n} aula${n>1?"s":""} de 50 min = ${n*50} minutos`; $$("[data-cont]").forEach(b => b.disabled = (+b.dataset.cont < 0 && n <= 1) || (+b.dataset.cont > 0 && n >= 10)); };
+  $$("[data-cont]").forEach(b => b.addEventListener("click", () => { aulasInp.value = aulasN() + (+b.dataset.cont); aulasInp.value = aulasN(); aulasMostra(); }));
+  aulasInp.addEventListener("input", aulasMostra); aulasInp.addEventListener("change", () => { aulasInp.value = aulasN(); aulasMostra(); });
+  aulasMostra();
   $("#t-salvar").addEventListener("click", () => {
     const d = {id:t.id || uid(), nome:val("t-nome") || "Turma sem nome", etapa:val("t-etapa"), formacao:val("t-form"), curso:val("t-curso"), componente:val("t-comp"),
-      n:val("t-n"), tempo:val("t-tempo"), interesses:lerChips("t-int"), dificuldades:lerChips("t-dif"), acessibilidade:val("t-aces"), obs:val("t-obs")};
+      n:val("t-n"), aulas:aulasN(), tempo:tempoTxt(aulasN()), interesses:lerChips("t-int"), dificuldades:lerChips("t-dif"), acessibilidade:val("t-aces"), obs:val("t-obs")};
     if(!d.etapa){ toast("Escolha a etapa e o ano"); $("#t-etapa").focus(); return; }
     const i = S.turmas.findIndex(x => x.id === d.id);
     if(i >= 0) S.turmas[i] = d; else S.turmas.push(d);
@@ -1050,7 +1152,7 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
     `- Turma: ${t.nome} — ${t.etapa}${t.formacao ? `, ${t.formacao}` : ""}${t.curso ? `, ${t.curso}` : ""}`,
     (ped.componente || t.componente) && `- Componente: ${ped.componente || t.componente}`,
     t.n && `- Número aproximado de estudantes: ${t.n}`,
-    t.tempo && `- Tempo de aula: ${t.tempo}`,
+    (t.aulas || t.tempo) && `- Tempo de aula: ${tempoTxt(aulasDe(t))}`,
     (t.interesses||[]).length && `- Interesses: ${lista(t.interesses)}`,
     (t.dificuldades||[]).length && `- Dificuldades recorrentes: ${lista(t.dificuldades)}`,
     t.acessibilidade && `- Acessibilidade: ${t.acessibilidade}`,
@@ -1089,7 +1191,7 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
     f && f.regra && `  ${f.regra}`,
     f && f.regra && `  O quadro de habilidades entra adaptado a este formato (por exemplo, no último slide ou depois da última questão).`].filter(Boolean);
   c.push({n:"7", nome:"Pedido", tipo:"pedido", txt:r7.join("\n"),
-    nota:"A única parte que muda a cada uso. Na entrega persistente, é só isso que você envia."});
+    nota:"A única parte que muda a cada uso: o material, o tema e o formato desta vez."});
   return c;
 }
 const textoCamadas = (cs, quais) => cs.filter(x => !quais || quais.includes(x.n)).map(x => x.txt).join("\n\n");
@@ -1105,93 +1207,86 @@ function telaGerar(arg){
     <div class="row" style="justify-content:center">${perfilOk() ? "" : `<a class="btn" href="#contexto">${ICO.perfil}Meu contexto</a>`}<a class="btn pri" href="#turmas/nova">${ICO.mais}Cadastrar turma</a></div></div>`;
     return;
   }
-  const ped = Object.assign({turma: arg || S.pedido.turma || S.turmas[0].id, formato:(FORMATOS.find(f=>f.nome===S.perfil.formato)||{}).id || "", comentada:false}, S.pedido, {entrega:"conversa"}, arg ? {turma:arg} : {});
+  const ped = Object.assign({turma: arg || S.pedido.turma || S.turmas[0].id, formato:(FORMATOS.find(f=>f.nome===S.perfil.formato)||{}).id || "", comentada:false}, S.pedido, arg ? {turma:arg} : {});
+  delete ped.entrega;
   if(!S.turmas.find(t => t.id === ped.turma)) ped.turma = S.turmas[0].id;
   $("#view").innerHTML = `
   <div class="page-head"><span class="eyebrow">Três perguntas · menos de um minuto</span><h1>Gerar pacote de contexto</h1>
     <p>Escolha a turma, o material e o formato. O Caderno junta tudo o que já sabe e entrega o contexto pronto para a IA.</p></div>
-  <div class="grid2" style="align-items:start">
-    <section class="card">
-      <h2><span class="ico-chip">${ICO.gerar}</span>O pedido</h2>
-      <p class="sub">Camada 7: a única parte que muda a cada uso.</p>
-      <div class="fields">
-        <div class="field full"><label for="g-turma">1. Para qual turma?</label><select id="g-turma">${S.turmas.map(t=>`<option value="${t.id}"${t.id===ped.turma?" selected":""}>${esc(t.nome)} · ${esc(t.etapa)}</option>`).join("")}</select></div>
-        ${campoSel("g-tipo", "2. Que material?", TIPOS, ped.tipo, "")}
-        ${campoTexto("g-comp", "Componente", ped.componente || "", "")}
-        ${campoTexto("g-tema", "Sobre qual tema ou conteúdo?", ped.tema, "Ex.: funções do 1º grau aplicadas a orçamento", "full")}
-        <div class="field full"><label for="g-fmt">3. Em que formato você quer receber?</label><select id="g-fmt">${FORMATOS.map(f=>`<option value="${f.id}"${f.id===ped.formato?" selected":""}>${f.id ? esc(f.nome) : "Deixar a IA escolher"}</option>`).join("")}</select><div class="hint" id="g-fmt-dica"></div></div>
-        <details class="full"><summary>Opcional: detalhes e habilidades da BNCC do componente</summary>
-          <div class="fields" style="margin-top:12px">
-            ${campoArea("g-det", "Detalhes do pedido", ped.detalhes, "Ex.: para a aula de revisão antes da prova; com uma atividade em dupla", "full")}
-            ${campoArea("g-habs", "Habilidades da BNCC do componente (cole do documento oficial)", ped.habsBNCC, "Ex.: EM13MAT101 — Interpretar criticamente situações econômicas...", "full", "Quando você cola o texto oficial, a IA escolhe entre essas habilidades, como já acontece com as de Computação.")}
-          </div>
-        </details>
-      </div>
-      <hr class="sep">
-      <span class="lbl">Como você vai usar?</span>
-      <div class="seg" role="group" aria-label="Forma de entrega">
-        <button type="button" data-ent="conversa" aria-pressed="${ped.entrega==="conversa"}">Colar numa conversa</button>
-        <button type="button" data-ent="persistente" aria-pressed="${ped.entrega==="persistente"}">Projeto ou assistente fixo</button>
-      </div>
-      <ol class="passos-uso" id="g-passos"></ol>
-    </section>
-    <section class="card" id="g-saida"></section>
-  </div>`;
+  <section class="card pedido-card">
+    <h2><span class="ico-chip">${ICO.gerar}</span>O pedido</h2>
+    <p class="sub">Camada 7: a única parte que muda a cada uso.</p>
+    <div class="fields f4">
+      <div class="field"><label for="g-turma">1. Para qual turma?</label><select id="g-turma">${S.turmas.map(t=>`<option value="${t.id}"${t.id===ped.turma?" selected":""}>${esc(t.nome)} · ${esc(t.etapa)}</option>`).join("")}</select></div>
+      ${campoMaterial("g-tipo", "2. Que material?", ped.tipo, "")}
+      ${campoTexto("g-comp", "Componente", ped.componente || "", "")}
+      <div class="field"><label for="g-fmt">3. Em que formato?</label><select id="g-fmt">${FORMATOS.map(f=>`<option value="${f.id}"${f.id===ped.formato?" selected":""}>${f.id ? esc(f.nome) : "Deixar a IA escolher"}</option>`).join("")}</select><div class="hint" id="g-fmt-dica"></div></div>
+      ${campoTexto("g-tema", "Sobre qual tema ou conteúdo?", ped.tema, "Ex.: funções do 1º grau aplicadas a orçamento", "tema")}
+      <details class="full"><summary>Opcional: detalhes e habilidades da BNCC do componente</summary>
+        <div class="fields" style="margin-top:12px">
+          ${campoArea("g-det", "Detalhes do pedido", ped.detalhes, "Ex.: para a aula de revisão antes da prova; com uma atividade em dupla")}
+          ${campoArea("g-habs", "Habilidades da BNCC do componente (cole do documento oficial)", ped.habsBNCC, "Ex.: EM13MAT101 — Interpretar criticamente situações econômicas...", "", "Quando você cola o texto oficial, a IA escolhe entre essas habilidades, como já acontece com as de Computação.")}
+        </div>
+      </details>
+    </div>
+    <hr class="sep">
+    <span class="lbl">Como usar</span>
+    <ol class="passos-uso h"><li>Copie o pacote completo.</li><li>Abra a IA de sua preferência e cole como primeira mensagem.</li><li>Confira o material e valide as habilidades no quadro final.</li><li>Depois da aula, registre no Caderno: o próximo sai melhor.</li></ol>
+  </section>
+  <section class="card" id="g-saida"></section>`;
   const comp = $("#g-comp");
   const atualizaComp = () => { const t = S.turmas.find(x => x.id === $("#g-turma").value); if(!ped.componente || ped._auto){ comp.value = t.componente || ""; ped._auto = true; } };
   atualizaComp();
   const ler = () => {
-    Object.assign(ped, {turma:$("#g-turma").value, tipo:val("g-tipo"), componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
-    S.pedido = Object.assign({}, ped); delete S.pedido._auto; delete S.pedido.entrega;
+    Object.assign(ped, {turma:$("#g-turma").value, tipo:lerMaterial("g-tipo"), componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
+    S.pedido = Object.assign({}, ped); delete S.pedido._auto;
     if(ped.tipo || ped.tema) S.ultimo[ped.turma] = {material:ped.tipo, tema:ped.tema, formato:ped.formato};
     salvar();
   };
   $("#g-turma").addEventListener("change", () => { ped._auto = true; atualizaComp(); ler(); desenhar(); });
   comp.addEventListener("input", () => { ped._auto = false; });
-  ["g-tipo","g-comp","g-tema","g-fmt","g-det","g-habs"].forEach(id => $("#"+id).addEventListener("input", () => { ler(); desenhar(); }));
-  $$("[data-ent]").forEach(b => b.addEventListener("click", () => {
-    ped.entrega = b.dataset.ent; $$("[data-ent]").forEach(x => x.setAttribute("aria-pressed", x === b)); ler(); desenhar();
-  }));
+  ["g-comp","g-tema","g-fmt","g-det","g-habs"].forEach(id => $("#"+id).addEventListener("input", () => { ler(); desenhar(); }));
+  ligarMaterial("g-tipo", () => { ler(); desenhar(); });
 
   function desenhar(){
     const t = S.turmas.find(x => x.id === ped.turma);
     const f = FORMATOS.find(x => x.id === ped.formato);
     $("#g-fmt-dica").textContent = f && f.id ? f.dica : "A IA escolhe o formato mais útil para o material.";
     const cs = montarCamadas(t, ped);
-    const persist = ped.entrega === "persistente";
-    const pacote = textoCamadas(cs), fixo = textoCamadas(cs, ["0","1","2","3","4","5","6"]), pedido = textoCamadas(cs, ["7"]);
-    const palavras = contaPalavras(persist ? pedido : pacote);
-    const pct = Math.min(100, Math.round(contaPalavras(pacote) / 2500 * 100));
-    $("#g-passos").innerHTML = persist
-      ? `<li>Crie um Projeto (ChatGPT ou Claude), um Gem (Gemini) ou um agente (Copilot) com o nome da turma.</li><li>Cole o <b>contexto fixo</b> nas instruções ou anexe o arquivo .md. Atualize quando a memória mudar.</li><li>A cada aula, envie só o <b>pedido</b> nesse projeto.</li><li>Valide as habilidades no quadro final e registre a aula no Caderno.</li>`
-      : `<li>Copie o pacote completo.</li><li>Abra a IA de sua preferência e cole como primeira mensagem.</li><li>Confira o material e valide as habilidades no quadro final.</li><li>Depois da aula, registre no Caderno: o próximo sai melhor.</li>`;
+    const pacote = textoCamadas(cs);
+    const palavras = contaPalavras(pacote);
+    const pct = Math.min(100, Math.round(palavras / 2500 * 100));
     const ok = ped.tipo && ped.tema;
     $("#g-saida").innerHTML = `
       <div class="out-head">
         <h2 style="margin:0"><span class="ico-chip">${ICO.camadas}</span>Seu pacote de contexto</h2>
-        <label class="row" style="gap:8px; font-size:14px; cursor:pointer"><input type="checkbox" id="g-com" ${ped.comentada?"checked":""}> Versão comentada</label>
-      </div>
-      <div class="medidor" title="Contexto enxuto: modelos aproveitam melhor textos curtos e organizados">
-        <span>${palavras} palavras ${persist ? "a enviar por aula" : "no pacote"}</span><span class="bar"><i style="width:${pct}%"></i></span><span>${pct < 70 ? "enxuto" : "longo"}</span>
+        <div class="medidor" title="Contexto enxuto: modelos aproveitam melhor textos curtos e organizados">
+          <span>${palavras} palavras no pacote</span><span class="bar"><i style="width:${pct}%"></i></span><span>${pct < 70 ? "enxuto" : "longo"}</span>
+        </div>
+        <label class="check"><input type="checkbox" id="g-com" ${ped.comentada?"checked":""}> Versão comentada</label>
       </div>
       ${ok ? "" : `<div class="aviso">${ICO.alerta}<span>Escolha o material e informe o tema para completar o pedido.</span></div>`}
-      <div class="row" style="margin-top:14px">
-        <button class="btn pri" data-copiar="pacote">${ICO.copiar}Copiar pacote completo</button>
-        <button class="btn ghost" id="g-md">${ICO.baixar}Baixar .md</button>
+      <div class="acoes">
+        <div class="row">
+          <button class="btn pri" data-copiar="pacote">${ICO.copiar}Copiar pacote completo</button>
+          <button class="btn" id="g-md">${ICO.baixar}Baixar .md</button>
+        </div>
+        <div class="acoes-ia"><span class="lbl">Copiar e abrir na IA</span>
+          <div class="ias">${IAS_USO.map(k => { const ia = IAS[k]; return `<button class="ia" style="--ia:${ia.cor}" data-ia="${k}" title="Copia o pacote completo e abre o ${ia.nome} numa nova aba">${ia.icone}${ia.nome}${ICO.seta}</button>`; }).join("")}</div>
+        </div>
       </div>
-      ${persist ? `<div class="row" style="margin-top:10px"><button class="btn sm" data-copiar="fixo">${ICO.copiar}Só o contexto fixo (camadas 0 a 6, sem o pedido)</button><button class="btn sm" data-copiar="pedido">${ICO.enviar}Só o pedido (camada 7)</button></div>` : ""}
-      <span class="lbl" style="margin-top:16px">Copiar o pacote completo e abrir na IA</span>
-      <div class="ias">${IAS_USO.map(k => { const ia = IAS[k]; return `<button class="ia" style="--ia:${ia.cor}" data-ia="${k}">${ia.icone}${ia.nome}</button>`; }).join("")}</div>
-      ${cs.map(x => `<div class="camada${x.vazio ? " off" : ""}${persist && x.n === "7" ? "" : ""}">
-          <div class="camada-h"><span class="n">${x.n}</span>${esc(x.nome)}<span class="k">${x.tipo}${persist ? (x.n === "7" ? " · por aula" : " · fixo") : ""}</span></div>
+      <div class="camadas">
+      ${cs.map(x => `<div class="camada${x.vazio ? " off" : ""}">
+          <div class="camada-h"><span class="n">${x.n}</span>${esc(x.nome)}<span class="k">${x.tipo}</span></div>
           <pre>${esc(x.txt)}</pre>
           ${ped.comentada ? `<div class="coment">${ICO.luz}<span>${esc(x.nota)}</span></div>` : ""}
         </div>`).join("")}
+      </div>
       <div class="row" style="margin-top:16px"><a class="btn" href="#caderno/${t.id}/registrar">${ICO.caderno}Registrar esta aula depois</a></div>`;
     $("#g-com").addEventListener("change", e => { ped.comentada = e.target.checked; ler(); desenhar(); });
-    const textos = {pacote, fixo, pedido};
+    const textos = {pacote};
     const marcar = () => { S.ultimo[t.id] = {material:ped.tipo, tema:ped.tema, formato:ped.formato}; salvar(); };
-    $$("[data-copiar]").forEach(b => b.addEventListener("click", () => { marcar(); copiar(textos[b.dataset.copiar], {pacote:"Pacote completo copiado (camadas 0 a 7)", fixo:"Contexto fixo copiado (sem o pedido)", pedido:"Pedido copiado"}[b.dataset.copiar]); }));
+    $$("[data-copiar]").forEach(b => b.addEventListener("click", () => { marcar(); copiar(textos[b.dataset.copiar], "Pacote completo copiado (camadas 0 a 7)"); }));
     $$("[data-ia]").forEach(b => b.addEventListener("click", () => {
       marcar(); const ia = IAS[b.dataset.ia];
       copiar(pacote, `Pacote completo copiado! Cole no ${ia.nome}`);
@@ -1237,7 +1332,7 @@ function telaCaderno(arg){
         <p class="sub">${ult.material ? `Último pedido: ${esc(ult.material)}${ult.tema ? " — " + esc(ult.tema) : ""}.` : "Três perguntas rápidas."}</p>
         <div class="fields">
           <div class="field"><label for="r-data">Data</label><input type="date" id="r-data" value="${hoje()}"></div>
-          ${campoSel("r-mat", "Material usado", TIPOS, ult.material)}
+          ${campoMaterial("r-mat", "Material usado", ult.material)}
           ${campoTexto("r-tema", "Tema", ult.tema, "", "full")}
           <div class="field full"><span class="lbl">1. Como foi a aula?</span><div class="stars" id="r-nota" role="radiogroup" aria-label="Nota de 1 a 5">${[1,2,3,4,5].map(n=>`<button type="button" data-n="${n}" role="radio" aria-checked="false" aria-label="${n} de 5">★</button>`).join("")}</div></div>
           ${campoChips("r-tags", "2. O que funcionou e o que não funcionou?", TAGS_POS.concat(TAGS_NEG), [], TAGS_NEG)}
@@ -1278,7 +1373,7 @@ function telaCaderno(arg){
       ${cardDados()}
     </div>
   </div>`;
-  ligarChips(); ligarDados();
+  ligarChips(); ligarDados(); ligarMaterial("r-mat");
   $("#c-turma").addEventListener("change", e => { location.hash = "caderno/" + e.target.value; });
   let nota = 0;
   $$("#r-nota button").forEach(b => b.addEventListener("click", () => {
@@ -1289,7 +1384,7 @@ function telaCaderno(arg){
     const livre = val("r-livre") + " " + val("r-mud");
     if(/\b(?:[A-ZÁÉÍÓÚÂÊÔÃÕÇ][a-záéíóúâêôãõç]{2,})\s(?:[A-ZÁÉÍÓÚÂÊÔÃÕÇ][a-záéíóúâêôãõç]{2,})\b/.test(livre.replace(/^\s*\S+/, ""))
         && !confirm("Parece haver um nome próprio no comentário. Confirme que ele não identifica nenhum estudante. Salvar assim mesmo?")) return;
-    S.registros.push({id:uid(), criado:Date.now(), turmaId:tid, data:val("r-data") || hoje(), material:val("r-mat"), tema:val("r-tema"), nota, tags:lerChips("r-tags"),
+    S.registros.push({id:uid(), criado:Date.now(), turmaId:tid, data:val("r-data") || hoje(), material:lerMaterial("r-mat"), tema:val("r-tema"), nota, tags:lerChips("r-tags"),
       livre:val("r-livre"), mudaria:val("r-mud"), habilidades:val("r-habs")});
     salvar(); toast("Aula registrada. A memória foi atualizada");
     if(location.hash === "#caderno/" + tid) rota(); else location.hash = "caderno/" + tid;
