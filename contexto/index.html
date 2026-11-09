@@ -575,7 +575,7 @@ const BNCC_HAB = [
   {c:"EM13CO05",e:"Ensino Médio",x:null,t:"Identificar os limites da Computação para diferenciar o que pode ou não ser automatizado, buscando uma compreensão mais ampla dos limites dos processos mentais envolvidos na resolução de problemas."},
   {c:"EM13CO06",e:"Ensino Médio",x:null,t:"Avaliar software levando em consideração diferentes características e métricas associadas."},
   {c:"EM13CO07",e:"Ensino Médio",x:null,t:"Compreender as diferentes tecnologias, bem como equipamentos, protocolos e serviços envolvidos no funcionamento de redes de computadores, identificando suas possibilidades de escala e confiabilidade."},
-  {c:"EM13CO08",e:"Ensino Médio",x:null,t:"Entender como mudanças na tecnologia afetam a segurança, incluindo novas maneiras de preservar sua privacidade e dados pessoais on-line, reportando suspeitas e buscando ajuda em situações de risco. Analisar situações do mundo contemporâneo, selecionando técnicas computacionais apropriadas para a solução de problemas."},
+  {c:"EM13CO08",e:"Ensino Médio",x:null,t:"Entender como mudanças na tecnologia afetam a segurança, incluindo novas maneiras de preservar sua privacidade e dados pessoais on-line, reportando suspeitas e buscando ajuda em situações de risco."},
   {c:"EM13CO09",e:"Ensino Médio",x:null,t:"Identificar tecnologias digitais, sua presença e formas de uso, nas diferentes atividades no mundo do trabalho."},
   {c:"EM13CO10",e:"Ensino Médio",x:null,t:"Conhecer os fundamentos da Inteligência Artificial, comparando-a com a inteligência humana, analisando suas potencialidades, riscos e limites."},
   {c:"EM13CO11",e:"Ensino Médio",x:null,t:"Criar e explorar modelos computacionais simples para simular e fazer previsões, identificando sua importância no desenvolvimento científico."},
@@ -1016,8 +1016,8 @@ Competências gerais da BNCC: ${COMPETENCIAS_GERAIS.join("; ")}.
 Competências de Computação da etapa (${comps.rotulo}):
 ${comps.itens.map((x,i) => `${i+1}. ${x}`).join("\n")}
 
-Habilidades da BNCC Computação para esta etapa (código — texto oficial), por eixo:
-${Object.entries(porEixo).map(([x, hs]) => `[${x}]\n` + hs.map(h => `${h.c} — ${h.t}`).join("\n")).join("\n")}`;
+Habilidades da BNCC Computação para esta etapa (código — texto oficial)${habs.some(h => h.x) ? ", por eixo" : ""}:
+${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefined" ? `[${x}]\n` : "") + hs.map(h => `${h.c} — ${h.t}`).join("\n")).join("\n")}`;
   if(ped.habsBNCC) r1 += `\n\nHabilidades da BNCC do componente, fornecidas pelo(a) professor(a) a partir do documento oficial:\n${ped.habsBNCC}`;
   else r1 += `\n\nHabilidades da BNCC do componente ${ped.componente || t.componente || "informado"}: selecione-as do documento oficial da BNCC para a etapa, sempre com código e texto. Se não tiver certeza de um código, escreva [VERIFICAR] ao lado.`;
   if(tecnica(t)) r1 += `\n\nFormação técnica: ${t.curso || e.cursos || "curso técnico"}${e.eixo ? `, eixo tecnológico ${e.eixo}` : ""}. Considere o perfil profissional de conclusão do curso no Catálogo Nacional de Cursos Técnicos (4ª ed., Resolução CNE/CEB nº 2/2020) e as Diretrizes da Educação Profissional e Tecnológica (Resolução CNE/CP nº 1/2021).`;
@@ -1105,7 +1105,7 @@ function telaGerar(arg){
     <div class="row" style="justify-content:center">${perfilOk() ? "" : `<a class="btn" href="#contexto">${ICO.perfil}Meu contexto</a>`}<a class="btn pri" href="#turmas/nova">${ICO.mais}Cadastrar turma</a></div></div>`;
     return;
   }
-  const ped = Object.assign({turma: arg || S.pedido.turma || S.turmas[0].id, formato:(FORMATOS.find(f=>f.nome===S.perfil.formato)||{}).id || "", entrega:"conversa", comentada:false}, S.pedido, arg ? {turma:arg} : {});
+  const ped = Object.assign({turma: arg || S.pedido.turma || S.turmas[0].id, formato:(FORMATOS.find(f=>f.nome===S.perfil.formato)||{}).id || "", comentada:false}, S.pedido, {entrega:"conversa"}, arg ? {turma:arg} : {});
   if(!S.turmas.find(t => t.id === ped.turma)) ped.turma = S.turmas[0].id;
   $("#view").innerHTML = `
   <div class="page-head"><span class="eyebrow">Três perguntas · menos de um minuto</span><h1>Gerar pacote de contexto</h1>
@@ -1142,7 +1142,7 @@ function telaGerar(arg){
   atualizaComp();
   const ler = () => {
     Object.assign(ped, {turma:$("#g-turma").value, tipo:val("g-tipo"), componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
-    S.pedido = Object.assign({}, ped); delete S.pedido._auto;
+    S.pedido = Object.assign({}, ped); delete S.pedido._auto; delete S.pedido.entrega;
     if(ped.tipo || ped.tema) S.ultimo[ped.turma] = {material:ped.tipo, tema:ped.tema, formato:ped.formato};
     salvar();
   };
@@ -1176,12 +1176,11 @@ function telaGerar(arg){
       </div>
       ${ok ? "" : `<div class="aviso">${ICO.alerta}<span>Escolha o material e informe o tema para completar o pedido.</span></div>`}
       <div class="row" style="margin-top:14px">
-        ${persist
-          ? `<button class="btn pri" data-copiar="fixo">${ICO.copiar}Copiar contexto fixo</button><button class="btn" data-copiar="pedido">${ICO.enviar}Copiar só o pedido</button>`
-          : `<button class="btn pri" data-copiar="pacote">${ICO.copiar}Copiar pacote completo</button>`}
+        <button class="btn pri" data-copiar="pacote">${ICO.copiar}Copiar pacote completo</button>
         <button class="btn ghost" id="g-md">${ICO.baixar}Baixar .md</button>
       </div>
-      <span class="lbl" style="margin-top:16px">Copiar e abrir na IA</span>
+      ${persist ? `<div class="row" style="margin-top:10px"><button class="btn sm" data-copiar="fixo">${ICO.copiar}Só o contexto fixo (camadas 0 a 6, sem o pedido)</button><button class="btn sm" data-copiar="pedido">${ICO.enviar}Só o pedido (camada 7)</button></div>` : ""}
+      <span class="lbl" style="margin-top:16px">Copiar o pacote completo e abrir na IA</span>
       <div class="ias">${IAS_USO.map(k => { const ia = IAS[k]; return `<button class="ia" style="--ia:${ia.cor}" data-ia="${k}">${ia.icone}${ia.nome}</button>`; }).join("")}</div>
       ${cs.map(x => `<div class="camada${x.vazio ? " off" : ""}${persist && x.n === "7" ? "" : ""}">
           <div class="camada-h"><span class="n">${x.n}</span>${esc(x.nome)}<span class="k">${x.tipo}${persist ? (x.n === "7" ? " · por aula" : " · fixo") : ""}</span></div>
@@ -1192,16 +1191,16 @@ function telaGerar(arg){
     $("#g-com").addEventListener("change", e => { ped.comentada = e.target.checked; ler(); desenhar(); });
     const textos = {pacote, fixo, pedido};
     const marcar = () => { S.ultimo[t.id] = {material:ped.tipo, tema:ped.tema, formato:ped.formato}; salvar(); };
-    $$("[data-copiar]").forEach(b => b.addEventListener("click", () => { marcar(); copiar(textos[b.dataset.copiar], b.dataset.copiar === "pedido" ? "Pedido copiado" : "Contexto copiado"); }));
+    $$("[data-copiar]").forEach(b => b.addEventListener("click", () => { marcar(); copiar(textos[b.dataset.copiar], {pacote:"Pacote completo copiado (camadas 0 a 7)", fixo:"Contexto fixo copiado (sem o pedido)", pedido:"Pedido copiado"}[b.dataset.copiar]); }));
     $$("[data-ia]").forEach(b => b.addEventListener("click", () => {
       marcar(); const ia = IAS[b.dataset.ia];
-      copiar(persist ? pedido : pacote, `Copiado! Cole no ${ia.nome}`);
+      copiar(pacote, `Pacote completo copiado! Cole no ${ia.nome}`);
       window.open(ia.url, "_blank", "noopener");
     }));
     $("#g-md").addEventListener("click", () => {
       marcar();
       const nome = (t.nome || "turma").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/gi,"-").toLowerCase();
-      baixar(`contexto-${nome}.md`, persist ? fixo : pacote);
+      baixar(`contexto-${nome}.md`, pacote);
     });
   }
   desenhar();
