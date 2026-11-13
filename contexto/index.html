@@ -778,13 +778,56 @@ let S = VAZIO();
 try { const raw = localStorage.getItem(CHAVE); if(raw) S = Object.assign(VAZIO(), JSON.parse(raw)); } catch(e) {}
 function salvar(){ try { localStorage.setItem(CHAVE, JSON.stringify(S)); } catch(e) { toast("Não foi possível salvar neste navegador"); } }
 const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
+// Tipos de escola por etapa e modalidade (LDB, Lei nº 9.394/1996; categorias do Censo Escolar/INEP).
+// Os do grupo "Ensino Médio técnico" pedem eixo tecnológico e cursos técnicos.
+const TIPOS_ESCOLA = [
+  ["Ensino Fundamental — Anos Iniciais (1º ao 5º ano)", [
+    "Escola municipal de Ensino Fundamental (anos iniciais)",
+    "Escola estadual de Ensino Fundamental (anos iniciais)",
+    "Escola de anos iniciais em tempo integral",
+    "Escola do campo com turmas multisseriadas"]],
+  ["Ensino Fundamental — Anos Finais (6º ao 9º ano)", [
+    "Escola municipal de Ensino Fundamental (anos finais)",
+    "Escola estadual de Ensino Fundamental (anos finais)",
+    "Escola de anos finais em tempo integral",
+    "Escola de Ensino Fundamental completo (1º ao 9º ano)"]],
+  ["Ensino Médio", [
+    "Escola de Ensino Médio regular (formação geral básica e itinerários)",
+    "Escola de Ensino Médio em tempo integral",
+    "Escola de Ensino Fundamental e Médio"]],
+  ["Ensino Médio técnico e educação profissional", [
+    "Escola estadual de educação profissional",
+    "Instituto Federal",
+    "Escola técnica estadual",
+    "Escola de Ensino Médio com itinerário técnico",
+    "Centro de educação profissional (cursos concomitantes ou subsequentes)",
+    "Escola técnica vinculada a universidade",
+    "Unidade do Sistema S (SENAI, SENAC, SENAR, SENAT)",
+    "EJA integrada à educação profissional (PROEJA)"]],
+  ["Modalidades e outras (várias etapas)", [
+    "Escola do campo",
+    "Escola indígena",
+    "Escola quilombola",
+    "Escola de Educação de Jovens e Adultos (EJA)",
+    "Escola bilíngue de surdos",
+    "Escola cívico-militar ou militar",
+    "Outra"]]
+];
+const TIPOS_TECNICOS = TIPOS_ESCOLA[3][1];
+const escolaTecnica = tipo => TIPOS_TECNICOS.includes(tipo);
+const TIPO_ANTIGO = {"Escola de Ensino Fundamental": "Escola de Ensino Fundamental completo (1º ao 9º ano)"};
+function selTipoEscola(id, v){
+  const todos = TIPOS_ESCOLA.flatMap(g => g[1]);
+  const extra = v && !todos.includes(v) ? `<option selected>${esc(v)}</option>` : "";
+  return `<div class="field full"><label for="${id}">Tipo de escola</label><select id="${id}"><option value="">Selecione</option>${extra}${TIPOS_ESCOLA.map(([g, ops]) => `<optgroup label="${esc(g)}">${ops.map(o => `<option${o === v ? " selected" : ""}>${esc(o)}</option>`).join("")}</optgroup>`).join("")}</select></div>`;
+}
 const temEscola = e => !!(e && (e.tipo || e.cursos || e.eixo || e.territorio || (e.recursos||[]).length));
 function migrar(){
   // versões antigas tinham uma única escola (S.escola); agora o professor pode ter várias
   if(!Array.isArray(S.escolas)) S.escolas = [];
   if(!S.escolas.length && temEscola(S.escola)) S.escolas.push(Object.assign({id:uid(), nome:"Minha escola"}, S.escola));
   delete S.escola;
-  S.escolas.forEach(x => { if(Array.isArray(x.recursos)) x.recursos = x.recursos.map(r => r === "Quadro e papel apenas" ? "Quadro e papel" : r); });
+  S.escolas.forEach(x => { if(TIPO_ANTIGO[x.tipo]) x.tipo = TIPO_ANTIGO[x.tipo]; if(Array.isArray(x.recursos)) x.recursos = x.recursos.map(r => r === "Quadro e papel apenas" ? "Quadro e papel" : r); });
   ligarTurmasSemEscola();
 }
 function ligarTurmasSemEscola(){
@@ -992,8 +1035,7 @@ function telaContexto(){
   <div class="row end" style="margin-top:18px"><button class="btn pri" id="salvar-ctx">${ICO.escudo}Salvar meu contexto</button></div>`;
   ligarChips();
   let escolas = S.escolas.length ? S.escolas.map(x => Object.assign({}, x)) : [{id:uid(), nome:""}];
-  const TIPOS_ESCOLA = ["Escola estadual de educação profissional","Instituto Federal","Escola de Ensino Médio com itinerário técnico","Escola de Ensino Fundamental","Outra"];
-  const lerEscolas = () => escolas.map((x, i) => ({id:x.id, nome:val(`e-nome-${i}`), tipo:val(`e-tipo-${i}`), eixo:val(`e-eixo-${i}`), cursos:val(`e-cursos-${i}`), recursos:lerChips(`e-rec-${i}`), territorio:val(`e-terr-${i}`)}));
+  const lerEscolas = () => escolas.map((x, i) => ({id:x.id, nome:val(`e-nome-${i}`), tipo:val(`e-tipo-${i}`), eixo:escolaTecnica(val(`e-tipo-${i}`)) ? val(`e-eixo-${i}`) : "", cursos:escolaTecnica(val(`e-tipo-${i}`)) ? val(`e-cursos-${i}`) : "", recursos:lerChips(`e-rec-${i}`), territorio:val(`e-terr-${i}`)}));
   const desenharEscolas = (foco) => {
     const box = $("#escolas");
     box.innerHTML = escolas.map((x, i) => {
@@ -1003,14 +1045,18 @@ function telaContexto(){
           ${escolas.length > 1 ? `<button type="button" class="btn sm danger" data-rem-escola="${i}">${ICO.lixo}Remover</button>` : ""}</div>
         <div class="fields">
           ${campoTexto(`e-nome-${i}`, "Nome ou apelido da escola", x.nome, "Ex.: Escola Técnica do Centro", "full")}
-          ${campoSel(`e-tipo-${i}`, "Tipo de escola", TIPOS_ESCOLA, x.tipo)}
-          ${campoSel(`e-eixo-${i}`, "Eixo tecnológico principal", EIXOS, x.eixo, "", "Não se aplica / vários")}
-          <div class="field full"><label for="e-cursos-${i}">Cursos técnicos da escola</label><input type="text" id="e-cursos-${i}" list="l-cursos" value="${esc(x.cursos)}" placeholder="Ex.: Técnico em Informática; Técnico em Administração"></div>
+          ${selTipoEscola(`e-tipo-${i}`, x.tipo)}
+          <div class="field so-tec" data-tec="${i}"${escolaTecnica(x.tipo) ? "" : " hidden"}><label for="e-eixo-${i}">Eixo tecnológico principal</label><select id="e-eixo-${i}"><option value="">Não se aplica / vários</option>${EIXOS.map(o => `<option${o === x.eixo ? " selected" : ""}>${esc(o)}</option>`).join("")}</select></div>
+          <div class="field so-tec" data-tec="${i}"${escolaTecnica(x.tipo) ? "" : " hidden"}><label for="e-cursos-${i}">Cursos técnicos da escola</label><input type="text" id="e-cursos-${i}" list="l-cursos" value="${esc(x.cursos)}" placeholder="Ex.: Técnico em Informática; Técnico em Administração"></div>
           ${campoChips(`e-rec-${i}`, "Recursos disponíveis", RECURSOS, x.recursos)}
           ${campoArea(`e-terr-${i}`, "Território e mundo do trabalho", x.territorio, "Ex.: região agrícola com cooperativas; polo de comércio e serviços; empresas de tecnologia na capital", "full", "Ajuda a IA a criar situações-problema reais para a região desta escola.")}
         </div></div>`;
     }).join("");
     ligarChips(box);
+    escolas.forEach((x, i) => document.getElementById(`e-tipo-${i}`).addEventListener("change", ev => {
+      const tec = escolaTecnica(ev.target.value);
+      $$(`[data-tec="${i}"]`).forEach(el => el.hidden = !tec);
+    }));
     $$("[data-rem-escola]").forEach(b => b.addEventListener("click", () => {
       const i = +b.dataset.remEscola; escolas = lerEscolas();
       const nT = S.turmas.filter(t => t.escolaId === escolas[i].id).length;
