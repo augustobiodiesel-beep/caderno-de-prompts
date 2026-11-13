@@ -812,7 +812,7 @@ function campoSel(id, rot, opcoes, val, extra, vazio){
 function campoChips(id, rot, opcoes, sel, neg, editavel){
   const extras = editavel ? (sel||[]).filter(o => o && !opcoes.includes(o)) : [];
   const chip = (o, pressed) => `<button type="button" class="chip${neg&&neg.includes(o)?" neg":""}" aria-pressed="${pressed}">${esc(o)}</button>`;
-  return `<div class="field full"><span class="lbl">${rot}</span><div class="chips" data-chips="${id}">${opcoes.map(o=>chip(o, (sel||[]).includes(o))).join("")}${extras.map(o=>chip(o, true)).join("")}${editavel ? `<span class="chip-add"><input type="text" id="${id}-novo" placeholder="Escreva outra opção" aria-label="Adicionar outra opção"><button type="button" class="btn sm" data-add-chip="${id}">${ICO.mais}Adicionar</button></span>` : ""}</div>${editavel ? `<div class="hint">Clique para marcar ou desmarcar. Você pode adicionar as suas; as desmarcadas que você criou somem ao salvar.</div>` : ""}</div>`;
+  return `<div class="field full"><span class="lbl">${rot}</span><div class="chips" data-chips="${id}">${opcoes.map(o=>chip(o, (sel||[]).includes(o))).join("")}${extras.map(o=>chip(o, true)).join("")}${editavel === true ? `<span class="chip-add"><input type="text" id="${id}-novo" placeholder="Escreva outra opção" aria-label="Adicionar outra opção"><button type="button" class="btn sm" data-add-chip="${id}">${ICO.mais}Adicionar</button></span>` : ""}</div>${editavel === true ? `<div class="hint">Clique para marcar ou desmarcar. Você pode adicionar as suas; as desmarcadas que você criou somem ao salvar.</div>` : ""}</div>`;
 }
 function ligarChips(){
   $$("[data-chips] .chip").forEach(b => b.addEventListener("click", () => b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") !== "true")));
@@ -954,7 +954,7 @@ function telaContexto(){
       ${campoTexto("p-comp", "Componentes ou unidades curriculares que leciona", p.componentes, "Ex.: Matemática; Lógica de Programação; Banco de Dados", "full")}
       ${campoTexto("p-form", "Área de formação", p.formacao, "Ex.: Licenciatura em Matemática")}
       ${campoSel("p-ia", "Familiaridade com IA", ["Iniciante","Uso às vezes","Uso com frequência"], p.ia)}
-      ${campoChips("p-met", "Metodologias que você costuma usar", METODOLOGIAS, p.metodologias, null, true)}
+      ${campoChips("p-met", "Metodologias que você costuma usar", METODOLOGIAS, p.metodologias, null, "extras")}
       ${campoSel("p-ling", "Como prefere as respostas da IA", ["Diretas e objetivas","Detalhadas, com exemplos","Passo a passo, para quem está começando"], p.linguagem)}
       ${campoSel("p-fmt", "Formato que mais usa (sugestão inicial)", FORMATOS.filter(f=>f.id).map(f=>f.nome), p.formato)}
     </div>
