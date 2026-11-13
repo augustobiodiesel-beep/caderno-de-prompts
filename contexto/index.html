@@ -1111,7 +1111,6 @@ function formTurma(t){
       ${campoTexto("t-nome", "Como você chama esta turma", t.nome, "Ex.: 2ª série A — Informática", S.escolas.length ? "" : "full")}
       ${S.escolas.length ? `<div class="field"><label for="t-esc">Escola</label><select id="t-esc">${variasEscolas() && !S.escolas.find(e => e.id === t.escolaId) ? `<option value="">Selecione</option>` : ""}${S.escolas.map(e => `<option value="${e.id}"${e.id === (t.escolaId || (variasEscolas() ? "" : S.escolas[0].id)) ? " selected" : ""}>${esc(e.nome)}</option>`).join("")}</select><div class="hint">Para cadastrar outra escola, vá em <a href="#contexto">Meu contexto</a>.</div></div>` : ""}
       ${campoSel("t-etapa", "Etapa e ano", ETAPAS_TURMA, t.etapa)}
-      ${campoSel("t-form", "Formação", FORMACOES, t.formacao)}
       <div class="field"><label for="t-curso">Curso técnico (se houver)</label><input type="text" id="t-curso" list="l-cursos2" value="${esc(t.curso)}" placeholder="Ex.: Técnico em Informática"><datalist id="l-cursos2">${CURSOS.map(c=>`<option value="${esc(c)}">`).join("")}</datalist></div>
       ${campoTexto("t-comp", "Componente que você leciona nesta turma", t.componente || (S.perfil.componentes||"").split(/[;,]/)[0], "Ex.: Matemática")}
       <div class="field"><label for="t-n">Número aproximado de estudantes</label><input type="number" id="t-n" min="1" max="80" value="${esc(t.n)}"></div>
@@ -1137,7 +1136,7 @@ function formTurma(t){
   aulasInp.addEventListener("input", aulasMostra); aulasInp.addEventListener("change", () => { aulasInp.value = aulasN(); aulasMostra(); });
   aulasMostra();
   $("#t-salvar").addEventListener("click", () => {
-    const d = {id:t.id || uid(), nome:val("t-nome") || "Turma sem nome", etapa:val("t-etapa"), formacao:val("t-form"), curso:val("t-curso"), componente:val("t-comp"),
+    const d = {id:t.id || uid(), nome:val("t-nome") || "Turma sem nome", etapa:val("t-etapa"), curso:val("t-curso"), componente:val("t-comp"),
       escolaId:val("t-esc"), n:val("t-n"), aulas:aulasN(), tempo:tempoTxt(aulasN()), interesses:lerChips("t-int"), dificuldades:lerChips("t-dif"), acessibilidade:val("t-aces"), obs:val("t-obs")};
     if(!d.etapa){ toast("Escolha a etapa e o ano"); $("#t-etapa").focus(); return; }
     if(variasEscolas() && !d.escolaId){ toast("Escolha a escola desta turma"); $("#t-esc").focus(); return; }
@@ -1205,7 +1204,7 @@ const sinteseDe = tid => (S.sinteses[tid] && S.sinteses[tid].trim()) ? S.sintese
 function etapaBNCC(t){ const e = ETAPAS_TURMA.find(x => x[0] === t.etapa); return e ? e[1] : "Ensino Médio"; }
 function habsComputacao(etapa){ const par = BNCC_PAR[etapa]; return BNCC_HAB.filter(h => h.e === etapa || (par && h.e === par)); }
 function compsComputacao(etapa){ return etapa === "Ensino Médio" ? BNCC_COMPETENCIAS.em : BNCC_COMPETENCIAS.ef; }
-const tecnica = t => /técnic/i.test(t.formacao || "") || !!t.curso;
+const tecnica = t => escolaTecnica(escolaDe(t).tipo) || !!t.curso || /técnic/i.test(t.formacao || "");
 
 function montarCamadas(t, ped){
   const etapa = etapaBNCC(t), habs = habsComputacao(etapa), comps = compsComputacao(etapa);
