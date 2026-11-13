@@ -198,6 +198,17 @@ input[type=text], input[type=number], input[type=date], select, textarea{
 textarea{min-height:84px; resize:vertical}
 input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
 .chips{display:flex; flex-wrap:wrap; gap:8px}
+.ctxbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:14px 0 8px; padding:8px 12px; border:1px solid var(--border); border-radius:14px; background:var(--surface); font-size:14px}
+.ctxbar svg{width:18px; height:18px; color:var(--accent); flex:none}
+.ctxbar label{font-weight:600; color:var(--muted)}
+.ctxbar select{width:auto; min-width:200px; max-width:min(100%, 380px); flex:0 1 380px; padding:6px 10px}
+.escolher{display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:14px; align-items:stretch}
+.escolher > .card{margin:0}
+.card.escolha{display:flex; flex-direction:column; align-items:flex-start; gap:6px; text-align:left; cursor:pointer; font:inherit; color:var(--text); transition:transform .15s var(--ease), border-color .15s}
+.card.escolha:hover, .card.escolha:focus-visible{transform:translateY(-2px); border-color:var(--border-strong)}
+.card.escolha b{font-size:17px}
+.card.escolha small{color:var(--muted)}
+.card.escolha.todas{border-style:dashed}
 .chip-grupo{flex-basis:100%; font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin-top:6px}
 .chip-grupo:first-child{margin-top:0}
 .mat-info{display:flex; gap:10px; align-items:flex-start; margin-top:12px; padding:12px 14px; border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:12px; background:color-mix(in srgb, var(--accent) 7%, transparent); font-size:14px; line-height:1.5; color:var(--text); min-height:68px}
@@ -437,7 +448,7 @@ hr.sep{border:0; border-top:1px solid var(--border); margin:18px 0}
   </div>
 </header>
 
-<main class="wrap" id="main"><div id="view"></div></main>
+<main class="wrap" id="main"><div id="ctxbar"></div><div id="view"></div></main>
 
 <footer>
   <div class="wrap">
@@ -934,6 +945,11 @@ function ligarTurmasSemEscola(){
 }
 const escolaDe = t => S.escolas.find(x => x.id === (t && t.escolaId)) || {};
 const variasEscolas = () => S.escolas.length > 1;
+// Contexto em uso: a escola escolhida ao entrar ("" = todas)
+const escolaAtiva = () => variasEscolas() ? (S.escolas.find(e => e.id === S.ativa) || null) : null;
+const turmasAtivas = () => { const e = escolaAtiva(); return e ? S.turmas.filter(t => t.escolaId === e.id) : S.turmas; };
+const jaEscolheu = () => { try { return sessionStorage.getItem("cdc.escolheu") === "1"; } catch(e) { return true; } };
+const marcaEscolha = () => { try { sessionStorage.setItem("cdc.escolheu", "1"); } catch(e) {} };
 migrar();
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const hoje = () => new Date().toISOString().slice(0,10);
@@ -1076,8 +1092,32 @@ const ABAS = [
 function montarAbas(atual){
   $("#tabs").innerHTML = ABAS.map(a => `<a href="#${a.id}" class="${a.id===atual?"on":""}" ${a.id===atual?'aria-current="page"':""}>${ICO[a.ico]}<span>${a.nome}</span></a>`).join("");
 }
+function barraContexto(){
+  const b = $("#ctxbar");
+  if(!variasEscolas()){ b.innerHTML = ""; return; }
+  const e = escolaAtiva();
+  b.innerHTML = `<div class="ctxbar">${ICO.escola}<label for="ctx-sel">Contexto em uso</label>
+    <select id="ctx-sel">${S.escolas.map(x => `<option value="${x.id}"${e && e.id === x.id ? " selected" : ""}>${esc(x.nome || "Escola sem nome")}</option>`).join("")}<option value=""${e ? "" : " selected"}>Todas as escolas</option></select></div>`;
+  $("#ctx-sel").addEventListener("change", ev => { S.ativa = ev.target.value; salvar(); marcaEscolha(); toast(S.ativa ? `Contexto: ${escolaAtiva().nome}` : "Mostrando todas as escolas"); rota(); });
+}
+function telaEscolher(destino){
+  $("#ctxbar").innerHTML = "";
+  $("#view").innerHTML = `
+  <div class="page-head"><span class="eyebrow">Antes de começar</span><h1>Em qual contexto você vai trabalhar agora?</h1>
+    <p>Escolha a escola. O Caderno mostra só as turmas dela e usa o contexto dela no que você gerar. Dá para trocar a qualquer momento no topo da página.</p></div>
+  <div class="escolher">${S.escolas.map(e => { const n = S.turmas.filter(t => t.escolaId === e.id).length;
+    return `<button type="button" class="card escolha" data-esc="${e.id}"><span class="ico-chip">${ICO.escola}</span><b>${esc(e.nome || "Escola sem nome")}</b><small>${esc(e.tipo || "Tipo não informado")}</small><span class="tag">${n} turma${n === 1 ? "" : "s"}</span></button>`; }).join("")}
+    <button type="button" class="card escolha todas" data-esc=""><span class="ico-chip">${ICO.turma}</span><b>Todas as escolas</b><small>Ver tudo junto, separado por escola</small></button>
+  </div>`;
+  $$("[data-esc]").forEach(b => b.addEventListener("click", () => {
+    S.ativa = b.dataset.esc; salvar(); marcaEscolha();
+    if(location.hash === "#" + destino || (!location.hash && destino === "inicio")) rota(); else location.hash = destino;
+  }));
+}
 function rota(){
   const [id, arg] = (location.hash.slice(1) || "inicio").split("/");
+  if(variasEscolas() && !jaEscolheu() && id !== "contexto"){ montarAbas(""); return telaEscolher(location.hash.slice(1) || "inicio"); }
+  barraContexto();
   const aba = (ABAS.find(a => a.id === id) || id === "gerar") ? id : "inicio";
   montarAbas(aba === "gerar" ? "turmas" : aba);
   const v = $("#view");
@@ -1099,7 +1139,7 @@ function telaInicio(){
     ["cerebro", 20, 46, 84, 1.8], ["globo", 66, 40, 70, .9], ["nuvem", 84, 30, 50, 2.2], ["calendario", 6, 60, 58, 1.5],
     ["livro", 46, 62, 66, .4], ["video", 76, 62, 56, 2.6], ["lampada", 30, 76, 48, 1], ["codigo", 62, 80, 46, 2], ["joystick", 88, 50, 44, 1.4], ["lupa", 2, 8, 40, 2.8]
   ];
-  const nT = S.turmas.length, nR = S.registros.length;
+  const nT = turmasAtivas().length, nR = S.registros.filter(r => turmasAtivas().some(t => t.id === r.turmaId)).length;
   $("#view").innerHTML = `
   <section class="hero">
     <div>
@@ -1231,13 +1271,13 @@ function telaTurmas(arg){
   <div class="page-head row"><div><span class="eyebrow">Camada 4 · uma vez por turma</span><h1>Turmas</h1>
     <p>O perfil coletivo de cada turma. Sem nomes nem dados pessoais de estudantes.</p></div><span class="spacer"></span>
     <a class="btn pri" href="#turmas/nova">${ICO.mais}Nova turma</a></div>
-  ${S.turmas.length ? gruposTurmas().map(([titulo, lst]) => `${titulo ? `<h2 class="grupo-escola">${ICO.escola}${esc(titulo)}<span>${lst.length} turma${lst.length===1?"":"s"}</span></h2>` : ""}<div class="turmas">${lst.map(t => {
+  ${turmasAtivas().length ? gruposTurmas().map(([titulo, lst]) => `${titulo ? `<h2 class="grupo-escola">${ICO.escola}${esc(titulo)}<span>${lst.length} turma${lst.length===1?"":"s"}</span></h2>` : ""}<div class="turmas">${lst.map(t => {
       const n = S.registros.filter(r => r.turmaId === t.id).length;
       return `<article class="card turma"><h3>${esc(t.nome)}</h3><div class="meta">${esc(t.etapa)}${t.curso?" · "+esc(t.curso):""}</div>
       ${t.formacao ? `<span class="tag">${esc(t.formacao)}</span>` : ""}${t.n?`<span class="tag">${esc(t.n)} estudantes</span>`:""}<span class="tag">${n} registro${n===1?"":"s"}</span>
       <div class="row" style="margin-top:14px"><a class="btn sm pri" href="#gerar/${t.id}">${ICO.gerar}Gerar</a><a class="btn sm" href="#caderno/${t.id}">${ICO.caderno}Caderno</a><a class="btn sm ghost" href="#turmas/${t.id}" aria-label="Editar turma">${ICO.editar}</a></div></article>`;
     }).join("")}</div>`).join("")
-  : `<div class="card vazio">${ICO.turma}<h2 style="justify-content:center; margin:10px 0 6px">Nenhuma turma ainda</h2><p>Cadastre a primeira para começar a gerar contextos.</p><a class="btn pri" href="#turmas/nova">${ICO.mais}Cadastrar turma</a></div>`}`;
+  : `<div class="card vazio">${ICO.turma}<h2 style="justify-content:center; margin:10px 0 6px">Nenhuma turma ${escolaAtiva() ? "nesta escola" : "ainda"}</h2><p>${escolaAtiva() ? `Cadastre uma turma de ${esc(escolaAtiva().nome)} ou troque o contexto no topo da página.` : "Cadastre a primeira para começar a gerar contextos."}</p><a class="btn pri" href="#turmas/nova">${ICO.mais}Cadastrar turma</a></div>`}`;
 }
 // O curso técnico só aparece nas etapas de Ensino Médio, técnico e EJA — Ensino Médio (independe do tipo de escola)
 function cursoTecnicoVisivel(escolaId, etapa){
@@ -1245,6 +1285,7 @@ function cursoTecnicoVisivel(escolaId, etapa){
 }
 function gruposTurmas(){
   if(!variasEscolas()) return [["", S.turmas]];
+  if(escolaAtiva()) return [[escolaAtiva().nome, turmasAtivas()]];
   const g = S.escolas.map(e => [e.nome, S.turmas.filter(t => t.escolaId === e.id)]).filter(x => x[1].length);
   const sem = S.turmas.filter(t => !S.escolas.find(e => e.id === t.escolaId));
   if(sem.length) g.push(["Sem escola definida", sem]);
@@ -1258,7 +1299,7 @@ function formTurma(t){
   <section class="card">
     <div class="fields">
       ${campoTexto("t-nome", "Como você chama esta turma", t.nome, "Ex.: 2ª série A — Informática", S.escolas.length ? "" : "full")}
-      ${S.escolas.length ? `<div class="field"><label for="t-esc">Escola</label><select id="t-esc">${variasEscolas() && !S.escolas.find(e => e.id === t.escolaId) ? `<option value="">Selecione</option>` : ""}${S.escolas.map(e => `<option value="${e.id}"${e.id === (t.escolaId || (variasEscolas() ? "" : S.escolas[0].id)) ? " selected" : ""}>${esc(e.nome)}</option>`).join("")}</select><div class="hint">Para cadastrar outra escola, vá em <a href="#contexto">Meu contexto</a>.</div></div>` : ""}
+      ${S.escolas.length ? `<div class="field"><label for="t-esc">Escola</label><select id="t-esc">${variasEscolas() && !S.escolas.find(e => e.id === t.escolaId) && !escolaAtiva() ? `<option value="">Selecione</option>` : ""}${S.escolas.map(e => `<option value="${e.id}"${e.id === (t.escolaId || (variasEscolas() ? (escolaAtiva() ? escolaAtiva().id : "") : S.escolas[0].id)) ? " selected" : ""}>${esc(e.nome)}</option>`).join("")}</select><div class="hint">Para cadastrar outra escola, vá em <a href="#contexto">Meu contexto</a>.</div></div>` : ""}
       ${campoSel("t-etapa", "Etapa e ano", ETAPAS_TURMA, t.etapa)}
       <div class="field" id="t-curso-w"${cursoTecnicoVisivel(t.escolaId || (S.escolas.length === 1 ? S.escolas[0].id : ""), t.etapa) ? "" : " hidden"}><label for="t-curso">Curso técnico</label><input type="text" id="t-curso" list="l-cursos2" value="${esc(t.curso)}" placeholder="Ex.: Técnico em Informática"><datalist id="l-cursos2">${CURSOS.map(c=>`<option value="${esc(c)}">`).join("")}</datalist></div>
       ${campoTexto("t-comp", "Componente que você leciona nesta turma", t.componente || (S.perfil.componentes||"").split(/[;,]/)[0], "Ex.: Matemática")}
@@ -1617,7 +1658,9 @@ function telaCaderno(arg){
     ${cardDados()}`;
     ligarDados(); return;
   }
-  const tid = S.turmas.find(t => t.id === arg) ? arg : (S.pedido.turma && S.turmas.find(t=>t.id===S.pedido.turma) ? S.pedido.turma : S.turmas[0].id);
+  const lst = turmasAtivas().length ? turmasAtivas() : S.turmas;
+  const tid = S.turmas.find(t => t.id === arg) ? arg : (S.pedido.turma && lst.find(t=>t.id===S.pedido.turma) ? S.pedido.turma : lst[0].id);
+  const opcoes = lst.find(x => x.id === tid) ? lst : [S.turmas.find(x => x.id === tid), ...lst];
   const t = S.turmas.find(x => x.id === tid);
   const regs = registrosDe(tid);
   const abrirForm = parts[2] === "registrar";
@@ -1628,7 +1671,7 @@ function telaCaderno(arg){
   $("#view").innerHTML = `
   <div class="page-head row"><div><span class="eyebrow">Camada 5 · um minuto depois da aula</span><h1>Caderno de Memória da Turma</h1>
     <p>O que acontece em aula vira contexto para a próxima. Registre sempre a turma como coletivo.</p></div><span class="spacer"></span>
-    <div class="field" style="min-width:240px"><label for="c-turma" class="sr">Turma</label><select id="c-turma">${S.turmas.map(x=>`<option value="${x.id}"${x.id===tid?" selected":""}>${esc(x.nome)}${variasEscolas() && escolaDe(x).nome ? " · " + esc(escolaDe(x).nome) : ""}</option>`).join("")}</select></div></div>
+    <div class="field" style="min-width:240px"><label for="c-turma" class="sr">Turma</label><select id="c-turma">${opcoes.map(x=>`<option value="${x.id}"${x.id===tid?" selected":""}>${esc(x.nome)}${variasEscolas() && escolaDe(x).nome ? " · " + esc(escolaDe(x).nome) : ""}</option>`).join("")}</select></div></div>
 
   <div class="grid2" style="align-items:start">
     <div>
