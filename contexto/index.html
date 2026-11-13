@@ -198,6 +198,22 @@ input[type=text], input[type=number], input[type=date], select, textarea{
 textarea{min-height:84px; resize:vertical}
 input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
 .chips{display:flex; flex-wrap:wrap; gap:8px}
+.ctxbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:14px 0 8px; padding:8px 12px; border:1px solid var(--border); border-radius:14px; background:var(--surface); font-size:14px}
+.ctxbar svg{width:18px; height:18px; color:var(--accent); flex:none}
+.ctxbar label{font-weight:600; color:var(--muted)}
+.ctxbar select{width:auto; min-width:180px; max-width:min(100%, 340px); flex:0 1 340px; padding:6px 10px}
+.escolher{display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:14px; align-items:stretch}
+.escolher > .card{margin:0}
+.card.escolha{display:flex; flex-direction:column; align-items:flex-start; gap:6px; text-align:left; cursor:pointer; font:inherit; color:var(--text); text-decoration:none; transition:transform .15s var(--ease), border-color .15s}
+.card.escolha:hover, .card.escolha:focus-visible{transform:translateY(-2px); border-color:var(--border-strong)}
+.card.escolha b{font-size:17px}
+.card.escolha small{color:var(--muted)}
+.card.escolha.todas{border-style:dashed}
+.ctx-lista{display:flex; flex-direction:column; gap:8px}
+.ctx-item{display:flex; align-items:center; gap:10px; padding:8px 12px; border:1px solid var(--border); border-radius:12px}
+.ctx-item.on{border-color:var(--border-strong); background:color-mix(in srgb, var(--accent) 6%, transparent)}
+.ctx-item b{flex:1}
+.ctx-item input{flex:1; min-width:0}
 .chip-grupo{flex-basis:100%; font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin-top:6px}
 .chip-grupo:first-child{margin-top:0}
 .mat-info{display:flex; gap:10px; align-items:flex-start; margin-top:12px; padding:12px 14px; border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:12px; background:color-mix(in srgb, var(--accent) 7%, transparent); font-size:14px; line-height:1.5; color:var(--text); min-height:68px}
@@ -437,7 +453,7 @@ hr.sep{border:0; border-top:1px solid var(--border); margin:18px 0}
   </div>
 </header>
 
-<main class="wrap" id="main"><div id="view"></div></main>
+<main class="wrap" id="main"><div id="ctxbar"></div><div id="view"></div></main>
 
 <footer>
   <div class="wrap">
@@ -871,11 +887,22 @@ const COMPETENCIAS_GERAIS = ["1 Conhecimento","2 Pensamento científico, crític
 const IAS_USO = ["chatgpt","gemini","claude","copilot","deepseek"];
 
 /* ---------- Estado (fica só neste aparelho) ---------- */
-const CHAVE = "cdc.v1";
+// Cada contexto é um perfil completo (perfil, escolas, turmas e Caderno). O primeiro continua em "cdc.v1".
+const CHAVE_LISTA = "cdc.contextos";
 const VAZIO = () => ({perfil:{}, escolas:[], turmas:[], registros:[], sinteses:{}, ultimo:{}, pedido:{}});
-let S = VAZIO();
-try { const raw = localStorage.getItem(CHAVE); if(raw) S = Object.assign(VAZIO(), JSON.parse(raw)); } catch(e) {}
-function salvar(){ try { localStorage.setItem(CHAVE, JSON.stringify(S)); } catch(e) { toast("Não foi possível salvar neste navegador"); } }
+let M = {ativo:"principal", lista:[{id:"principal", nome:"Meu contexto"}]};
+try { const m = JSON.parse(localStorage.getItem(CHAVE_LISTA) || "null"); if(m && Array.isArray(m.lista) && m.lista.length) M = m; } catch(e) {}
+if(!M.lista.find(c => c.id === M.ativo)) M.ativo = M.lista[0].id;
+const chaveDe = id => id === "principal" ? "cdc.v1" : "cdc.v1:" + id;
+const lerDados = id => { try { const raw = localStorage.getItem(chaveDe(id)); if(raw) return Object.assign(VAZIO(), JSON.parse(raw)); } catch(e) {} return VAZIO(); };
+let S = lerDados(M.ativo);
+function salvar(){ try { localStorage.setItem(chaveDe(M.ativo), JSON.stringify(S)); } catch(e) { toast("Não foi possível salvar neste navegador"); } }
+function salvarLista(){ try { localStorage.setItem(CHAVE_LISTA, JSON.stringify(M)); } catch(e) {} }
+const ctxAtual = () => M.lista.find(c => c.id === M.ativo);
+const variosContextos = () => M.lista.length > 1;
+const jaEscolheu = () => { try { return sessionStorage.getItem("cdc.escolheu") === "1"; } catch(e) { return true; } };
+const marcaEscolha = () => { try { sessionStorage.setItem("cdc.escolheu", "1"); } catch(e) {} };
+function trocarContexto(id){ M.ativo = id; salvarLista(); S = lerDados(id); migrar(); marcaEscolha(); }
 const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
 // Tipos de escola por etapa e modalidade (LDB, Lei nº 9.394/1996; categorias do Censo Escolar/INEP).
 // Os do grupo "Ensino Médio técnico" pedem eixo tecnológico e cursos técnicos.
@@ -1076,8 +1103,37 @@ const ABAS = [
 function montarAbas(atual){
   $("#tabs").innerHTML = ABAS.map(a => `<a href="#${a.id}" class="${a.id===atual?"on":""}" ${a.id===atual?'aria-current="page"':""}>${ICO[a.ico]}<span>${a.nome}</span></a>`).join("");
 }
+function resumoContexto(c){
+  const d = c.id === M.ativo ? S : lerDados(c.id);
+  return {comp: d.perfil.componentes || "", escolas: d.escolas.map(e => e.nome).filter(Boolean), nT: d.turmas.length};
+}
+function barraContexto(){
+  const b = $("#ctxbar");
+  if(!variosContextos()){ b.innerHTML = ""; return; }
+  b.innerHTML = `<div class="ctxbar">${ICO.perfil}<label for="ctx-sel">Contexto em uso</label>
+    <select id="ctx-sel">${M.lista.map(c => `<option value="${c.id}"${c.id === M.ativo ? " selected" : ""}>${esc(c.nome)}</option>`).join("")}</select>
+    <a class="btn sm ghost" href="#contexto">Gerenciar contextos</a></div>`;
+  $("#ctx-sel").addEventListener("change", ev => { trocarContexto(ev.target.value); toast(`Contexto: ${ctxAtual().nome}`); const h = location.hash.slice(1).split("/")[0]; if(h === "gerar" || /^(turmas|caderno)\//.test(location.hash.slice(1))) location.hash = h === "caderno" ? "caderno" : "turmas"; else rota(); });
+}
+function telaEscolher(destino){
+  $("#ctxbar").innerHTML = "";
+  $("#view").innerHTML = `
+  <div class="page-head"><span class="eyebrow">Antes de começar</span><h1>Qual contexto você vai usar agora?</h1>
+    <p>Cada contexto tem perfil, escolas, turmas e Caderno próprios. Tudo o que você gerar usa o contexto escolhido. Dá para trocar a qualquer momento no topo da página.</p></div>
+  <div class="escolher">${M.lista.map(c => { const r = resumoContexto(c);
+    return `<button type="button" class="card escolha" data-ctx="${c.id}"><span class="ico-chip">${ICO.perfil}</span><b>${esc(c.nome)}</b><small>${esc(r.comp || "Perfil ainda não preenchido")}</small>${r.escolas.length ? `<small>${esc(r.escolas.join(" · "))}</small>` : ""}<span class="tag">${r.nT} turma${r.nT === 1 ? "" : "s"}</span></button>`; }).join("")}
+    <a class="card escolha todas" href="#contexto" data-novo="1"><span class="ico-chip">${ICO.mais}</span><b>Criar outro contexto</b><small>Outra rede, escola ou função</small></a>
+  </div>`;
+  $$("[data-ctx]").forEach(b => b.addEventListener("click", () => {
+    trocarContexto(b.dataset.ctx);
+    if(location.hash === "#" + destino || (!location.hash && destino === "inicio")) rota(); else location.hash = destino;
+  }));
+  $("[data-novo]").addEventListener("click", () => marcaEscolha());
+}
 function rota(){
   const [id, arg] = (location.hash.slice(1) || "inicio").split("/");
+  if(variosContextos() && !jaEscolheu() && id !== "contexto"){ montarAbas(""); return telaEscolher(location.hash.slice(1) || "inicio"); }
+  barraContexto();
   const aba = (ABAS.find(a => a.id === id) || id === "gerar") ? id : "inicio";
   montarAbas(aba === "gerar" ? "turmas" : aba);
   const v = $("#view");
@@ -1153,11 +1209,40 @@ function telaInicio(){
 /* ============================================================
    MEU CONTEXTO (camadas 2 e 3)
    ============================================================ */
+function ligarContextos(){
+  const nome = $("#ctx-nome");
+  nome.addEventListener("change", () => { ctxAtual().nome = nome.value.trim() || "Meu contexto"; salvarLista(); barraContexto(); toast("Nome do contexto salvo"); });
+  $$("[data-usar]").forEach(b => b.addEventListener("click", () => { trocarContexto(b.dataset.usar); toast(`Contexto: ${ctxAtual().nome}`); rota(); }));
+  const criar = () => {
+    const n = $("#ctx-novo").value.trim() || `Contexto ${M.lista.length + 1}`;
+    const id = uid(); M.lista.push({id, nome:n}); trocarContexto(id); salvar();
+    toast(`Contexto “${n}” criado. Preencha o perfil e as escolas.`); rota();
+  };
+  $("#ctx-criar").addEventListener("click", criar);
+  $("#ctx-novo").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); criar(); } });
+  const del = $("#ctx-del");
+  if(del) del.addEventListener("click", () => {
+    const c = ctxAtual();
+    if(!confirm(`Excluir o contexto “${c.nome}” com perfil, escolas, turmas e Caderno? Não dá para desfazer.`)) return;
+    try { localStorage.removeItem(chaveDe(c.id)); } catch(e) {}
+    M.lista = M.lista.filter(x => x.id !== c.id);
+    trocarContexto(M.lista[0].id); toast("Contexto excluído"); rota();
+  });
+}
 function telaContexto(){
   const p = S.perfil;
   $("#view").innerHTML = `
   <div class="page-head"><span class="eyebrow">Camadas 2 e 3 · preenchidas uma vez por escola</span><h1>Meu contexto</h1>
     <p>Essas informações entram em todo pacote de contexto. Você pode mudar quando quiser.</p></div>
+  <section class="card ctx-card">
+    <h2><span class="ico-chip">${ICO.camadas}</span>Seus contextos</h2>
+    <p class="sub">Crie um contexto para cada realidade de trabalho (por exemplo, rede estadual, rede municipal, instituto federal ou outra função). Cada um tem perfil, escolas, turmas e Caderno próprios. Para renomear o contexto em uso, edite o nome na lista.</p>
+    <div class="ctx-lista">${M.lista.map(c => `<div class="ctx-item${c.id === M.ativo ? " on" : ""}">${c.id === M.ativo
+      ? `<input type="text" id="ctx-nome" value="${esc(c.nome)}" aria-label="Nome do contexto em uso"><span class="tag">em uso</span>`
+      : `<b>${esc(c.nome)}</b><button type="button" class="btn sm" data-usar="${c.id}">Usar este</button>`}</div>`).join("")}</div>
+    <div class="row" style="margin-top:12px"><input type="text" id="ctx-novo" placeholder="Nome do novo contexto. Ex.: Rede municipal" aria-label="Nome do novo contexto" style="flex:1 1 220px; max-width:360px"><button type="button" class="btn sm" id="ctx-criar">${ICO.mais}Criar contexto</button>
+    ${variosContextos() ? `<span class="spacer"></span><button type="button" class="btn sm danger" id="ctx-del">${ICO.lixo}Excluir o contexto em uso</button>` : ""}</div>
+  </section>
   <section class="card">
     <h2><span class="ico-chip">${ICO.perfil}</span>Perfil docente</h2>
     <p class="sub">O que a IA precisa saber sobre você para falar a sua língua.</p>
@@ -1178,7 +1263,7 @@ function telaContexto(){
     <button class="btn" id="add-escola" type="button">${ICO.mais}Adicionar outra escola</button>
   </section>
   <div class="row end" style="margin-top:18px"><button class="btn pri" id="salvar-ctx">${ICO.escudo}Salvar meu contexto</button></div>`;
-  ligarChips();
+  ligarChips(); ligarContextos();
   let escolas = S.escolas.length ? S.escolas.map(x => Object.assign({}, x)) : [{id:uid(), nome:""}];
   const lerEscolas = () => escolas.map((x, i) => ({id:x.id, nome:val(`e-nome-${i}`), tipo:val(`e-tipo-${i}`), eixo:escolaTecnica(val(`e-tipo-${i}`)) ? val(`e-eixo-${i}`) : "", cursos:escolaTecnica(val(`e-tipo-${i}`)) ? val(`e-cursos-${i}`) : "", recursos:lerChips(`e-rec-${i}`), territorio:val(`e-terr-${i}`)}));
   const desenharEscolas = (foco) => {
@@ -1733,7 +1818,7 @@ function ligarDados(){
     rd.readAsText(f);
   });
   $("#d-apagar").addEventListener("click", () => {
-    if(!confirm("Apagar perfil, escolas, turmas e todo o Caderno deste aparelho? Não dá para desfazer.")) return;
+    if(!confirm(`Apagar perfil, escolas, turmas e todo o Caderno do contexto “${ctxAtual().nome}”? Não dá para desfazer.`)) return;
     S = VAZIO(); salvar(); toast("Dados apagados"); location.hash = "inicio"; rota();
   });
 }
