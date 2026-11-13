@@ -198,6 +198,8 @@ input[type=text], input[type=number], input[type=date], select, textarea{
 textarea{min-height:84px; resize:vertical}
 input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
 .chips{display:flex; flex-wrap:wrap; gap:8px}
+.chip-grupo{flex-basis:100%; font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin-top:6px}
+.chip-grupo:first-child{margin-top:0}
 .chip{
   font:inherit; font-size:13.5px; cursor:pointer; padding:7px 12px; border-radius:999px;
   color:var(--muted); background:transparent; border:1px solid var(--border);
@@ -778,8 +780,39 @@ const DIFICULDADES = ["Leitura e interpretação","Matemática básica","Escrita
 const TIPOS = ["Plano de aula","Sequência didática","Avaliação ou prova","Rubrica de avaliação","Lista de exercícios","Estudo de caso","Roteiro de prática de laboratório","Projeto (aprendizagem baseada em projetos)","Atividade desplugada","Texto de apoio ou material de leitura","Atividade de revisão","Adaptação de atividade (DUA)","Situação-problema do mundo do trabalho","Jogo ou dinâmica"];
 TIPOS.push("Slides da aula");
 const TIPOS_ORD = [...TIPOS].sort((a,b) => a.localeCompare(b, "pt-BR"));
-// Ordem pedagógica: do planejamento à avaliação (é a ordem em que a IA produz os materiais)
-const TIPOS_PED = ["Sequência didática","Plano de aula","Projeto (aprendizagem baseada em projetos)","Situação-problema do mundo do trabalho","Estudo de caso","Slides da aula","Texto de apoio ou material de leitura","Roteiro de prática de laboratório","Atividade desplugada","Jogo ou dinâmica","Lista de exercícios","Atividade de revisão","Adaptação de atividade (DUA)","Avaliação ou prova","Rubrica de avaliação"];
+// Materiais em grupos e em ordem pedagógica: do planejamento à avaliação (é a ordem em que a IA produz)
+const TIPOS_GRUPOS = [
+  ["Planejar", ["Sequência didática","Plano de aula","Gancho para abrir a aula","Ideias de projetos","Projeto (aprendizagem baseada em projetos)"]],
+  ["Apresentar e explicar", ["Slides da aula","Slides de atividades interativas","Imagens e ilustrações","Texto de apoio ou material de leitura","Exemplos do mundo real","Lista de vocabulário","Tradução ou adaptação de texto"]],
+  ["Praticar e engajar", ["Situação-problema do mundo do trabalho","Estudo de caso","Tópicos para discussão","Roteiro de prática de laboratório","Atividade desplugada","Jogo ou dinâmica","Atividade de quebra-cabeça","Quadro de opções","Lista de exercícios","Atividade de revisão","Adaptação de atividade (DUA)"]],
+  ["Avaliar", ["Quiz ou teste rápido","Avaliação ou prova","Rubrica de avaliação"]]
+];
+const TIPOS_PED = TIPOS_GRUPOS.flatMap(g => g[1]);
+TIPOS_PED.forEach(x => { if(!TIPOS.includes(x)) TIPOS.push(x); });
+TIPOS_ORD.splice(0, TIPOS_ORD.length, ...[...TIPOS].sort((a,b) => a.localeCompare(b, "pt-BR")));
+// O que a IA precisa saber sobre materiais menos óbvios
+const NOTA_TIPO = {
+  "Gancho para abrir a aula": "abertura de 5 a 10 minutos que desperte curiosidade (pergunta intrigante, desafio, notícia ou situação do cotidiano)",
+  "Ideias de projetos": "de 3 a 5 ideias de projeto, cada uma com produto final, etapas e ligação com o mundo do trabalho",
+  "Slides de atividades interativas": "cada slide pede uma ação do estudante (votar, responder, arrastar, discutir) e sugere uma ferramenta gratuita (Mentimeter, Wordwall, Canva)",
+  "Imagens e ilustrações": "se você não gerar imagens, escreva para cada uma a descrição e um prompt pronto para um gerador de imagens, com cuidado com direitos autorais",
+  "Exemplos do mundo real": "situações reais e próximas da turma e do território que mostrem o conteúdo em uso",
+  "Lista de vocabulário": "termos-chave com definição simples e exemplo de uso",
+  "Tradução ou adaptação de texto": "traduza ou adapte um texto para a turma, mantendo o sentido; se não houver texto nos detalhes, peça antes de produzir",
+  "Tópicos para discussão": "perguntas abertas que provoquem debate, do mais simples ao mais complexo",
+  "Atividade de quebra-cabeça": "enigma, cruzadinha, caça-palavras ou peças para montar ligadas ao conteúdo, com gabarito",
+  "Quadro de opções": "grade de 6 a 9 atividades para o estudante escolher, com níveis e formas de expressão diferentes",
+  "Quiz ou teste rápido": "de 5 a 10 questões curtas para checar a aprendizagem, com gabarito"
+};
+function campoMateriais(sel){
+  sel = sel || [];
+  const chip = o => `<button type="button" class="chip" aria-pressed="${sel.includes(o)}">${esc(o)}</button>`;
+  const extras = sel.filter(o => o && !TIPOS_PED.includes(o));
+  return `<div class="field full"><span class="lbl">1. Quais materiais? Marque um ou mais</span><div class="chips" data-chips="g-tipos">
+    ${TIPOS_GRUPOS.map(([g, l]) => `<span class="chip-grupo">${g}</span>${l.map(chip).join("")}`).join("")}
+    <span class="chip-grupo">Não está na lista? Peça outro material</span>${extras.map(chip).join("")}<span class="chip-add"><input type="text" id="g-tipos-novo" placeholder="Ex.: podcast, mapa mental" aria-label="Outro material"><button type="button" class="btn sm" data-add-chip="g-tipos">${ICO.mais}Adicionar</button></span>
+  </div><div class="hint" id="g-tipos-txt"></div></div>`;
+}
 const EIXOS_CO = ["Pensamento Computacional","Mundo Digital","Cultura Digital"];
 const ordenaTipos = l => [...l].sort((a, b) => { const i = TIPOS_PED.indexOf(a), j = TIPOS_PED.indexOf(b); return (i < 0 ? 99 : i) - (j < 0 ? 99 : j); });
 const TAGS_POS = ["Engajou a turma","Prática funcionou","Nível adequado","Formato ajudou","Boa ligação com o mundo do trabalho","Trabalho em grupo funcionou","Tempo bem dimensionado"];
@@ -1377,9 +1410,9 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
 }
 function linhasMateriais(tipos){
   if(!tipos.length) return ["- Material: (escolha o material)"];
-  if(tipos.length === 1) return [`- Material: ${tipos[0]}`];
+  if(tipos.length === 1) return [`- Material: ${tipos[0]}${NOTA_TIPO[tipos[0]] ? ` — ${NOTA_TIPO[tipos[0]]}` : ""}`];
   return [`- Materiais (produza todos, nesta ordem, como um conjunto articulado):`,
-    ...tipos.map((m, i) => `  ${i + 1}. ${m}`),
+    ...tipos.map((m, i) => `  ${i + 1}. ${m}${NOTA_TIPO[m] ? ` — ${NOTA_TIPO[m]}` : ""}`),
     `- Os materiais devem conversar entre si: mesmas habilidades, mesmo tema e a mesma progressão (por exemplo, um plano para cada aula da sequência; slides e avaliação coerentes com o que foi planejado). Faça um único quadro de habilidades ao final do conjunto.`,
     `- Se a resposta ficar longa demais, entregue um material por vez, avise qual vem a seguir e pergunte se pode continuar.`];
 }
@@ -1414,7 +1447,7 @@ function telaGerar(arg){
     <h2><span class="ico-chip">${ICO.gerar}</span>O pedido</h2>
     <p class="sub">Camada 7: a única parte que muda a cada uso.</p>
     <div class="fields f4">
-      ${campoChips("g-tipos", "1. Quais materiais? Marque um ou mais", TIPOS_PED, ped.tipos, null, true).replace(/<div class="hint">[^<]*<\/div><\/div>$/, `<div class="hint" id="g-tipos-txt"></div></div>`)}
+      ${campoMateriais(ped.tipos)}
       ${comEixo ? `${campoChips("g-eixos", "Eixo da BNCC Computação em foco (opcional): marque um, dois ou os três", EIXOS_CO, ped.eixos || []).replace(/<\/div>$/, `<div class="hint"><b>Pensamento Computacional:</b> resolver problemas com algoritmos, padrões e abstração. <b>Mundo Digital:</b> como dados, máquinas e redes funcionam. <b>Cultura Digital:</b> uso crítico, ético e seguro das tecnologias. Sem marcar, a IA escolhe entre os três.</div></div>`)}` : ""}
       ${campoTexto("g-comp", "Componente", ped.componente || "", "")}
       <div class="field"><label for="g-fmt">2. Em que formato?</label><select id="g-fmt">${FORMATOS.map(f=>`<option value="${f.id}"${f.id===ped.formato?" selected":""}>${f.id ? esc(f.nome) : "Deixar a IA escolher"}</option>`).join("")}</select><div class="hint" id="g-fmt-dica"></div></div>
