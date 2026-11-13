@@ -776,7 +776,11 @@ function campoInteresses(etapa, sel){
 }
 const DIFICULDADES = ["Leitura e interpretação","Matemática básica","Escrita","Concentração","Pouco acesso à internet em casa","Defasagem de conteúdos anteriores","Faltas frequentes","Timidez para participar"];
 const TIPOS = ["Plano de aula","Sequência didática","Avaliação ou prova","Rubrica de avaliação","Lista de exercícios","Estudo de caso","Roteiro de prática de laboratório","Projeto (aprendizagem baseada em projetos)","Atividade desplugada","Texto de apoio ou material de leitura","Atividade de revisão","Adaptação de atividade (DUA)","Situação-problema do mundo do trabalho","Jogo ou dinâmica"];
+TIPOS.push("Slides da aula");
 const TIPOS_ORD = [...TIPOS].sort((a,b) => a.localeCompare(b, "pt-BR"));
+// Ordem pedagógica: do planejamento à avaliação (é a ordem em que a IA produz os materiais)
+const TIPOS_PED = ["Sequência didática","Plano de aula","Projeto (aprendizagem baseada em projetos)","Situação-problema do mundo do trabalho","Estudo de caso","Slides da aula","Texto de apoio ou material de leitura","Roteiro de prática de laboratório","Atividade desplugada","Jogo ou dinâmica","Lista de exercícios","Atividade de revisão","Adaptação de atividade (DUA)","Avaliação ou prova","Rubrica de avaliação"];
+const ordenaTipos = l => [...l].sort((a, b) => { const i = TIPOS_PED.indexOf(a), j = TIPOS_PED.indexOf(b); return (i < 0 ? 99 : i) - (j < 0 ? 99 : j); });
 const TAGS_POS = ["Engajou a turma","Prática funcionou","Nível adequado","Formato ajudou","Boa ligação com o mundo do trabalho","Trabalho em grupo funcionou","Tempo bem dimensionado"];
 const TAGS_NEG = ["Muito longo","Faltou prática","Nível alto demais","Nível fácil demais","Pouco engajamento","Linguagem difícil","Faltou tempo","Recursos indisponíveis","Formato não ajudou","Habilidades inadequadas"];
 const RECOMENDA = {
@@ -901,7 +905,7 @@ function campoSel(id, rot, opcoes, val, extra, vazio){
 function campoChips(id, rot, opcoes, sel, neg, editavel){
   const extras = editavel ? (sel||[]).filter(o => o && !opcoes.includes(o)) : [];
   const chip = (o, pressed) => `<button type="button" class="chip${neg&&neg.includes(o)?" neg":""}" aria-pressed="${pressed}">${esc(o)}</button>`;
-  return `<div class="field full"><span class="lbl">${rot}</span><div class="chips" data-chips="${id}">${opcoes.map(o=>chip(o, (sel||[]).includes(o))).join("")}${extras.map(o=>chip(o, true)).join("")}${editavel === true ? `<span class="chip-add"><input type="text" id="${id}-novo" placeholder="${id.startsWith("e-rec") ? "Escreva outro recurso" : "Escreva outra opção"}" aria-label="Adicionar outra opção"><button type="button" class="btn sm" data-add-chip="${id}">${ICO.mais}Adicionar</button></span>` : ""}</div>${editavel === true ? `<div class="hint">Clique para marcar ou desmarcar. Você pode adicionar as suas; as desmarcadas que você criou somem ao salvar.</div>` : ""}</div>`;
+  return `<div class="field full"><span class="lbl">${rot}</span><div class="chips" data-chips="${id}">${opcoes.map(o=>chip(o, (sel||[]).includes(o))).join("")}${extras.map(o=>chip(o, true)).join("")}${editavel === true ? `<span class="chip-add"><input type="text" id="${id}-novo" placeholder="${id.startsWith("e-rec") ? "Escreva outro recurso" : id === "g-tipos" ? "Outro material. Ex.: podcast, mapa mental" : "Escreva outra opção"}" aria-label="Adicionar outra opção"><button type="button" class="btn sm" data-add-chip="${id}">${ICO.mais}Adicionar</button></span>` : ""}</div>${editavel === true ? `<div class="hint">Clique para marcar ou desmarcar. Você pode adicionar as suas; as desmarcadas que você criou somem ao salvar.</div>` : ""}</div>`;
 }
 function ligarChips(raiz){
   const em = sel => Array.from((raiz || document).querySelectorAll(sel));
@@ -1353,16 +1357,26 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
   // 7 Pedido
   const f = FORMATOS.find(x => x.id === ped.formato);
   const r7 = [`## 7. PEDIDO`,
-    `- Material: ${ped.tipo || "(escolha o material)"}`,
+    ...linhasMateriais(ped.tipos || []),
     `- Tema ou conteúdo: ${ped.tema || "(informe o tema)"}`,
-    ped.aulas && `- Tempo para este material: ${tempoTxt(ped.aulas, ped.duracao)}. Distribua as atividades nesse tempo.`,
+    ped.aulas && `- Tempo ${(ped.tipos || []).length > 1 ? "para o conjunto" : "para este material"}: ${tempoTxt(ped.aulas, ped.duracao)}. Distribua as atividades nesse tempo.`,
     ped.detalhes && `- Detalhes: ${ped.detalhes}`,
-    `- Formato de saída: ${f && f.id ? f.nome : "à sua escolha, o mais útil para o material"}`,
+    (ped.tipos || []).length > 1
+      ? `- Formato de saída: ${f && f.id ? f.nome + " (para todos os materiais)" : "à sua escolha, o mais útil para cada material"}`
+      : `- Formato de saída: ${f && f.id ? f.nome : "à sua escolha, o mais útil para o material"}`,
     f && f.regra && `  ${f.regra}`,
     f && f.regra && `  O quadro de habilidades entra adaptado a este formato (por exemplo, no último slide ou depois da última questão).`].filter(Boolean);
   c.push({n:"7", nome:"Pedido", tipo:"pedido", txt:r7.join("\n"),
     nota:"A única parte que muda a cada uso: o material, o tema e o formato desta vez."});
   return c;
+}
+function linhasMateriais(tipos){
+  if(!tipos.length) return ["- Material: (escolha o material)"];
+  if(tipos.length === 1) return [`- Material: ${tipos[0]}`];
+  return [`- Materiais (produza todos, nesta ordem, como um conjunto articulado):`,
+    ...tipos.map((m, i) => `  ${i + 1}. ${m}`),
+    `- Os materiais devem conversar entre si: mesmas habilidades, mesmo tema e a mesma progressão (por exemplo, um plano para cada aula da sequência; slides e avaliação coerentes com o que foi planejado). Faça um único quadro de habilidades ao final do conjunto.`,
+    `- Se a resposta ficar longa demais, entregue um material por vez, avise qual vem a seguir e pergunte se pode continuar.`];
 }
 const textoCamadas = (cs, quais) => cs.filter(x => !quais || quais.includes(x.n)).map(x => x.txt).join("\n\n");
 const contaPalavras = s => (s.match(/\S+/g) || []).length;
@@ -1382,6 +1396,7 @@ function telaGerar(arg){
   const mesma = S.pedido.turma === arg;
   const ped = Object.assign({formato:(FORMATOS.find(f=>f.nome===S.perfil.formato)||{}).id || "", comentada:false}, S.pedido, {turma:arg});
   delete ped.entrega;
+  if(!Array.isArray(ped.tipos)) ped.tipos = ped.tipo ? [ped.tipo] : [];
   if(!mesma){ ped._auto = true; ped.componente = ""; }
   if(!mesma || !ped.aulas){ ped.aulas = aulasDe(turmaG); ped.duracao = duracaoDe(turmaG); }
   $("#view").innerHTML = `
@@ -1392,11 +1407,11 @@ function telaGerar(arg){
     <h2><span class="ico-chip">${ICO.gerar}</span>O pedido</h2>
     <p class="sub">Camada 7: a única parte que muda a cada uso.</p>
     <div class="fields f4">
-      ${campoMaterial("g-tipo", "1. Que material?", ped.tipo, "")}
+      ${campoChips("g-tipos", "1. Quais materiais? Marque um ou mais", TIPOS_PED, ped.tipos, null, true).replace(/<div class="hint">[^<]*<\/div><\/div>$/, `<div class="hint" id="g-tipos-txt"></div></div>`)}
       ${campoTexto("g-comp", "Componente", ped.componente || "", "")}
       <div class="field"><label for="g-fmt">2. Em que formato?</label><select id="g-fmt">${FORMATOS.map(f=>`<option value="${f.id}"${f.id===ped.formato?" selected":""}>${f.id ? esc(f.nome) : "Deixar a IA escolher"}</option>`).join("")}</select><div class="hint" id="g-fmt-dica"></div></div>
       ${campoTexto("g-tema", "3. Sobre qual tema ou conteúdo?", ped.tema, "Ex.: funções do 1º grau aplicadas a orçamento", "tema")}
-      ${campoTempo("g-tempo", "4. Quantas aulas para este material?", ped.aulas, ped.duracao, "", "Começa com o tempo de aula da turma; ajuste para este material.")}
+      ${campoTempo("g-tempo", "4. Quantas aulas ao todo?", ped.aulas, ped.duracao, "", "Começa com o tempo de aula da turma; ajuste para este pedido.")}
       <details class="full"><summary>Opcional: detalhes e habilidades da BNCC do componente</summary>
         <div class="fields" style="margin-top:12px">
           ${campoArea("g-det", "Detalhes do pedido", ped.detalhes, "Ex.: para a aula de revisão antes da prova; com uma atividade em dupla")}
@@ -1413,14 +1428,21 @@ function telaGerar(arg){
   const atualizaComp = () => { const t = turmaG; if(!ped.componente || ped._auto){ comp.value = t.componente || ""; ped._auto = true; } };
   atualizaComp();
   const ler = () => {
-    Object.assign(ped, tempoG(), {turma:turmaG.id, tipo:lerMaterial("g-tipo"), componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
+    const tipos = ordenaTipos(lerChips("g-tipos"));
+    Object.assign(ped, tempoG(), {turma:turmaG.id, tipos, tipo:tipos.join(" + "), componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
     S.pedido = Object.assign({}, ped); delete S.pedido._auto;
     if(ped.tipo || ped.tema) S.ultimo[ped.turma] = {material:ped.tipo, tema:ped.tema, formato:ped.formato};
     salvar();
   };
   comp.addEventListener("input", () => { ped._auto = false; });
   ["g-comp","g-tema","g-fmt","g-det","g-habs"].forEach(id => $("#"+id).addEventListener("input", () => { ler(); desenhar(); }));
-  ligarMaterial("g-tipo", () => { ler(); desenhar(); });
+  ligarChips($(".pedido-card"));
+  const tiposBox = $('[data-chips="g-tipos"]');
+  const tiposTxt = () => { const n = lerChips("g-tipos").length; $("#g-tipos-txt").textContent = n > 1 ? `${n} materiais no mesmo pedido: a IA produz um conjunto articulado, do planejamento à avaliação.` : "Clique para marcar. Marque vários para gerar um conjunto (ex.: sequência didática + planos de aula + slides + avaliação)."; };
+  const mudouTipos = () => { tiposTxt(); ler(); desenhar(); };
+  tiposBox.addEventListener("click", e => { if(e.target.closest(".chip, [data-add-chip]")) mudouTipos(); });
+  $("#g-tipos-novo").addEventListener("keydown", e => { if(e.key === "Enter") mudouTipos(); });
+  tiposTxt();
   const tempoG = ligarTempo("g-tempo", () => { ler(); desenhar(); });
 
   function desenhar(){
@@ -1431,7 +1453,7 @@ function telaGerar(arg){
     const pacote = textoCamadas(cs);
     const palavras = contaPalavras(pacote);
     const pct = Math.min(100, Math.round(palavras / 2500 * 100));
-    const ok = ped.tipo && ped.tema;
+    const ok = (ped.tipos || []).length && ped.tema;
     $("#g-saida").innerHTML = `
       <div class="out-head">
         <h2 style="margin:0"><span class="ico-chip">${ICO.camadas}</span>Seu pacote de contexto</h2>
@@ -1440,7 +1462,7 @@ function telaGerar(arg){
         </div>
         <label class="check"><input type="checkbox" id="g-com" ${ped.comentada?"checked":""}> Versão comentada</label>
       </div>
-      ${ok ? "" : `<div class="aviso">${ICO.alerta}<span>Escolha o material e informe o tema para completar o pedido.</span></div>`}
+      ${ok ? "" : `<div class="aviso">${ICO.alerta}<span>Marque ao menos um material e informe o tema para completar o pedido.</span></div>`}
       <div class="acoes">
         <div class="row">
           <button class="btn pri" data-copiar="pacote">${ICO.copiar}Copiar pacote completo</button>
