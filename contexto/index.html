@@ -323,8 +323,7 @@ input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accen
 @media (max-width:560px){ .passos-uso.h{grid-template-columns:1fr} }
 .fields.f4{grid-template-columns:repeat(3, minmax(0,1fr))}
 .fields.f4 .tema{grid-column:span 2}
-.fields.f4 .mat-outro[hidden] + * + * + .tema{grid-column:1/-1}
-@media (max-width:1000px){ .fields.f4{grid-template-columns:1fr 1fr} .fields.f4 .tema, .fields.f4 .mat-outro[hidden] + * + * + .tema{grid-column:1/-1} }
+@media (max-width:1000px){ .fields.f4{grid-template-columns:1fr 1fr} .fields.f4 .tema{grid-column:1/-1} }
 @media (max-width:640px){ .fields.f4{grid-template-columns:1fr} }
 .check{display:inline-flex; align-items:center; gap:8px; font-size:14px; cursor:pointer; padding:6px 12px; border-radius:999px; border:1px solid var(--border)}
 .check:hover{border-color:var(--border-strong)}
@@ -342,6 +341,9 @@ input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accen
 .cont-btn:hover{filter:brightness(1.12)}
 .cont-btn:active{transform:scale(.94)}
 .cont-btn:disabled{opacity:.35; cursor:not-allowed; filter:grayscale(.6)}
+.tempo-row{display:flex; align-items:stretch; gap:8px; flex-wrap:wrap}
+.tempo-x{align-self:center; color:var(--muted); font-size:14px}
+.tempo-row select.tempo-dur{width:auto; min-width:110px}
 .chip-add{display:inline-flex; gap:6px; align-items:center; flex-wrap:wrap}
 .chip-add input[type=text]{width:auto; min-width:220px; padding:7px 12px; font-size:13.5px; border-radius:999px; border-style:dashed}
 
@@ -917,7 +919,40 @@ const aulasDe = t => {
   const x = t.tempo || "";
   return /100|2 horas/.test(x) ? 2 : /3 horas/.test(x) ? 4 : 1;
 };
-const tempoTxt = n => `${n} aula${n > 1 ? "s" : ""} de 50 minutos (${n * 50} minutos no total)`;
+const duracaoDe = t => +t.duracao || 50;
+const tempoTxt = (n, d) => { d = +d || 50; return `${n} aula${n > 1 ? "s" : ""} de ${d} minutos (${n * d} minutos no total)`; };
+const DURACOES = [40, 45, 50, 55, 60, 90, 100, 120];
+// Contador de aulas + duração de cada aula (usado na turma e no pedido)
+function campoTempo(p, rot, n, d, extra, hint){
+  d = +d || 50;
+  const ops = DURACOES.includes(d) ? DURACOES : DURACOES.concat(d).sort((a, b) => a - b);
+  return `<div class="field ${extra||""}"><span class="lbl" id="${p}-l">${rot}</span>
+    <div class="tempo-row">
+      <div class="contador" role="group" aria-labelledby="${p}-l">
+        <button type="button" class="cont-btn" data-cont="${p}" data-d="-1" aria-label="Uma aula a menos">−</button>
+        <input type="number" id="${p}-n" min="1" max="20" step="1" value="${n || 1}" aria-label="Número de aulas">
+        <button type="button" class="cont-btn" data-cont="${p}" data-d="1" aria-label="Uma aula a mais">+</button>
+      </div>
+      <span class="tempo-x">de</span>
+      <select id="${p}-d" class="tempo-dur" aria-label="Duração de cada aula">${ops.map(m => `<option value="${m}"${m === d ? " selected" : ""}>${m} min</option>`).join("")}</select>
+    </div><div class="hint" id="${p}-txt"></div>${hint ? `<div class="hint">${hint}</div>` : ""}</div>`;
+}
+function ligarTempo(p, cb){
+  const inp = document.getElementById(p + "-n"), sel = document.getElementById(p + "-d");
+  const N = () => Math.min(20, Math.max(1, Math.round(+inp.value || 1)));
+  const mostra = () => {
+    const n = N(), d = +sel.value;
+    document.getElementById(p + "-txt").textContent = `${n} aula${n > 1 ? "s" : ""} de ${d} min = ${n * d} minutos`;
+    $$(`[data-cont="${p}"]`).forEach(b => b.disabled = (+b.dataset.d < 0 && n <= 1) || (+b.dataset.d > 0 && n >= 20));
+  };
+  const mudou = () => { mostra(); cb && cb(); };
+  $$(`[data-cont="${p}"]`).forEach(b => b.addEventListener("click", () => { inp.value = N() + (+b.dataset.d); inp.value = N(); mudou(); }));
+  inp.addEventListener("input", mudou);
+  inp.addEventListener("change", () => { inp.value = N(); mudou(); });
+  sel.addEventListener("change", mudou);
+  mostra();
+  return () => ({aulas: N(), duracao: +sel.value});
+}
 const lerChips = id => $$(`[data-chips="${id}"] .chip[aria-pressed="true"]`).map(b => b.textContent);
 const val = id => { const e = document.getElementById(id); return e ? e.value.trim() : ""; };
 
@@ -1119,12 +1154,7 @@ function formTurma(t){
       <div class="field" id="t-curso-w"${cursoTecnicoVisivel(t.escolaId || (S.escolas.length === 1 ? S.escolas[0].id : ""), t.etapa) ? "" : " hidden"}><label for="t-curso">Curso técnico</label><input type="text" id="t-curso" list="l-cursos2" value="${esc(t.curso)}" placeholder="Ex.: Técnico em Informática"><datalist id="l-cursos2">${CURSOS.map(c=>`<option value="${esc(c)}">`).join("")}</datalist></div>
       ${campoTexto("t-comp", "Componente que você leciona nesta turma", t.componente || (S.perfil.componentes||"").split(/[;,]/)[0], "Ex.: Matemática")}
       <div class="field"><label for="t-n">Número aproximado de estudantes</label><input type="number" id="t-n" min="1" max="80" value="${esc(t.n)}"></div>
-      <div class="field"><span class="lbl" id="t-aulas-l">Tempo de aula (aulas de 50 min)</span>
-        <div class="contador" role="group" aria-labelledby="t-aulas-l">
-          <button type="button" class="cont-btn" data-cont="-1" aria-label="Uma aula a menos">−</button>
-          <input type="number" id="t-aulas" min="1" max="10" step="1" value="${aulasDe(t)}" aria-label="Quantidade de aulas de 50 minutos">
-          <button type="button" class="cont-btn" data-cont="1" aria-label="Uma aula a mais">+</button>
-        </div><div class="hint" id="t-aulas-txt"></div></div>
+      ${campoTempo("t-tempo", "Tempo de aula (aulas seguidas e duração)", aulasDe(t), duracaoDe(t))}
       ${campoChips("t-int", "Interesses da turma", INTERESSES, t.interesses)}
       ${campoChips("t-dif", "Dificuldades recorrentes", DIFICULDADES, t.dificuldades)}
       ${campoArea("t-aces", "Necessidades de acessibilidade (descritas sem identificar)", t.acessibilidade, "Ex.: há estudantes com baixa visão; um estudante surdo com intérprete de Libras", "full")}
@@ -1136,15 +1166,10 @@ function formTurma(t){
   ligarChips();
   const mostraCurso = () => { $("#t-curso-w").hidden = !cursoTecnicoVisivel(val("t-esc") || (S.escolas.length === 1 ? S.escolas[0].id : ""), val("t-etapa")); };
   ["t-esc", "t-etapa"].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener("change", mostraCurso); });
-  const aulasInp = $("#t-aulas");
-  const aulasN = () => Math.min(10, Math.max(1, Math.round(+aulasInp.value || 1)));
-  const aulasMostra = () => { const n = aulasN(); $("#t-aulas-txt").textContent = `${n} aula${n>1?"s":""} de 50 min = ${n*50} minutos`; $$("[data-cont]").forEach(b => b.disabled = (+b.dataset.cont < 0 && n <= 1) || (+b.dataset.cont > 0 && n >= 10)); };
-  $$("[data-cont]").forEach(b => b.addEventListener("click", () => { aulasInp.value = aulasN() + (+b.dataset.cont); aulasInp.value = aulasN(); aulasMostra(); }));
-  aulasInp.addEventListener("input", aulasMostra); aulasInp.addEventListener("change", () => { aulasInp.value = aulasN(); aulasMostra(); });
-  aulasMostra();
+  const tempoT = ligarTempo("t-tempo");
   $("#t-salvar").addEventListener("click", () => {
     const d = {id:t.id || uid(), nome:val("t-nome") || "Turma sem nome", etapa:val("t-etapa"), curso:$("#t-curso-w").hidden ? "" : val("t-curso"), componente:val("t-comp"),
-      escolaId:val("t-esc"), n:val("t-n"), aulas:aulasN(), tempo:tempoTxt(aulasN()), interesses:lerChips("t-int"), dificuldades:lerChips("t-dif"), acessibilidade:val("t-aces"), obs:val("t-obs")};
+      escolaId:val("t-esc"), n:val("t-n"), aulas:tempoT().aulas, duracao:tempoT().duracao, tempo:tempoTxt(tempoT().aulas, tempoT().duracao), interesses:lerChips("t-int"), dificuldades:lerChips("t-dif"), acessibilidade:val("t-aces"), obs:val("t-obs")};
     if(!d.etapa){ toast("Escolha a etapa e o ano"); $("#t-etapa").focus(); return; }
     if(variasEscolas() && !d.escolaId){ toast("Escolha a escola desta turma"); $("#t-esc").focus(); return; }
     const i = S.turmas.findIndex(x => x.id === d.id);
@@ -1268,7 +1293,7 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
     `- Turma: ${t.nome} — ${t.etapa}${t.formacao ? `, ${t.formacao}` : ""}${t.curso ? `, ${t.curso}` : ""}`,
     (ped.componente || t.componente) && `- Componente: ${ped.componente || t.componente}`,
     t.n && `- Número aproximado de estudantes: ${t.n}`,
-    (t.aulas || t.tempo) && `- Tempo de aula: ${tempoTxt(aulasDe(t))}`,
+    (t.aulas || t.tempo) && `- Tempo de aula: ${tempoTxt(aulasDe(t), duracaoDe(t))}`,
     (t.interesses||[]).length && `- Interesses: ${lista(t.interesses)}`,
     (t.dificuldades||[]).length && `- Dificuldades recorrentes: ${lista(t.dificuldades)}`,
     t.acessibilidade && `- Acessibilidade: ${t.acessibilidade}`,
@@ -1302,6 +1327,7 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
   const r7 = [`## 7. PEDIDO`,
     `- Material: ${ped.tipo || "(escolha o material)"}`,
     `- Tema ou conteúdo: ${ped.tema || "(informe o tema)"}`,
+    ped.aulas && `- Tempo para este material: ${tempoTxt(ped.aulas, ped.duracao)}. Distribua as atividades nesse tempo.`,
     ped.detalhes && `- Detalhes: ${ped.detalhes}`,
     `- Formato de saída: ${f && f.id ? f.nome : "à sua escolha, o mais útil para o material"}`,
     f && f.regra && `  ${f.regra}`,
@@ -1329,6 +1355,7 @@ function telaGerar(arg){
   const ped = Object.assign({formato:(FORMATOS.find(f=>f.nome===S.perfil.formato)||{}).id || "", comentada:false}, S.pedido, {turma:arg});
   delete ped.entrega;
   if(!mesma){ ped._auto = true; ped.componente = ""; }
+  if(!mesma || !ped.aulas){ ped.aulas = aulasDe(turmaG); ped.duracao = duracaoDe(turmaG); }
   $("#view").innerHTML = `
   <div class="page-head row"><div><a class="voltar" href="#turmas">${ICO.seta}Turmas</a><span class="eyebrow">Gerar para a turma</span><h1>${esc(turmaG.nome)}</h1>
     <p>${esc(turmaG.etapa)}${turmaG.curso ? " · " + esc(turmaG.curso) : ""}${escolaDe(turmaG).nome && (variasEscolas() || escolaDe(turmaG).nome !== "Minha escola") ? " · " + esc(escolaDe(turmaG).nome) : ""}. Escolha o material e o formato: o Caderno junta tudo o que já sabe desta turma e entrega o contexto pronto para a IA.</p></div><span class="spacer"></span>
@@ -1341,6 +1368,7 @@ function telaGerar(arg){
       ${campoTexto("g-comp", "Componente", ped.componente || "", "")}
       <div class="field"><label for="g-fmt">2. Em que formato?</label><select id="g-fmt">${FORMATOS.map(f=>`<option value="${f.id}"${f.id===ped.formato?" selected":""}>${f.id ? esc(f.nome) : "Deixar a IA escolher"}</option>`).join("")}</select><div class="hint" id="g-fmt-dica"></div></div>
       ${campoTexto("g-tema", "3. Sobre qual tema ou conteúdo?", ped.tema, "Ex.: funções do 1º grau aplicadas a orçamento", "tema")}
+      ${campoTempo("g-tempo", "4. Quantas aulas para este material?", ped.aulas, ped.duracao, "", "Começa com o tempo de aula da turma; ajuste para este material.")}
       <details class="full"><summary>Opcional: detalhes e habilidades da BNCC do componente</summary>
         <div class="fields" style="margin-top:12px">
           ${campoArea("g-det", "Detalhes do pedido", ped.detalhes, "Ex.: para a aula de revisão antes da prova; com uma atividade em dupla")}
@@ -1357,7 +1385,7 @@ function telaGerar(arg){
   const atualizaComp = () => { const t = turmaG; if(!ped.componente || ped._auto){ comp.value = t.componente || ""; ped._auto = true; } };
   atualizaComp();
   const ler = () => {
-    Object.assign(ped, {turma:turmaG.id, tipo:lerMaterial("g-tipo"), componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
+    Object.assign(ped, tempoG(), {turma:turmaG.id, tipo:lerMaterial("g-tipo"), componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
     S.pedido = Object.assign({}, ped); delete S.pedido._auto;
     if(ped.tipo || ped.tema) S.ultimo[ped.turma] = {material:ped.tipo, tema:ped.tema, formato:ped.formato};
     salvar();
@@ -1365,6 +1393,7 @@ function telaGerar(arg){
   comp.addEventListener("input", () => { ped._auto = false; });
   ["g-comp","g-tema","g-fmt","g-det","g-habs"].forEach(id => $("#"+id).addEventListener("input", () => { ler(); desenhar(); }));
   ligarMaterial("g-tipo", () => { ler(); desenhar(); });
+  const tempoG = ligarTempo("g-tempo", () => { ler(); desenhar(); });
 
   function desenhar(){
     const t = S.turmas.find(x => x.id === ped.turma);
