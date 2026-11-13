@@ -321,8 +321,8 @@ input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accen
 .passos-uso.h li{margin:0}
 @media (max-width:900px){ .passos-uso.h{grid-template-columns:1fr 1fr} }
 @media (max-width:560px){ .passos-uso.h{grid-template-columns:1fr} }
-.fields.f4{grid-template-columns:repeat(4, minmax(0,1fr))}
-.fields.f4 .tema{grid-column:span 3}
+.fields.f4{grid-template-columns:repeat(3, minmax(0,1fr))}
+.fields.f4 .tema{grid-column:span 2}
 .fields.f4 .mat-outro[hidden] + * + * + .tema{grid-column:1/-1}
 @media (max-width:1000px){ .fields.f4{grid-template-columns:1fr 1fr} .fields.f4 .tema, .fields.f4 .mat-outro[hidden] + * + * + .tema{grid-column:1/-1} }
 @media (max-width:640px){ .fields.f4{grid-template-columns:1fr} }
@@ -344,6 +344,11 @@ input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accen
 .cont-btn:disabled{opacity:.35; cursor:not-allowed; filter:grayscale(.6)}
 .chip-add{display:inline-flex; gap:6px; align-items:center; flex-wrap:wrap}
 .chip-add input[type=text]{width:auto; min-width:220px; padding:7px 12px; font-size:13.5px; border-radius:999px; border-style:dashed}
+
+.voltar{display:inline-flex; align-items:center; gap:6px; font-size:13.5px; font-weight:600; color:var(--muted); text-decoration:none; margin-bottom:8px; padding:4px 10px 4px 6px; border-radius:999px; border:1px solid var(--border)}
+.voltar svg{width:15px; height:15px; transform:rotate(180deg)}
+.voltar:hover{color:var(--accent); border-color:var(--accent)}
+.page-head .voltar + .eyebrow{display:block}
 
 /* ---------- Affordance: tudo que é clicável parece clicável ---------- */
 .btn, .ia{box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 3px 0 0 var(--edge, color-mix(in srgb, var(--border-strong) 80%, transparent)), 0 8px 18px -12px rgba(0,0,0,.6)}
@@ -855,7 +860,6 @@ const ABAS = [
   {id:"inicio", nome:"Início", ico:"casa"},
   {id:"contexto", nome:"Meu contexto", ico:"perfil"},
   {id:"turmas", nome:"Turmas", ico:"turma"},
-  {id:"gerar", nome:"Gerar", ico:"gerar"},
   {id:"caderno", nome:"Caderno", ico:"caderno"},
 ];
 function montarAbas(atual){
@@ -863,8 +867,8 @@ function montarAbas(atual){
 }
 function rota(){
   const [id, arg] = (location.hash.slice(1) || "inicio").split("/");
-  const aba = ABAS.find(a => a.id === id) ? id : "inicio";
-  montarAbas(aba);
+  const aba = (ABAS.find(a => a.id === id) || id === "gerar") ? id : "inicio";
+  montarAbas(aba === "gerar" ? "turmas" : aba);
   const v = $("#view");
   v.className = ""; void v.offsetWidth; v.className = "view";
   ({inicio:telaInicio, contexto:telaContexto, turmas:telaTurmas, gerar:telaGerar, caderno:telaCaderno})[aba](arg);
@@ -892,7 +896,7 @@ function telaInicio(){
       <h1>A IA trabalha melhor quando <span class="grad">conhece sua turma</span>.</h1>
       <p class="lead">Conte uma vez quem você é, como é sua escola e como são suas turmas. O Caderno monta o contexto pedagógico, alinhado à BNCC e à BNCC Computação, para você usar em qualquer IA. E a cada aula registrada, o próximo material sai melhor.</p>
       <div class="row">
-        <a class="btn pri" href="#${perfilOk() ? (nT ? "gerar" : "turmas") : "contexto"}">${ICO.seta}${perfilOk() ? (nT ? "Gerar um contexto" : "Cadastrar uma turma") : "Começar agora"}</a>
+        <a class="btn pri" href="#${perfilOk() ? (nT ? "turmas" : "turmas/nova") : "contexto"}">${ICO.seta}${perfilOk() ? (nT ? "Escolher a turma e gerar" : "Cadastrar uma turma") : "Começar agora"}</a>
         <a class="btn ghost" href="#caderno">${ICO.caderno}Caderno de Memória</a>
       </div>
     </div>
@@ -909,10 +913,10 @@ function telaInicio(){
       <p>Seu perfil docente e sua escola: componentes, curso técnico, recursos e o mundo do trabalho da região. Cerca de 5 minutos.</p>
       <span class="status"><i class="dot ${perfilOk()?"ok":""}"></i>Perfil ${perfilOk()?"preenchido":"pendente"} · <i class="dot ${escolaOk()?"ok":""}"></i>Escola ${escolaOk()?"preenchida":"pendente"}</span>
     </a>
-    <a class="card passo" href="#gerar" style="text-decoration:none; color:inherit">
+    <a class="card passo" href="#turmas" style="text-decoration:none; color:inherit">
       <span class="num">2</span><span class="ico-chip">${ICO.gerar}</span>
       <h3>Peça em três perguntas</h3>
-      <p>Para qual turma, que material sobre qual tema e em que formato. Você recebe o pacote de contexto para colar na IA de sua escolha.</p>
+      <p>Abra a turma e toque em Gerar: que material, sobre qual tema e em que formato. Você recebe o pacote de contexto para colar na IA de sua escolha.</p>
       <span class="status"><i class="dot ${nT?"ok":""}"></i>${nT} turma${nT===1?"":"s"} cadastrada${nT===1?"":"s"}</span>
     </a>
     <a class="card passo" href="#caderno" style="text-decoration:none; color:inherit">
@@ -972,7 +976,7 @@ function telaContexto(){
     S.perfil = {componentes:val("p-comp"), formacao:val("p-form"), ia:val("p-ia"), metodologias:lerChips("p-met"), linguagem:val("p-ling"), formato:val("p-fmt")};
     S.escola = {tipo:val("e-tipo"), eixo:val("e-eixo"), cursos:val("e-cursos"), recursos:lerChips("e-rec"), territorio:val("e-terr")};
     salvar(); toast("Contexto salvo");
-    setTimeout(()=>{ location.hash = S.turmas.length ? "gerar" : "turmas"; }, 500);
+    setTimeout(()=>{ location.hash = "turmas"; }, 500);
   });
 }
 
@@ -1207,21 +1211,24 @@ function telaGerar(arg){
     <div class="row" style="justify-content:center">${perfilOk() ? "" : `<a class="btn" href="#contexto">${ICO.perfil}Meu contexto</a>`}<a class="btn pri" href="#turmas/nova">${ICO.mais}Cadastrar turma</a></div></div>`;
     return;
   }
-  const ped = Object.assign({turma: arg || S.pedido.turma || S.turmas[0].id, formato:(FORMATOS.find(f=>f.nome===S.perfil.formato)||{}).id || "", comentada:false}, S.pedido, arg ? {turma:arg} : {});
+  const turmaG = S.turmas.find(t => t.id === arg);
+  if(!turmaG){ toast("Escolha a turma e toque em Gerar"); location.replace("#turmas"); return; }
+  const mesma = S.pedido.turma === arg;
+  const ped = Object.assign({formato:(FORMATOS.find(f=>f.nome===S.perfil.formato)||{}).id || "", comentada:false}, S.pedido, {turma:arg});
   delete ped.entrega;
-  if(!S.turmas.find(t => t.id === ped.turma)) ped.turma = S.turmas[0].id;
+  if(!mesma){ ped._auto = true; ped.componente = ""; }
   $("#view").innerHTML = `
-  <div class="page-head"><span class="eyebrow">Três perguntas · menos de um minuto</span><h1>Gerar pacote de contexto</h1>
-    <p>Escolha a turma, o material e o formato. O Caderno junta tudo o que já sabe e entrega o contexto pronto para a IA.</p></div>
+  <div class="page-head row"><div><a class="voltar" href="#turmas">${ICO.seta}Turmas</a><span class="eyebrow">Gerar para a turma</span><h1>${esc(turmaG.nome)}</h1>
+    <p>${esc(turmaG.etapa)}${turmaG.curso ? " · " + esc(turmaG.curso) : ""}. Escolha o material e o formato: o Caderno junta tudo o que já sabe desta turma e entrega o contexto pronto para a IA.</p></div><span class="spacer"></span>
+    <a class="btn sm" href="#caderno/${turmaG.id}">${ICO.caderno}Caderno da turma</a></div>
   <section class="card pedido-card">
     <h2><span class="ico-chip">${ICO.gerar}</span>O pedido</h2>
     <p class="sub">Camada 7: a única parte que muda a cada uso.</p>
     <div class="fields f4">
-      <div class="field"><label for="g-turma">1. Para qual turma?</label><select id="g-turma">${S.turmas.map(t=>`<option value="${t.id}"${t.id===ped.turma?" selected":""}>${esc(t.nome)} · ${esc(t.etapa)}</option>`).join("")}</select></div>
-      ${campoMaterial("g-tipo", "2. Que material?", ped.tipo, "")}
+      ${campoMaterial("g-tipo", "1. Que material?", ped.tipo, "")}
       ${campoTexto("g-comp", "Componente", ped.componente || "", "")}
-      <div class="field"><label for="g-fmt">3. Em que formato?</label><select id="g-fmt">${FORMATOS.map(f=>`<option value="${f.id}"${f.id===ped.formato?" selected":""}>${f.id ? esc(f.nome) : "Deixar a IA escolher"}</option>`).join("")}</select><div class="hint" id="g-fmt-dica"></div></div>
-      ${campoTexto("g-tema", "Sobre qual tema ou conteúdo?", ped.tema, "Ex.: funções do 1º grau aplicadas a orçamento", "tema")}
+      <div class="field"><label for="g-fmt">2. Em que formato?</label><select id="g-fmt">${FORMATOS.map(f=>`<option value="${f.id}"${f.id===ped.formato?" selected":""}>${f.id ? esc(f.nome) : "Deixar a IA escolher"}</option>`).join("")}</select><div class="hint" id="g-fmt-dica"></div></div>
+      ${campoTexto("g-tema", "3. Sobre qual tema ou conteúdo?", ped.tema, "Ex.: funções do 1º grau aplicadas a orçamento", "tema")}
       <details class="full"><summary>Opcional: detalhes e habilidades da BNCC do componente</summary>
         <div class="fields" style="margin-top:12px">
           ${campoArea("g-det", "Detalhes do pedido", ped.detalhes, "Ex.: para a aula de revisão antes da prova; com uma atividade em dupla")}
@@ -1235,15 +1242,14 @@ function telaGerar(arg){
   </section>
   <section class="card" id="g-saida"></section>`;
   const comp = $("#g-comp");
-  const atualizaComp = () => { const t = S.turmas.find(x => x.id === $("#g-turma").value); if(!ped.componente || ped._auto){ comp.value = t.componente || ""; ped._auto = true; } };
+  const atualizaComp = () => { const t = turmaG; if(!ped.componente || ped._auto){ comp.value = t.componente || ""; ped._auto = true; } };
   atualizaComp();
   const ler = () => {
-    Object.assign(ped, {turma:$("#g-turma").value, tipo:lerMaterial("g-tipo"), componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
+    Object.assign(ped, {turma:turmaG.id, tipo:lerMaterial("g-tipo"), componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
     S.pedido = Object.assign({}, ped); delete S.pedido._auto;
     if(ped.tipo || ped.tema) S.ultimo[ped.turma] = {material:ped.tipo, tema:ped.tema, formato:ped.formato};
     salvar();
   };
-  $("#g-turma").addEventListener("change", () => { ped._auto = true; atualizaComp(); ler(); desenhar(); });
   comp.addEventListener("input", () => { ped._auto = false; });
   ["g-comp","g-tema","g-fmt","g-det","g-habs"].forEach(id => $("#"+id).addEventListener("input", () => { ler(); desenhar(); }));
   ligarMaterial("g-tipo", () => { ler(); desenhar(); });
