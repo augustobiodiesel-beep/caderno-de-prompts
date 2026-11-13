@@ -752,7 +752,29 @@ const CURSOS = ["Técnico em Informática","Técnico em Informática para Intern
 const RECURSOS = ["Laboratório de informática","Laboratório técnico do curso","Projetor","Internet estável","Internet instável","Sem internet em sala","Celulares dos estudantes","Tablets ou notebooks","Kits de robótica ou eletrônica","Biblioteca","Quadro e papel"];
 const METODOLOGIAS = ["Aprendizagem baseada em projetos","Aprendizagem baseada em problemas","Sala de aula invertida","Rotação por estações","Gamificação","Estudo de caso","Atividades desplugadas","Trabalho em grupo","Aula expositiva dialogada","Prática de laboratório"];
 const INTERESSES = ["Jogos","Redes sociais","Esportes","Música","Tecnologia","Empreendedorismo","Meio ambiente","Mercado de trabalho","Cultura local","Vestibular e ENEM"];
-const DIFICULDADES = ["Leitura e interpretação","Matemática básica","Escrita","Concentração","Pouco acesso à internet em casa","Defasagem de conteúdos anteriores","Faltas frequentes","Turma muito heterogênea","Timidez para participar"];
+// Interesses ligados à etapa: cada faixa vê só o que faz sentido para a idade e o momento escolar
+const INTERESSES_NIVEL = {
+  geral: ["Jogos","Esportes","Música","Tecnologia","Meio ambiente","Cultura local"],
+  iniciais: ["Brincadeiras e jogos","Desenhos e animações","Histórias e contos","Animais e natureza","Desenho e pintura","Experiências e descobertas","Esportes","Música","Cultura local"],
+  finais: ["Jogos","Redes sociais","Vídeos e criadores de conteúdo","Esportes","Música","Tecnologia","Séries, filmes e animes","Ciência e curiosidades","Meio ambiente","Cultura local"],
+  medio: ["Jogos","Redes sociais","Esportes","Música","Tecnologia","Projeto de vida","Mercado de trabalho","Estágio e primeiro emprego","Empreendedorismo","Vestibular e ENEM","Meio ambiente","Cultura local","Política e cidadania"],
+  eja: ["Mercado de trabalho","Empreendedorismo","Finanças pessoais","Tecnologia no dia a dia","Saúde e bem-estar","Direitos e cidadania","Família e comunidade","Vestibular e ENEM","Encceja e certificação","Música","Esportes","Cultura local"]
+};
+function nivelEtapa(etapa){
+  if(!etapa) return "geral";
+  if(/EJA/i.test(etapa)) return "eja";
+  if(/Médio|técnic|série/i.test(etapa)) return "medio";
+  const ano = +(etapa.match(/^(\d)º ano/) || [])[1];
+  return ano >= 1 && ano <= 5 ? "iniciais" : ano >= 6 ? "finais" : "geral";
+}
+const interessesDaEtapa = etapa => INTERESSES_NIVEL[nivelEtapa(etapa)];
+// Interesses salvos que não cabem na etapa (ex.: ENEM no 8º ano) ficam de fora
+const interessesValidos = t => (t.interesses || []).filter(i => !t.etapa || interessesDaEtapa(t.etapa).includes(i));
+function campoInteresses(etapa, sel){
+  const h = etapa ? `Opções para ${nivelEtapa(etapa) === "iniciais" ? "os anos iniciais" : nivelEtapa(etapa) === "finais" ? "os anos finais" : nivelEtapa(etapa) === "eja" ? "a EJA" : "o Ensino Médio e o técnico"}. Mudou a etapa, a lista muda junto.` : "Escolha a etapa e ano para ver os interesses próprios dessa idade.";
+  return campoChips("t-int", "Interesses da turma", interessesDaEtapa(etapa), sel).replace(/<\/div>$/, `<div class="hint">${h}</div></div>`);
+}
+const DIFICULDADES = ["Leitura e interpretação","Matemática básica","Escrita","Concentração","Pouco acesso à internet em casa","Defasagem de conteúdos anteriores","Faltas frequentes","Timidez para participar"];
 const TIPOS = ["Plano de aula","Sequência didática","Avaliação ou prova","Rubrica de avaliação","Lista de exercícios","Estudo de caso","Roteiro de prática de laboratório","Projeto (aprendizagem baseada em projetos)","Atividade desplugada","Texto de apoio ou material de leitura","Atividade de revisão","Adaptação de atividade (DUA)","Situação-problema do mundo do trabalho","Jogo ou dinâmica"];
 const TIPOS_ORD = [...TIPOS].sort((a,b) => a.localeCompare(b, "pt-BR"));
 const TAGS_POS = ["Engajou a turma","Prática funcionou","Nível adequado","Formato ajudou","Boa ligação com o mundo do trabalho","Trabalho em grupo funcionou","Tempo bem dimensionado"];
@@ -1155,7 +1177,7 @@ function formTurma(t){
       ${campoTexto("t-comp", "Componente que você leciona nesta turma", t.componente || (S.perfil.componentes||"").split(/[;,]/)[0], "Ex.: Matemática")}
       <div class="field"><label for="t-n">Número aproximado de estudantes</label><input type="number" id="t-n" min="1" max="80" value="${esc(t.n)}"></div>
       ${campoTempo("t-tempo", "Tempo de aula (aulas seguidas e duração)", aulasDe(t), duracaoDe(t))}
-      ${campoChips("t-int", "Interesses da turma", INTERESSES, t.interesses)}
+      ${campoInteresses(t.etapa, interessesValidos(t))}
       ${campoChips("t-dif", "Dificuldades recorrentes", DIFICULDADES, t.dificuldades)}
       ${campoArea("t-aces", "Necessidades de acessibilidade (descritas sem identificar)", t.acessibilidade, "Ex.: há estudantes com baixa visão; um estudante surdo com intérprete de Libras", "full")}
       ${campoArea("t-obs", "Mais alguma coisa sobre a turma? (opcional)", t.obs, "Ex.: turma participativa, gosta de desafios em grupo", "full")}
@@ -1166,6 +1188,12 @@ function formTurma(t){
   ligarChips();
   const mostraCurso = () => { $("#t-curso-w").hidden = !cursoTecnicoVisivel(val("t-esc") || (S.escolas.length === 1 ? S.escolas[0].id : ""), val("t-etapa")); };
   ["t-esc", "t-etapa"].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener("change", mostraCurso); });
+  $("#t-etapa").addEventListener("change", () => {
+    const antes = lerChips("t-int"), velho = $('[data-chips="t-int"]').closest(".field");
+    const etapa = val("t-etapa"), lista = interessesDaEtapa(etapa);
+    const w = document.createElement("div"); w.innerHTML = campoInteresses(etapa, antes.filter(i => lista.includes(i)));
+    const novo = w.firstElementChild; velho.replaceWith(novo); ligarChips(novo);
+  });
   const tempoT = ligarTempo("t-tempo");
   $("#t-salvar").addEventListener("click", () => {
     const d = {id:t.id || uid(), nome:val("t-nome") || "Turma sem nome", etapa:val("t-etapa"), curso:$("#t-curso-w").hidden ? "" : val("t-curso"), componente:val("t-comp"),
@@ -1294,8 +1322,8 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
     (ped.componente || t.componente) && `- Componente: ${ped.componente || t.componente}`,
     t.n && `- Número aproximado de estudantes: ${t.n}`,
     (t.aulas || t.tempo) && `- Tempo de aula: ${tempoTxt(aulasDe(t), duracaoDe(t))}`,
-    (t.interesses||[]).length && `- Interesses: ${lista(t.interesses)}`,
-    (t.dificuldades||[]).length && `- Dificuldades recorrentes: ${lista(t.dificuldades)}`,
+    interessesValidos(t).length && `- Interesses: ${lista(interessesValidos(t))}`,
+    (t.dificuldades||[]).filter(d => DIFICULDADES.includes(d)).length && `- Dificuldades recorrentes: ${lista(t.dificuldades.filter(d => DIFICULDADES.includes(d)))}`,
     t.acessibilidade && `- Acessibilidade: ${t.acessibilidade}`,
     t.obs && `- Observações: ${t.obs}`].filter(Boolean);
   c.push({n:"4", nome:"Perfil da turma", tipo:"editável", txt:r4.join("\n"),
