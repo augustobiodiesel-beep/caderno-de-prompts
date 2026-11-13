@@ -867,6 +867,9 @@ function campoMateriais(sel){
   </div><div class="mat-info" id="g-tipos-info" aria-live="polite">${infoTipoHTML("")}</div><div class="hint" id="g-tipos-txt"></div></div>`;
 }
 const EIXOS_CO = ["Pensamento Computacional","Mundo Digital","Cultura Digital"];
+// Ensino Médio: a BNCC Computação organiza por competências específicas (C1 a C7), não por eixo
+const COMPS_EM_CURTO = ["Possibilidades e limites da Computação","Análise crítica e segurança de artefatos","Técnicas computacionais para problemas do mundo","Criação de conteúdos e artefatos","Projetos e decisões éticas","Expressar e partilhar com tecnologias","Agir com autonomia e responsabilidade"];
+const COMPS_EM_ROT = COMPS_EM_CURTO.map((c, i) => `C${i + 1} · ${c}`);
 const ordenaTipos = l => [...l].sort((a, b) => { const i = TIPOS_PED.indexOf(a), j = TIPOS_PED.indexOf(b); return (i < 0 ? 99 : i) - (j < 0 ? 99 : j); });
 const TAGS_POS = ["Engajou a turma","Prática funcionou","Nível adequado","Formato ajudou","Boa ligação com o mundo do trabalho","Trabalho em grupo funcionou","Tempo bem dimensionado"];
 const TAGS_NEG = ["Muito longo","Faltou prática","Nível alto demais","Nível fácil demais","Pouco engajamento","Linguagem difícil","Faltou tempo","Recursos indisponíveis","Formato não ajudou","Habilidades inadequadas"];
@@ -1443,6 +1446,7 @@ function montarCamadas(t, ped){
   const etapa = etapaBNCC(t), todas = habsComputacao(etapa), comps = compsComputacao(etapa);
   const eixosP = todas.some(h => h.x) ? (ped.eixos || []).filter(x => EIXOS_CO.includes(x)) : [];
   const filtra = eixosP.length > 0 && eixosP.length < 3;
+  const compsP = etapa === "Ensino Médio" ? (ped.compsCO || []).map(r => COMPS_EM_ROT.indexOf(r)).filter(i => i >= 0) : [];
   const habs = filtra ? todas.filter(h => eixosP.includes(h.x)) : todas;
   const porEixo = {}; habs.forEach(h => (porEixo[h.x] = porEixo[h.x] || []).push(h));
   const p = S.perfil, e = escolaDe(t);
@@ -1532,6 +1536,7 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
   const r7 = [`## 7. PEDIDO`,
     ...linhasMateriais(ped.tipos || []),
     `- Tema ou conteúdo: ${ped.tema || "(informe o tema)"}`,
+    compsP.length && `- ${compsP.length > 1 ? "Competências" : "Competência"} da BNCC Computação em foco (Ensino Médio):\n${compsP.map(i => `  C${i + 1}. ${BNCC_COMPETENCIAS.em.itens[i]}`).join("\n")}\n  Escolha as habilidades EM13CO que mais se ligam a ${compsP.length > 1 ? "essas competências" : "essa competência"} e deixe claro, no material, como ${compsP.length > 1 ? "cada uma é trabalhada" : "ela é trabalhada"}.`,
     eixosP.length && `- ${eixosP.length > 1 ? "Eixos" : "Eixo"} da BNCC Computação em foco: ${eixosP.join(", ")}. Escolha as habilidades de Computação ${eixosP.length > 1 ? "desses eixos" : "desse eixo"} e deixe claro, no material, como ${eixosP.length > 1 ? "cada eixo é trabalhado" : "o eixo é trabalhado"}.`,
     ped.aulas && `- Tempo ${(ped.tipos || []).length > 1 ? "para o conjunto" : "para este material"}: ${tempoTxt(ped.aulas, ped.duracao)}. Distribua as atividades nesse tempo.`,
     ped.detalhes && `- Detalhes: ${ped.detalhes}`,
@@ -1579,8 +1584,9 @@ function telaGerar(arg){
   const mesma = S.pedido.turma === arg;
   const ped = Object.assign({formato:(FORMATOS.find(f=>f.nome===S.perfil.formato)||{}).id || "", comentada:false}, S.pedido, {turma:arg});
   delete ped.entrega;
-  if(!mesma) ped.eixos = [];
+  if(!mesma){ ped.eixos = []; ped.compsCO = []; }
   const comEixo = habsComputacao(etapaBNCC(turmaG)).some(h => h.x);
+  const comComp = etapaBNCC(turmaG) === "Ensino Médio";
   if(!Array.isArray(ped.tipos)) ped.tipos = ped.tipo ? [ped.tipo] : [];
   if(!mesma){ ped._auto = true; ped.componente = ""; }
   if(!mesma || !ped.aulas){ ped.aulas = aulasDe(turmaG); ped.duracao = duracaoDe(turmaG); }
@@ -1593,11 +1599,12 @@ function telaGerar(arg){
     <p class="sub">Camada 7: a única parte que muda a cada uso.</p>
     <div class="fields f4">
       ${campoMateriais(ped.tipos)}
-      ${comEixo ? `${campoChips("g-eixos", "Eixo da BNCC Computação em foco (opcional): marque um, dois ou os três", EIXOS_CO, ped.eixos || []).replace(/<\/div>$/, `<div class="hint"><b>Pensamento Computacional:</b> resolver problemas com algoritmos, padrões e abstração. <b>Mundo Digital:</b> como dados, máquinas e redes funcionam. <b>Cultura Digital:</b> uso crítico, ético e seguro das tecnologias. Sem marcar, a IA escolhe entre os três.</div></div>`)}` : ""}
+      ${comEixo ? `${campoChips("g-eixos", "2. Qual eixo da BNCC Computação é o foco? (opcional: marque um, dois ou os três)", EIXOS_CO, ped.eixos || []).replace(/<\/div>$/, `<div class="hint"><b>Pensamento Computacional:</b> resolver problemas com algoritmos, padrões e abstração. <b>Mundo Digital:</b> como dados, máquinas e redes funcionam. <b>Cultura Digital:</b> uso crítico, ético e seguro das tecnologias. Sem marcar, a IA escolhe entre os três.</div></div>`)}` : ""}
+      ${comComp ? `${campoChips("g-comps", "2. Quais competências da BNCC Computação são o foco? (opcional: marque uma ou mais)", COMPS_EM_ROT, ped.compsCO || []).replace(/<\/div>$/, `<div class="mat-info" id="g-comps-info" aria-live="polite">${ICO.luz}<span>No Ensino Médio, a BNCC Computação se organiza em 7 competências, e não em eixos. Passe o mouse ou toque numa competência para ler o texto oficial. Sem marcar, a IA escolhe.</span></div></div>`)}` : ""}
       ${campoTexto("g-comp", "Componente", ped.componente || "", "")}
-      <div class="field"><label for="g-fmt">2. Em que formato?</label><select id="g-fmt">${FORMATOS.map(f=>`<option value="${f.id}"${f.id===ped.formato?" selected":""}>${f.id ? esc(f.nome) : "Deixar a IA escolher"}</option>`).join("")}</select><div class="hint" id="g-fmt-dica"></div></div>
-      ${campoTexto("g-tema", "3. Sobre qual tema ou conteúdo?", ped.tema, "Ex.: funções do 1º grau aplicadas a orçamento", "tema")}
-      ${campoTempo("g-tempo", "4. Quantas aulas ao todo?", ped.aulas, ped.duracao, "", "Começa com o tempo de aula da turma; ajuste para este pedido.")}
+      <div class="field"><label for="g-fmt">3. Em que formato?</label><select id="g-fmt">${FORMATOS.map(f=>`<option value="${f.id}"${f.id===ped.formato?" selected":""}>${f.id ? esc(f.nome) : "Deixar a IA escolher"}</option>`).join("")}</select><div class="hint" id="g-fmt-dica"></div></div>
+      ${campoTexto("g-tema", "4. Sobre qual tema ou conteúdo?", ped.tema, "Ex.: funções do 1º grau aplicadas a orçamento", "tema")}
+      ${campoTempo("g-tempo", "5. Quantas aulas ao todo?", ped.aulas, ped.duracao, "", "Começa com o tempo de aula da turma; ajuste para este pedido.")}
       <details class="full"><summary>Opcional: detalhes e habilidades da BNCC do componente</summary>
         <div class="fields" style="margin-top:12px">
           ${campoArea("g-det", "Detalhes do pedido", ped.detalhes, "Ex.: para a aula de revisão antes da prova; com uma atividade em dupla")}
@@ -1615,7 +1622,7 @@ function telaGerar(arg){
   atualizaComp();
   const ler = () => {
     const tipos = ordenaTipos(lerChips("g-tipos"));
-    Object.assign(ped, tempoG(), {turma:turmaG.id, tipos, tipo:tipos.join(" + "), eixos:comEixo ? EIXOS_CO.filter(x => lerChips("g-eixos").includes(x)) : [], componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
+    Object.assign(ped, tempoG(), {turma:turmaG.id, tipos, tipo:tipos.join(" + "), eixos:comEixo ? EIXOS_CO.filter(x => lerChips("g-eixos").includes(x)) : [], compsCO:comComp ? COMPS_EM_ROT.filter(x => lerChips("g-comps").includes(x)) : [], componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
     S.pedido = Object.assign({}, ped); delete S.pedido._auto;
     if(ped.tipo || ped.tema) S.ultimo[ped.turma] = {material:ped.tipo, tema:ped.tema, formato:ped.formato};
     salvar();
@@ -1626,6 +1633,14 @@ function telaGerar(arg){
   const tiposBox = $('[data-chips="g-tipos"]');
   const tiposTxt = () => { const n = lerChips("g-tipos").length; $("#g-tipos-txt").textContent = n > 1 ? `${n} materiais no mesmo pedido: a IA produz um conjunto articulado, do planejamento à avaliação.` : "Clique para marcar. Marque vários para gerar um conjunto (ex.: sequência didática + planos de aula + slides + avaliação)."; };
   const mudouTipos = () => { tiposTxt(); ler(); desenhar(); };
+  if(comComp){
+    const box = $('[data-chips="g-comps"]'), inf = $("#g-comps-info"), base = inf.innerHTML;
+    const mostra = c => { const i = COMPS_EM_ROT.indexOf(c.textContent); inf.innerHTML = `${ICO.luz}<span><b>C${i + 1}:</b> ${esc(BNCC_COMPETENCIAS.em.itens[i])}</span>`; };
+    box.addEventListener("mouseover", e => { const c = e.target.closest(".chip"); if(c) mostra(c); });
+    box.addEventListener("focusin", e => { const c = e.target.closest(".chip"); if(c) mostra(c); });
+    box.addEventListener("mouseleave", () => { inf.innerHTML = base; });
+    box.addEventListener("click", e => { const c = e.target.closest(".chip"); if(c){ mostra(c); ler(); desenhar(); } });
+  }
   if(comEixo) $('[data-chips="g-eixos"]').addEventListener("click", e => { if(e.target.closest(".chip")){ ler(); desenhar(); } });
   let infoFixo = "";
   const info = nome => { $("#g-tipos-info").innerHTML = infoTipoHTML(nome); };
