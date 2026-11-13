@@ -1226,10 +1226,9 @@ function telaTurmas(arg){
     }).join("")}</div>`).join("")
   : `<div class="card vazio">${ICO.turma}<h2 style="justify-content:center; margin:10px 0 6px">Nenhuma turma ainda</h2><p>Cadastre a primeira para começar a gerar contextos.</p><a class="btn pri" href="#turmas/nova">${ICO.mais}Cadastrar turma</a></div>`}`;
 }
-// O curso técnico só faz sentido em escola de educação profissional ou em etapa técnica
+// O curso técnico só aparece nas etapas de Ensino Médio, técnico e EJA — Ensino Médio (independe do tipo de escola)
 function cursoTecnicoVisivel(escolaId, etapa){
-  const e = S.escolas.find(x => x.id === escolaId);
-  return !!(e && escolaTecnica(e.tipo)) || /técnic/i.test(etapa || "");
+  return /Ensino Médio|técnic/i.test(etapa || "");
 }
 function gruposTurmas(){
   if(!variasEscolas()) return [["", S.turmas]];
