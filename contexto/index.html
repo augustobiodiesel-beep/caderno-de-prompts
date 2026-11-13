@@ -350,6 +350,14 @@ input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accen
 .voltar:hover{color:var(--accent); border-color:var(--accent)}
 .page-head .voltar + .eyebrow{display:block}
 
+.escola-bloco{border:1px solid var(--border); border-radius:var(--r-s); padding:16px; margin-bottom:16px; background:color-mix(in srgb, var(--accent) 3%, transparent)}
+.escola-h{display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap}
+.escola-n{width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-size:13px; font-weight:700; background:var(--accent); color:var(--accent-ink)}
+.grupo-escola{font-size:17px; display:flex; align-items:center; gap:10px; margin:26px 0 12px}
+.grupo-escola:first-of-type{margin-top:4px}
+.grupo-escola svg{width:20px; height:20px; color:var(--accent)}
+.grupo-escola span{font-family:var(--font); font-size:13px; font-weight:500; color:var(--muted)}
+
 /* ---------- Affordance: tudo que é clicável parece clicável ---------- */
 .btn, .ia{box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 3px 0 0 var(--edge, color-mix(in srgb, var(--border-strong) 80%, transparent)), 0 8px 18px -12px rgba(0,0,0,.6)}
 .btn:hover, .ia:hover{transform:translateY(-2px); border-color:var(--accent); box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 5px 0 0 var(--edge, color-mix(in srgb, var(--accent) 55%, transparent)), 0 14px 26px -12px color-mix(in srgb, var(--accent) 70%, transparent)}
@@ -765,12 +773,26 @@ const IAS_USO = ["chatgpt","gemini","claude","copilot","deepseek"];
 
 /* ---------- Estado (fica só neste aparelho) ---------- */
 const CHAVE = "cdc.v1";
-const VAZIO = () => ({perfil:{}, escola:{}, turmas:[], registros:[], sinteses:{}, ultimo:{}, pedido:{}});
+const VAZIO = () => ({perfil:{}, escolas:[], turmas:[], registros:[], sinteses:{}, ultimo:{}, pedido:{}});
 let S = VAZIO();
 try { const raw = localStorage.getItem(CHAVE); if(raw) S = Object.assign(VAZIO(), JSON.parse(raw)); } catch(e) {}
-if(S.escola && Array.isArray(S.escola.recursos)) S.escola.recursos = S.escola.recursos.map(r => r === "Quadro e papel apenas" ? "Quadro e papel" : r);
 function salvar(){ try { localStorage.setItem(CHAVE, JSON.stringify(S)); } catch(e) { toast("Não foi possível salvar neste navegador"); } }
 const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
+const temEscola = e => !!(e && (e.tipo || e.cursos || e.eixo || e.territorio || (e.recursos||[]).length));
+function migrar(){
+  // versões antigas tinham uma única escola (S.escola); agora o professor pode ter várias
+  if(!Array.isArray(S.escolas)) S.escolas = [];
+  if(!S.escolas.length && temEscola(S.escola)) S.escolas.push(Object.assign({id:uid(), nome:"Minha escola"}, S.escola));
+  delete S.escola;
+  S.escolas.forEach(x => { if(Array.isArray(x.recursos)) x.recursos = x.recursos.map(r => r === "Quadro e papel apenas" ? "Quadro e papel" : r); });
+  ligarTurmasSemEscola();
+}
+function ligarTurmasSemEscola(){
+  S.turmas.forEach(t => { if(!S.escolas.find(x => x.id === t.escolaId)) t.escolaId = S.escolas.length === 1 ? S.escolas[0].id : ""; });
+}
+const escolaDe = t => S.escolas.find(x => x.id === (t && t.escolaId)) || {};
+const variasEscolas = () => S.escolas.length > 1;
+migrar();
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const hoje = () => new Date().toISOString().slice(0,10);
 const dataBR = iso => { if(!iso) return ""; const [a,m,d] = iso.split("-"); return `${d}/${m}/${a}`; };
@@ -814,9 +836,10 @@ function campoChips(id, rot, opcoes, sel, neg, editavel){
   const chip = (o, pressed) => `<button type="button" class="chip${neg&&neg.includes(o)?" neg":""}" aria-pressed="${pressed}">${esc(o)}</button>`;
   return `<div class="field full"><span class="lbl">${rot}</span><div class="chips" data-chips="${id}">${opcoes.map(o=>chip(o, (sel||[]).includes(o))).join("")}${extras.map(o=>chip(o, true)).join("")}${editavel === true ? `<span class="chip-add"><input type="text" id="${id}-novo" placeholder="Escreva outra opção" aria-label="Adicionar outra opção"><button type="button" class="btn sm" data-add-chip="${id}">${ICO.mais}Adicionar</button></span>` : ""}</div>${editavel === true ? `<div class="hint">Clique para marcar ou desmarcar. Você pode adicionar as suas; as desmarcadas que você criou somem ao salvar.</div>` : ""}</div>`;
 }
-function ligarChips(){
-  $$("[data-chips] .chip").forEach(b => b.addEventListener("click", () => b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") !== "true")));
-  $$("[data-add-chip]").forEach(btn => {
+function ligarChips(raiz){
+  const em = sel => Array.from((raiz || document).querySelectorAll(sel));
+  em("[data-chips] .chip").forEach(b => b.addEventListener("click", () => b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") !== "true")));
+  em("[data-add-chip]").forEach(btn => {
     const id = btn.dataset.addChip, inp = document.getElementById(id + "-novo");
     const add = () => {
       const v = inp.value.trim().replace(/\s+/g, " ");
@@ -877,7 +900,7 @@ function rota(){
 window.addEventListener("hashchange", rota);
 
 const perfilOk = () => !!(S.perfil.componentes);
-const escolaOk = () => !!(S.escola.tipo || S.escola.cursos || (S.escola.recursos||[]).length);
+const escolaOk = () => S.escolas.some(temEscola);
 
 /* ============================================================
    INÍCIO
@@ -911,7 +934,7 @@ function telaInicio(){
       <span class="num">1</span><span class="ico-chip">${ICO.perfil}</span>
       <h3>Configure uma vez</h3>
       <p>Seu perfil docente e sua escola: componentes, curso técnico, recursos e o mundo do trabalho da região. Cerca de 5 minutos.</p>
-      <span class="status"><i class="dot ${perfilOk()?"ok":""}"></i>Perfil ${perfilOk()?"preenchido":"pendente"} · <i class="dot ${escolaOk()?"ok":""}"></i>Escola ${escolaOk()?"preenchida":"pendente"}</span>
+      <span class="status"><i class="dot ${perfilOk()?"ok":""}"></i>Perfil ${perfilOk()?"preenchido":"pendente"} · <i class="dot ${escolaOk()?"ok":""}"></i>${S.escolas.length > 1 ? `${S.escolas.length} escolas` : `Escola ${escolaOk()?"preenchida":"pendente"}`}</span>
     </a>
     <a class="card passo" href="#turmas" style="text-decoration:none; color:inherit">
       <span class="num">2</span><span class="ico-chip">${ICO.gerar}</span>
@@ -943,9 +966,9 @@ function telaInicio(){
    MEU CONTEXTO (camadas 2 e 3)
    ============================================================ */
 function telaContexto(){
-  const p = S.perfil, e = S.escola;
+  const p = S.perfil;
   $("#view").innerHTML = `
-  <div class="page-head"><span class="eyebrow">Camadas 2 e 3 · preenchidas uma vez</span><h1>Meu contexto</h1>
+  <div class="page-head"><span class="eyebrow">Camadas 2 e 3 · preenchidas uma vez por escola</span><h1>Meu contexto</h1>
     <p>Essas informações entram em todo pacote de contexto. Você pode mudar quando quiser.</p></div>
   <section class="card">
     <h2><span class="ico-chip">${ICO.perfil}</span>Perfil docente</h2>
@@ -960,21 +983,49 @@ function telaContexto(){
     </div>
   </section>
   <section class="card">
-    <h2><span class="ico-chip">${ICO.escola}</span>Contexto da escola</h2>
-    <p class="sub">Condições reais de trabalho. Não informe nomes de pessoas.</p>
-    <div class="fields">
-      ${campoSel("e-tipo", "Tipo de escola", ["Escola estadual de educação profissional","Instituto Federal","Escola de Ensino Médio com itinerário técnico","Escola de Ensino Fundamental","Outra"], e.tipo)}
-      ${campoSel("e-eixo", "Eixo tecnológico principal", EIXOS, e.eixo, "", "Não se aplica / vários")}
-      <div class="field full"><label for="e-cursos">Cursos técnicos da escola</label><input type="text" id="e-cursos" list="l-cursos" value="${esc(e.cursos)}" placeholder="Ex.: Técnico em Informática; Técnico em Administração"><datalist id="l-cursos">${CURSOS.map(c=>`<option value="${esc(c)}">`).join("")}</datalist></div>
-      ${campoChips("e-rec", "Recursos disponíveis", RECURSOS, e.recursos)}
-      ${campoArea("e-terr", "Território e mundo do trabalho", e.territorio, "Ex.: região agrícola com cooperativas; polo de comércio e serviços; empresas de tecnologia na capital", "full", "Ajuda a IA a criar situações-problema reais para a sua região.")}
-    </div>
+    <h2><span class="ico-chip">${ICO.escola}</span>Minhas escolas</h2>
+    <p class="sub">Trabalha em mais de uma escola? Cadastre cada uma. Cada turma usa o contexto da escola a que pertence. Não informe nomes de pessoas.</p>
+    <div id="escolas"></div>
+    <datalist id="l-cursos">${CURSOS.map(c=>`<option value="${esc(c)}">`).join("")}</datalist>
+    <button class="btn" id="add-escola" type="button">${ICO.mais}Adicionar outra escola</button>
   </section>
   <div class="row end" style="margin-top:18px"><button class="btn pri" id="salvar-ctx">${ICO.escudo}Salvar meu contexto</button></div>`;
   ligarChips();
+  let escolas = S.escolas.length ? S.escolas.map(x => Object.assign({}, x)) : [{id:uid(), nome:""}];
+  const TIPOS_ESCOLA = ["Escola estadual de educação profissional","Instituto Federal","Escola de Ensino Médio com itinerário técnico","Escola de Ensino Fundamental","Outra"];
+  const lerEscolas = () => escolas.map((x, i) => ({id:x.id, nome:val(`e-nome-${i}`), tipo:val(`e-tipo-${i}`), eixo:val(`e-eixo-${i}`), cursos:val(`e-cursos-${i}`), recursos:lerChips(`e-rec-${i}`), territorio:val(`e-terr-${i}`)}));
+  const desenharEscolas = (foco) => {
+    const box = $("#escolas");
+    box.innerHTML = escolas.map((x, i) => {
+      const nT = S.turmas.filter(t => t.escolaId === x.id).length;
+      return `<div class="escola-bloco" data-i="${i}">
+        <div class="escola-h"><span class="escola-n">${i + 1}</span><b>${esc(x.nome || (escolas.length > 1 ? `Escola ${i + 1}` : "Minha escola"))}</b><span class="tag" style="margin:0">${nT} turma${nT===1?"":"s"}</span><span class="spacer"></span>
+          ${escolas.length > 1 ? `<button type="button" class="btn sm danger" data-rem-escola="${i}">${ICO.lixo}Remover</button>` : ""}</div>
+        <div class="fields">
+          ${campoTexto(`e-nome-${i}`, "Nome ou apelido da escola", x.nome, "Ex.: Escola Técnica do Centro", "full")}
+          ${campoSel(`e-tipo-${i}`, "Tipo de escola", TIPOS_ESCOLA, x.tipo)}
+          ${campoSel(`e-eixo-${i}`, "Eixo tecnológico principal", EIXOS, x.eixo, "", "Não se aplica / vários")}
+          <div class="field full"><label for="e-cursos-${i}">Cursos técnicos da escola</label><input type="text" id="e-cursos-${i}" list="l-cursos" value="${esc(x.cursos)}" placeholder="Ex.: Técnico em Informática; Técnico em Administração"></div>
+          ${campoChips(`e-rec-${i}`, "Recursos disponíveis", RECURSOS, x.recursos)}
+          ${campoArea(`e-terr-${i}`, "Território e mundo do trabalho", x.territorio, "Ex.: região agrícola com cooperativas; polo de comércio e serviços; empresas de tecnologia na capital", "full", "Ajuda a IA a criar situações-problema reais para a região desta escola.")}
+        </div></div>`;
+    }).join("");
+    ligarChips(box);
+    $$("[data-rem-escola]").forEach(b => b.addEventListener("click", () => {
+      const i = +b.dataset.remEscola; escolas = lerEscolas();
+      const nT = S.turmas.filter(t => t.escolaId === escolas[i].id).length;
+      if(!confirm(nT ? `${nT} turma${nT>1?"s estão ligadas":" está ligada"} a esta escola. Remover mesmo assim? Depois, escolha a nova escola de cada turma em Turmas.` : "Remover esta escola?")) return;
+      escolas.splice(i, 1); desenharEscolas();
+    }));
+    if(foco != null){ const el = document.getElementById(`e-nome-${foco}`); if(el){ el.scrollIntoView({behavior:"smooth", block:"center"}); el.focus({preventScroll:true}); } }
+  };
+  desenharEscolas();
+  $("#add-escola").addEventListener("click", () => { escolas = lerEscolas(); escolas.push({id:uid(), nome:""}); desenharEscolas(escolas.length - 1); });
   $("#salvar-ctx").addEventListener("click", () => {
     S.perfil = {componentes:val("p-comp"), formacao:val("p-form"), ia:val("p-ia"), metodologias:lerChips("p-met"), linguagem:val("p-ling"), formato:val("p-fmt")};
-    S.escola = {tipo:val("e-tipo"), eixo:val("e-eixo"), cursos:val("e-cursos"), recursos:lerChips("e-rec"), territorio:val("e-terr")};
+    S.escolas = lerEscolas().map((x, i, arr) => Object.assign(x, {nome: x.nome || (arr.length > 1 ? `Escola ${i + 1}` : "Minha escola")}))
+      .filter((x, i, arr) => arr.length === 1 || temEscola(x) || S.turmas.some(t => t.escolaId === x.id) || x.nome !== `Escola ${i + 1}`);
+    ligarTurmasSemEscola();
     salvar(); toast("Contexto salvo");
     setTimeout(()=>{ location.hash = "turmas"; }, 500);
   });
@@ -989,13 +1040,20 @@ function telaTurmas(arg){
   <div class="page-head row"><div><span class="eyebrow">Camada 4 · uma vez por turma</span><h1>Turmas</h1>
     <p>O perfil coletivo de cada turma. Sem nomes nem dados pessoais de estudantes.</p></div><span class="spacer"></span>
     <a class="btn pri" href="#turmas/nova">${ICO.mais}Nova turma</a></div>
-  ${S.turmas.length ? `<div class="turmas">${S.turmas.map(t => {
+  ${S.turmas.length ? gruposTurmas().map(([titulo, lst]) => `${titulo ? `<h2 class="grupo-escola">${ICO.escola}${esc(titulo)}<span>${lst.length} turma${lst.length===1?"":"s"}</span></h2>` : ""}<div class="turmas">${lst.map(t => {
       const n = S.registros.filter(r => r.turmaId === t.id).length;
       return `<article class="card turma"><h3>${esc(t.nome)}</h3><div class="meta">${esc(t.etapa)}${t.curso?" · "+esc(t.curso):""}</div>
-      <span class="tag">${esc(t.formacao||"")}</span>${t.n?`<span class="tag">${esc(t.n)} estudantes</span>`:""}<span class="tag">${n} registro${n===1?"":"s"}</span>
+      ${t.formacao ? `<span class="tag">${esc(t.formacao)}</span>` : ""}${t.n?`<span class="tag">${esc(t.n)} estudantes</span>`:""}<span class="tag">${n} registro${n===1?"":"s"}</span>
       <div class="row" style="margin-top:14px"><a class="btn sm pri" href="#gerar/${t.id}">${ICO.gerar}Gerar</a><a class="btn sm" href="#caderno/${t.id}">${ICO.caderno}Caderno</a><a class="btn sm ghost" href="#turmas/${t.id}" aria-label="Editar turma">${ICO.editar}</a></div></article>`;
-    }).join("")}</div>`
+    }).join("")}</div>`).join("")
   : `<div class="card vazio">${ICO.turma}<h2 style="justify-content:center; margin:10px 0 6px">Nenhuma turma ainda</h2><p>Cadastre a primeira para começar a gerar contextos.</p><a class="btn pri" href="#turmas/nova">${ICO.mais}Cadastrar turma</a></div>`}`;
+}
+function gruposTurmas(){
+  if(!variasEscolas()) return [["", S.turmas]];
+  const g = S.escolas.map(e => [e.nome, S.turmas.filter(t => t.escolaId === e.id)]).filter(x => x[1].length);
+  const sem = S.turmas.filter(t => !S.escolas.find(e => e.id === t.escolaId));
+  if(sem.length) g.push(["Sem escola definida", sem]);
+  return g;
 }
 function formTurma(t){
   const novo = !t; t = t || {};
@@ -1004,7 +1062,8 @@ function formTurma(t){
     <p>Descreva a turma como coletivo. Nada que permita identificar um estudante.</p></div>
   <section class="card">
     <div class="fields">
-      ${campoTexto("t-nome", "Como você chama esta turma", t.nome, "Ex.: 2ª série A — Informática", "full")}
+      ${campoTexto("t-nome", "Como você chama esta turma", t.nome, "Ex.: 2ª série A — Informática", S.escolas.length ? "" : "full")}
+      ${S.escolas.length ? `<div class="field"><label for="t-esc">Escola</label><select id="t-esc">${variasEscolas() && !S.escolas.find(e => e.id === t.escolaId) ? `<option value="">Selecione</option>` : ""}${S.escolas.map(e => `<option value="${e.id}"${e.id === (t.escolaId || (variasEscolas() ? "" : S.escolas[0].id)) ? " selected" : ""}>${esc(e.nome)}</option>`).join("")}</select><div class="hint">Para cadastrar outra escola, vá em <a href="#contexto">Meu contexto</a>.</div></div>` : ""}
       ${campoSel("t-etapa", "Etapa e ano", ETAPAS_TURMA, t.etapa)}
       ${campoSel("t-form", "Formação", FORMACOES, t.formacao)}
       <div class="field"><label for="t-curso">Curso técnico (se houver)</label><input type="text" id="t-curso" list="l-cursos2" value="${esc(t.curso)}" placeholder="Ex.: Técnico em Informática"><datalist id="l-cursos2">${CURSOS.map(c=>`<option value="${esc(c)}">`).join("")}</datalist></div>
@@ -1033,8 +1092,9 @@ function formTurma(t){
   aulasMostra();
   $("#t-salvar").addEventListener("click", () => {
     const d = {id:t.id || uid(), nome:val("t-nome") || "Turma sem nome", etapa:val("t-etapa"), formacao:val("t-form"), curso:val("t-curso"), componente:val("t-comp"),
-      n:val("t-n"), aulas:aulasN(), tempo:tempoTxt(aulasN()), interesses:lerChips("t-int"), dificuldades:lerChips("t-dif"), acessibilidade:val("t-aces"), obs:val("t-obs")};
+      escolaId:val("t-esc"), n:val("t-n"), aulas:aulasN(), tempo:tempoTxt(aulasN()), interesses:lerChips("t-int"), dificuldades:lerChips("t-dif"), acessibilidade:val("t-aces"), obs:val("t-obs")};
     if(!d.etapa){ toast("Escolha a etapa e o ano"); $("#t-etapa").focus(); return; }
+    if(variasEscolas() && !d.escolaId){ toast("Escolha a escola desta turma"); $("#t-esc").focus(); return; }
     const i = S.turmas.findIndex(x => x.id === d.id);
     if(i >= 0) S.turmas[i] = d; else S.turmas.push(d);
     salvar(); toast("Turma salva"); location.hash = "turmas";
@@ -1104,7 +1164,7 @@ const tecnica = t => /técnic/i.test(t.formacao || "") || !!t.curso;
 function montarCamadas(t, ped){
   const etapa = etapaBNCC(t), habs = habsComputacao(etapa), comps = compsComputacao(etapa);
   const porEixo = {}; habs.forEach(h => (porEixo[h.x] = porEixo[h.x] || []).push(h));
-  const p = S.perfil, e = S.escola;
+  const p = S.perfil, e = escolaDe(t);
   const c = [];
 
   // Abertura: como usar
@@ -1219,7 +1279,7 @@ function telaGerar(arg){
   if(!mesma){ ped._auto = true; ped.componente = ""; }
   $("#view").innerHTML = `
   <div class="page-head row"><div><a class="voltar" href="#turmas">${ICO.seta}Turmas</a><span class="eyebrow">Gerar para a turma</span><h1>${esc(turmaG.nome)}</h1>
-    <p>${esc(turmaG.etapa)}${turmaG.curso ? " · " + esc(turmaG.curso) : ""}. Escolha o material e o formato: o Caderno junta tudo o que já sabe desta turma e entrega o contexto pronto para a IA.</p></div><span class="spacer"></span>
+    <p>${esc(turmaG.etapa)}${turmaG.curso ? " · " + esc(turmaG.curso) : ""}${escolaDe(turmaG).nome && (variasEscolas() || escolaDe(turmaG).nome !== "Minha escola") ? " · " + esc(escolaDe(turmaG).nome) : ""}. Escolha o material e o formato: o Caderno junta tudo o que já sabe desta turma e entrega o contexto pronto para a IA.</p></div><span class="spacer"></span>
     <a class="btn sm" href="#caderno/${turmaG.id}">${ICO.caderno}Caderno da turma</a></div>
   <section class="card pedido-card">
     <h2><span class="ico-chip">${ICO.gerar}</span>O pedido</h2>
@@ -1329,7 +1389,7 @@ function telaCaderno(arg){
   $("#view").innerHTML = `
   <div class="page-head row"><div><span class="eyebrow">Camada 5 · um minuto depois da aula</span><h1>Caderno de Memória da Turma</h1>
     <p>O que acontece em aula vira contexto para a próxima. Registre sempre a turma como coletivo.</p></div><span class="spacer"></span>
-    <div class="field" style="min-width:240px"><label for="c-turma" class="sr">Turma</label><select id="c-turma">${S.turmas.map(x=>`<option value="${x.id}"${x.id===tid?" selected":""}>${esc(x.nome)}</option>`).join("")}</select></div></div>
+    <div class="field" style="min-width:240px"><label for="c-turma" class="sr">Turma</label><select id="c-turma">${S.turmas.map(x=>`<option value="${x.id}"${x.id===tid?" selected":""}>${esc(x.nome)}${variasEscolas() && escolaDe(x).nome ? " · " + esc(escolaDe(x).nome) : ""}</option>`).join("")}</select></div></div>
 
   <div class="grid2" style="align-items:start">
     <div>
@@ -1428,13 +1488,13 @@ function ligarDados(){
     rd.onload = () => {
       try { const d = JSON.parse(rd.result); if(!d || !Array.isArray(d.turmas)) throw 0;
         if(!confirm("Substituir os dados deste aparelho pelos do arquivo?")) return;
-        S = Object.assign(VAZIO(), d); salvar(); toast("Dados importados"); rota();
+        S = Object.assign(VAZIO(), d); migrar(); salvar(); toast("Dados importados"); rota();
       } catch(_) { toast("Arquivo inválido"); }
     };
     rd.readAsText(f);
   });
   $("#d-apagar").addEventListener("click", () => {
-    if(!confirm("Apagar perfil, escola, turmas e todo o Caderno deste aparelho? Não dá para desfazer.")) return;
+    if(!confirm("Apagar perfil, escolas, turmas e todo o Caderno deste aparelho? Não dá para desfazer.")) return;
     S = VAZIO(); salvar(); toast("Dados apagados"); location.hash = "inicio"; rota();
   });
 }
