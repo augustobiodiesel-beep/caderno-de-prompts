@@ -1094,6 +1094,11 @@ function telaTurmas(arg){
     }).join("")}</div>`).join("")
   : `<div class="card vazio">${ICO.turma}<h2 style="justify-content:center; margin:10px 0 6px">Nenhuma turma ainda</h2><p>Cadastre a primeira para começar a gerar contextos.</p><a class="btn pri" href="#turmas/nova">${ICO.mais}Cadastrar turma</a></div>`}`;
 }
+// O curso técnico só faz sentido em escola de educação profissional ou em etapa técnica
+function cursoTecnicoVisivel(escolaId, etapa){
+  const e = S.escolas.find(x => x.id === escolaId);
+  return !!(e && escolaTecnica(e.tipo)) || /técnic/i.test(etapa || "");
+}
 function gruposTurmas(){
   if(!variasEscolas()) return [["", S.turmas]];
   const g = S.escolas.map(e => [e.nome, S.turmas.filter(t => t.escolaId === e.id)]).filter(x => x[1].length);
@@ -1111,7 +1116,7 @@ function formTurma(t){
       ${campoTexto("t-nome", "Como você chama esta turma", t.nome, "Ex.: 2ª série A — Informática", S.escolas.length ? "" : "full")}
       ${S.escolas.length ? `<div class="field"><label for="t-esc">Escola</label><select id="t-esc">${variasEscolas() && !S.escolas.find(e => e.id === t.escolaId) ? `<option value="">Selecione</option>` : ""}${S.escolas.map(e => `<option value="${e.id}"${e.id === (t.escolaId || (variasEscolas() ? "" : S.escolas[0].id)) ? " selected" : ""}>${esc(e.nome)}</option>`).join("")}</select><div class="hint">Para cadastrar outra escola, vá em <a href="#contexto">Meu contexto</a>.</div></div>` : ""}
       ${campoSel("t-etapa", "Etapa e ano", ETAPAS_TURMA, t.etapa)}
-      <div class="field"><label for="t-curso">Curso técnico (se houver)</label><input type="text" id="t-curso" list="l-cursos2" value="${esc(t.curso)}" placeholder="Ex.: Técnico em Informática"><datalist id="l-cursos2">${CURSOS.map(c=>`<option value="${esc(c)}">`).join("")}</datalist></div>
+      <div class="field" id="t-curso-w"${cursoTecnicoVisivel(t.escolaId || (S.escolas.length === 1 ? S.escolas[0].id : ""), t.etapa) ? "" : " hidden"}><label for="t-curso">Curso técnico</label><input type="text" id="t-curso" list="l-cursos2" value="${esc(t.curso)}" placeholder="Ex.: Técnico em Informática"><datalist id="l-cursos2">${CURSOS.map(c=>`<option value="${esc(c)}">`).join("")}</datalist></div>
       ${campoTexto("t-comp", "Componente que você leciona nesta turma", t.componente || (S.perfil.componentes||"").split(/[;,]/)[0], "Ex.: Matemática")}
       <div class="field"><label for="t-n">Número aproximado de estudantes</label><input type="number" id="t-n" min="1" max="80" value="${esc(t.n)}"></div>
       <div class="field"><span class="lbl" id="t-aulas-l">Tempo de aula (aulas de 50 min)</span>
@@ -1129,6 +1134,8 @@ function formTurma(t){
   </section>
   <div class="row" style="margin-top:18px">${novo ? "" : `<button class="btn danger" id="t-del">${ICO.lixo}Excluir turma</button>`}<span class="spacer"></span><a class="btn ghost" href="#turmas">Cancelar</a><button class="btn pri" id="t-salvar">${ICO.escudo}Salvar turma</button></div>`;
   ligarChips();
+  const mostraCurso = () => { $("#t-curso-w").hidden = !cursoTecnicoVisivel(val("t-esc") || (S.escolas.length === 1 ? S.escolas[0].id : ""), val("t-etapa")); };
+  ["t-esc", "t-etapa"].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener("change", mostraCurso); });
   const aulasInp = $("#t-aulas");
   const aulasN = () => Math.min(10, Math.max(1, Math.round(+aulasInp.value || 1)));
   const aulasMostra = () => { const n = aulasN(); $("#t-aulas-txt").textContent = `${n} aula${n>1?"s":""} de 50 min = ${n*50} minutos`; $$("[data-cont]").forEach(b => b.disabled = (+b.dataset.cont < 0 && n <= 1) || (+b.dataset.cont > 0 && n >= 10)); };
@@ -1136,7 +1143,7 @@ function formTurma(t){
   aulasInp.addEventListener("input", aulasMostra); aulasInp.addEventListener("change", () => { aulasInp.value = aulasN(); aulasMostra(); });
   aulasMostra();
   $("#t-salvar").addEventListener("click", () => {
-    const d = {id:t.id || uid(), nome:val("t-nome") || "Turma sem nome", etapa:val("t-etapa"), curso:val("t-curso"), componente:val("t-comp"),
+    const d = {id:t.id || uid(), nome:val("t-nome") || "Turma sem nome", etapa:val("t-etapa"), curso:$("#t-curso-w").hidden ? "" : val("t-curso"), componente:val("t-comp"),
       escolaId:val("t-esc"), n:val("t-n"), aulas:aulasN(), tempo:tempoTxt(aulasN()), interesses:lerChips("t-int"), dificuldades:lerChips("t-dif"), acessibilidade:val("t-aces"), obs:val("t-obs")};
     if(!d.etapa){ toast("Escolha a etapa e o ano"); $("#t-etapa").focus(); return; }
     if(variasEscolas() && !d.escolaId){ toast("Escolha a escola desta turma"); $("#t-esc").focus(); return; }
