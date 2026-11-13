@@ -877,7 +877,7 @@ function campoSel(id, rot, opcoes, val, extra, vazio){
 function campoChips(id, rot, opcoes, sel, neg, editavel){
   const extras = editavel ? (sel||[]).filter(o => o && !opcoes.includes(o)) : [];
   const chip = (o, pressed) => `<button type="button" class="chip${neg&&neg.includes(o)?" neg":""}" aria-pressed="${pressed}">${esc(o)}</button>`;
-  return `<div class="field full"><span class="lbl">${rot}</span><div class="chips" data-chips="${id}">${opcoes.map(o=>chip(o, (sel||[]).includes(o))).join("")}${extras.map(o=>chip(o, true)).join("")}${editavel === true ? `<span class="chip-add"><input type="text" id="${id}-novo" placeholder="Escreva outra opção" aria-label="Adicionar outra opção"><button type="button" class="btn sm" data-add-chip="${id}">${ICO.mais}Adicionar</button></span>` : ""}</div>${editavel === true ? `<div class="hint">Clique para marcar ou desmarcar. Você pode adicionar as suas; as desmarcadas que você criou somem ao salvar.</div>` : ""}</div>`;
+  return `<div class="field full"><span class="lbl">${rot}</span><div class="chips" data-chips="${id}">${opcoes.map(o=>chip(o, (sel||[]).includes(o))).join("")}${extras.map(o=>chip(o, true)).join("")}${editavel === true ? `<span class="chip-add"><input type="text" id="${id}-novo" placeholder="${id.startsWith("e-rec") ? "Escreva outro recurso" : "Escreva outra opção"}" aria-label="Adicionar outra opção"><button type="button" class="btn sm" data-add-chip="${id}">${ICO.mais}Adicionar</button></span>` : ""}</div>${editavel === true ? `<div class="hint">Clique para marcar ou desmarcar. Você pode adicionar as suas; as desmarcadas que você criou somem ao salvar.</div>` : ""}</div>`;
 }
 function ligarChips(raiz){
   const em = sel => Array.from((raiz || document).querySelectorAll(sel));
@@ -1048,7 +1048,7 @@ function telaContexto(){
           ${selTipoEscola(`e-tipo-${i}`, x.tipo)}
           <div class="field so-tec" data-tec="${i}"${escolaTecnica(x.tipo) ? "" : " hidden"}><label for="e-eixo-${i}">Eixo tecnológico principal</label><select id="e-eixo-${i}"><option value="">Não se aplica / vários</option>${EIXOS.map(o => `<option${o === x.eixo ? " selected" : ""}>${esc(o)}</option>`).join("")}</select></div>
           <div class="field so-tec" data-tec="${i}"${escolaTecnica(x.tipo) ? "" : " hidden"}><label for="e-cursos-${i}">Cursos técnicos da escola</label><input type="text" id="e-cursos-${i}" list="l-cursos" value="${esc(x.cursos)}" placeholder="Ex.: Técnico em Informática; Técnico em Administração"></div>
-          ${campoChips(`e-rec-${i}`, "Recursos disponíveis", RECURSOS, x.recursos)}
+          ${campoChips(`e-rec-${i}`, "Recursos disponíveis", RECURSOS, x.recursos, null, true)}
           ${campoArea(`e-terr-${i}`, "Território e mundo do trabalho", x.territorio, "Ex.: região agrícola com cooperativas; polo de comércio e serviços; empresas de tecnologia na capital", "full", "Ajuda a IA a criar situações-problema reais para a região desta escola.")}
         </div></div>`;
     }).join("");
