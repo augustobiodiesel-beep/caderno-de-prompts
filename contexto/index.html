@@ -200,6 +200,9 @@ input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accen
 .chips{display:flex; flex-wrap:wrap; gap:8px}
 .chip-grupo{flex-basis:100%; font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin-top:6px}
 .chip-grupo:first-child{margin-top:0}
+.mat-info{display:flex; gap:10px; align-items:flex-start; margin-top:12px; padding:12px 14px; border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:12px; background:color-mix(in srgb, var(--accent) 7%, transparent); font-size:14px; line-height:1.5; color:var(--text); min-height:68px}
+.mat-info svg{flex:none; width:20px; height:20px; color:var(--accent); margin-top:1px}
+.mat-info em{font-style:normal; font-weight:600}
 .chip{
   font:inherit; font-size:13.5px; cursor:pointer; padding:7px 12px; border-radius:999px;
   color:var(--muted); background:transparent; border:1px solid var(--border);
@@ -804,6 +807,40 @@ const NOTA_TIPO = {
   "Quadro de opções": "grade de 6 a 9 atividades para o estudante escolher, com níveis e formas de expressão diferentes",
   "Quiz ou teste rápido": "de 5 a 10 questões curtas para checar a aprendizagem, com gabarito"
 };
+// Caixinha explicativa: o que é cada material e um exemplo de bom uso
+const INFO_TIPO = {
+  "Sequência didática": ["Conjunto de aulas encadeadas sobre um tema, com objetivo, etapas e avaliação.", "Planejar 4 aulas sobre algoritmos, da sondagem inicial até um pequeno projeto final."],
+  "Plano de aula": ["Roteiro de uma aula: objetivos, habilidades, tempo de cada etapa, recursos e avaliação.", "Aula de 50 minutos sobre frações com abertura, prática em dupla e fechamento."],
+  "Gancho para abrir a aula": ["Atividade curta, de 5 a 10 minutos, que desperta a curiosidade antes do conteúdo.", "Começar com “Como o celular sabe onde você está?” antes de falar de GPS e coordenadas."],
+  "Ideias de projetos": ["Lista de propostas de projeto, cada uma com produto final e etapas, para você ou a turma escolher.", "Cinco ideias de projeto sobre lixo eletrônico no bairro para a turma votar."],
+  "Projeto (aprendizagem baseada em projetos)": ["Projeto completo: problema real, etapas, papéis, produto final e avaliação.", "A turma do técnico cria, em 6 semanas, um site para um comércio do bairro."],
+  "Slides da aula": ["Apresentação slide a slide, com tópicos, sugestão de imagens e notas para o professor.", "Dez slides para explicar redes de computadores, prontos para colar no Canva ou no Gamma."],
+  "Slides de atividades interativas": ["Slides em que cada tela pede uma ação da turma: votar, responder, arrastar ou discutir.", "Enquete no Mentimeter sobre notícias falsas, seguida de debate em grupos."],
+  "Imagens e ilustrações": ["Imagens para explicar o conteúdo, ou descrições prontas para gerar numa IA de imagens.", "Esquema de um circuito simples; ilustração do ciclo da água no semiárido."],
+  "Texto de apoio ou material de leitura": ["Texto curto e claro sobre o tema, na linguagem da turma, para ler em aula ou em casa.", "Texto de uma página sobre a LGPD, com perguntas de compreensão."],
+  "Exemplos do mundo real": ["Situações reais e próximas da turma que mostram o conteúdo em uso.", "Porcentagem nas promoções do mercado do bairro; lógica no funcionamento dos semáforos."],
+  "Lista de vocabulário": ["Termos-chave do tema, com definição simples e exemplo de uso.", "Glossário com 12 termos de redes (IP, roteador, protocolo) para a turma consultar."],
+  "Tradução ou adaptação de texto": ["Traduz um texto ou reescreve em linguagem mais acessível, mantendo o sentido. Cole o texto em “Detalhes do pedido”.", "Adaptar um manual técnico em inglês; versão simplificada para quem tem dificuldade de leitura."],
+  "Situação-problema do mundo do trabalho": ["Desafio realista de uma profissão, que a turma resolve usando o conteúdo.", "Como técnico(a) em logística, calcular a melhor rota de entregas da semana."],
+  "Estudo de caso": ["História real ou verossímil para a turma analisar, com perguntas que levam a uma decisão.", "Caso de vazamento de dados de uma loja para discutir segurança da informação."],
+  "Tópicos para discussão": ["Perguntas abertas que provocam debate, das mais simples às mais complexas.", "“A IA deve corrigir redações?” para uma roda de conversa."],
+  "Roteiro de prática de laboratório": ["Passo a passo de uma prática, com materiais, cuidados de segurança e registro dos resultados.", "Montar e testar um cabo de rede; experimento sobre densidade dos líquidos."],
+  "Atividade desplugada": ["Atividade de Computação sem computador, com papel, cartões ou movimento.", "Estudantes ordenam cartas de baralho para entender algoritmos de ordenação."],
+  "Jogo ou dinâmica": ["Atividade lúdica, com regras, que trabalha o conteúdo.", "Bingo de vocabulário; corrida de perguntas por equipes."],
+  "Atividade de quebra-cabeça": ["Enigma, cruzadinha, caça-palavras ou peças para montar, sempre com gabarito.", "Cruzadinha com termos de biologia; enigma de lógica para abrir a aula."],
+  "Quadro de opções": ["Grade de 6 a 9 atividades para o estudante escolher, com níveis e formas de expressão diferentes.", "Mostrar o que aprendeu escolhendo entre vídeo, cartaz, texto ou maquete."],
+  "Lista de exercícios": ["Exercícios do básico ao desafio, com gabarito.", "Dez questões de funções, das diretas às contextualizadas."],
+  "Atividade de revisão": ["Retomada dos pontos principais antes da prova ou de um novo tema.", "Mapa de revisão com perguntas-chave e um quiz rápido no fim."],
+  "Adaptação de atividade (DUA)": ["Versões da mesma atividade para diferentes necessidades, seguindo o Desenho Universal para a Aprendizagem.", "A mesma questão em texto, imagem e áudio; versão com letra ampliada."],
+  "Quiz ou teste rápido": ["De 5 a 10 questões curtas para checar o que a turma aprendeu, com gabarito.", "Quiz no Kahoot ou no Google Forms nos 10 minutos finais da aula."],
+  "Avaliação ou prova": ["Instrumento para verificar a aprendizagem, ligado às habilidades, com gabarito e critérios.", "Prova bimestral com questões objetivas e uma situação-problema."],
+  "Rubrica de avaliação": ["Tabela com critérios e níveis de desempenho para avaliar trabalhos de forma justa e transparente.", "Rubrica para a apresentação de um projeto: conteúdo, organização, comunicação e trabalho em equipe."]
+};
+const infoTipoHTML = nome => {
+  if(!nome) return `${ICO.luz}<span>Passe o mouse ou toque em um material para ver o que é e um exemplo de bom uso.</span>`;
+  const i = INFO_TIPO[nome] || ["Material pedido por você. Em “Detalhes do pedido”, conte o que espera dele.", "Podcast de 5 minutos com entrevista; roteiro de vídeo curto para a turma gravar."];
+  return `${ICO.luz}<span><b>${esc(nome)}:</b> ${esc(i[0])}<br><em>Exemplo de bom uso:</em> ${esc(i[1])}</span>`;
+};
 function campoMateriais(sel){
   sel = sel || [];
   const chip = o => `<button type="button" class="chip" aria-pressed="${sel.includes(o)}">${esc(o)}</button>`;
@@ -811,7 +848,7 @@ function campoMateriais(sel){
   return `<div class="field full"><span class="lbl">1. Quais materiais? Marque um ou mais</span><div class="chips" data-chips="g-tipos">
     ${TIPOS_GRUPOS.map(([g, l]) => `<span class="chip-grupo">${g}</span>${l.map(chip).join("")}`).join("")}
     <span class="chip-grupo">Não está na lista? Peça outro material</span>${extras.map(chip).join("")}<span class="chip-add"><input type="text" id="g-tipos-novo" placeholder="Ex.: podcast, mapa mental" aria-label="Outro material"><button type="button" class="btn sm" data-add-chip="g-tipos">${ICO.mais}Adicionar</button></span>
-  </div><div class="hint" id="g-tipos-txt"></div></div>`;
+  </div><div class="mat-info" id="g-tipos-info" aria-live="polite">${infoTipoHTML("")}</div><div class="hint" id="g-tipos-txt"></div></div>`;
 }
 const EIXOS_CO = ["Pensamento Computacional","Mundo Digital","Cultura Digital"];
 const ordenaTipos = l => [...l].sort((a, b) => { const i = TIPOS_PED.indexOf(a), j = TIPOS_PED.indexOf(b); return (i < 0 ? 99 : i) - (j < 0 ? 99 : j); });
@@ -1482,6 +1519,12 @@ function telaGerar(arg){
   const tiposTxt = () => { const n = lerChips("g-tipos").length; $("#g-tipos-txt").textContent = n > 1 ? `${n} materiais no mesmo pedido: a IA produz um conjunto articulado, do planejamento à avaliação.` : "Clique para marcar. Marque vários para gerar um conjunto (ex.: sequência didática + planos de aula + slides + avaliação)."; };
   const mudouTipos = () => { tiposTxt(); ler(); desenhar(); };
   if(comEixo) $('[data-chips="g-eixos"]').addEventListener("click", e => { if(e.target.closest(".chip")){ ler(); desenhar(); } });
+  let infoFixo = "";
+  const info = nome => { $("#g-tipos-info").innerHTML = infoTipoHTML(nome); };
+  tiposBox.addEventListener("mouseover", e => { const c = e.target.closest(".chip"); if(c) info(c.textContent); });
+  tiposBox.addEventListener("focusin", e => { const c = e.target.closest(".chip"); if(c) info(c.textContent); });
+  tiposBox.addEventListener("mouseleave", () => info(infoFixo));
+  tiposBox.addEventListener("click", e => { const c = e.target.closest(".chip"); if(c){ infoFixo = c.textContent; info(infoFixo); } });
   tiposBox.addEventListener("click", e => { if(e.target.closest(".chip, [data-add-chip]")) mudouTipos(); });
   $("#g-tipos-novo").addEventListener("keydown", e => { if(e.key === "Enter") mudouTipos(); });
   tiposTxt();
