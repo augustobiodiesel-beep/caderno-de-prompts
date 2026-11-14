@@ -705,28 +705,28 @@ const FORMATOS = [
 // Arquivo que a IA deve entregar (pronto para baixar e usar)
 const ARQUIVOS = [
   {id:"", nome:"Sugerido pelo Caderno (conforme o material)"},
-  {id:"docx", nome:"Word (.docx)", ext:".docx",
+  {id:"docx", visual:"ícones, ilustrações, infográficos, tabelas coloridas, caixas de destaque e QR codes ou links para os vídeos e animações", nome:"Word (.docx)", ext:".docx",
    como:"um arquivo Word (.docx) para baixar, com estilos de título, listas e tabelas de verdade (se usar código: python-docx)",
    plano:"o conteúdo completo já formatado para eu colar no Word ou no Google Documentos e, se puder, um script Python completo (python-docx) que gera o .docx, para eu rodar no Google Colab"},
-  {id:"pdf", nome:"PDF (.pdf)", ext:".pdf",
+  {id:"pdf", visual:"ícones, ilustrações, infográficos, tabelas coloridas, caixas de destaque e QR codes ou links para os vídeos e animações", nome:"PDF (.pdf)", ext:".pdf",
    como:"um arquivo PDF para baixar, paginado e legível na impressão (se usar código: reportlab ou HTML convertido em PDF)",
    plano:"o conteúdo completo já formatado para eu colar no Word ou no Google Documentos e salvar como PDF"},
-  {id:"pptx", nome:"PowerPoint (.pptx)", ext:".pptx",
+  {id:"pptx", visual:"imagens grandes, ícones, infográficos, GIFs e vídeos incorporados ou com link, transições entre slides e animações de entrada que revelem o conteúdo aos poucos", nome:"PowerPoint (.pptx)", ext:".pptx",
    como:"um arquivo PowerPoint (.pptx) para baixar, com um slide para cada slide planejado, títulos, tópicos curtos e as notas do apresentador no campo de anotações (se usar código: python-pptx)",
    plano:"o texto slide a slide para eu colar no PowerPoint, no Google Apresentações ou numa IA de slides (Gamma, Canva) e, se puder, um script Python completo (python-pptx) que gera o .pptx, para eu rodar no Google Colab"},
-  {id:"gdocs", nome:"Google Documentos", ext:".docx",
+  {id:"gdocs", visual:"ícones, ilustrações, infográficos, tabelas coloridas, caixas de destaque e QR codes ou links para os vídeos e animações", nome:"Google Documentos", ext:".docx",
    como:"um documento do Google Documentos. Se você puder criar ou exportar direto para o Google Documentos, faça isso. Se não, gere um arquivo .docx para baixar (o Google Drive abre .docx como Documento Google)",
    plano:"o conteúdo completo já formatado, com títulos e listas, para eu colar no Google Documentos"},
-  {id:"gslides", nome:"Google Apresentações", ext:".pptx",
+  {id:"gslides", visual:"imagens grandes, ícones, infográficos, GIFs e vídeos incorporados ou com link, transições entre slides e animações de entrada que revelem o conteúdo aos poucos", nome:"Google Apresentações", ext:".pptx",
    como:"uma apresentação do Google Apresentações. Se você puder criar ou exportar direto, faça isso. Se não, gere um arquivo .pptx para baixar (o Google Drive abre .pptx como Apresentação Google), com as notas do apresentador no campo de anotações",
    plano:"o texto slide a slide para eu colar no Google Apresentações ou numa IA de slides (Gamma, Canva)"},
-  {id:"html", nome:"Página web (.html)", ext:".html",
+  {id:"html", visual:"ícones em SVG, ilustrações, infográficos, vídeos incorporados, GIFs e animações em CSS (surgir, deslizar, destacar ao passar o mouse), respeitando a preferência de movimento reduzido", nome:"Página web (.html)", ext:".html",
    como:"um único arquivo .html para baixar, com todo o CSS dentro do próprio arquivo, que abra em qualquer navegador, funcione no celular e se imprima bem",
    plano:"o código HTML completo em um único bloco de código, para eu salvar como arquivo .html"},
-  {id:"png", nome:"Imagem (.png)", ext:".png",
+  {id:"png", visual:"ilustrações, ícones, cores e hierarquia visual de infográfico; quando o conteúdo tiver etapas, ofereça também uma versão em GIF animado", nome:"Imagem (.png)", ext:".png",
    como:"uma ou mais imagens .png para baixar, em alta resolução, com textos corretos e legíveis em português (use seu gerador de imagens ou código, por exemplo matplotlib)",
    plano:"a descrição detalhada de cada imagem e um prompt pronto para eu colar num gerador de imagens"},
-  {id:"xlsx", nome:"Planilha (.xlsx)", ext:".xlsx",
+  {id:"xlsx", visual:"cores, ícones, formatação condicional e gráficos", nome:"Planilha (.xlsx)", ext:".xlsx",
    como:"uma planilha .xlsx para baixar (abre no Excel e no Google Planilhas), com cabeçalhos, colunas bem dimensionadas e fórmulas onde fizer sentido (se usar código: openpyxl)",
    plano:"a tabela completa em Markdown para eu colar no Excel ou no Google Planilhas"},
   {id:"chat", nome:"Só texto na conversa (sem arquivo)"}
@@ -743,7 +743,7 @@ function arqSugerido(material, formato){
 const DICA_ARQ = "Nem toda IA cria arquivos. ChatGPT e Claude costumam gerar .docx, .pptx, .pdf e .xlsx para baixar; no Gemini, use “Exportar para Documentos” ou o Canvas; no Copilot, depende da versão e do plano. Se a IA não conseguir, o comando pede o material completo e um jeito simples de convertê-lo.";
 function linhasEntrega(ped, t){
   const tipos = ped.tipos || [];
-  if(ped.arquivo === "chat") return [`- Entrega: em texto, na própria conversa, completo e pronto para usar.`];
+  if(ped.arquivo === "chat") return [`- Entrega: em texto, na própria conversa, completo e pronto para usar. Mesmo em texto, deixe o material lúdico e visual: use emojis e ícones com moderação, tabelas e esquemas, e indique onde entram imagens, GIFs e vídeos, com a descrição de cada um.`];
   const varios = tipos.length > 1, adapt = ((t.deficiencias || []).length || t.acessibilidade);
   const L = [];
   if(ped.arquivo){
@@ -759,6 +759,8 @@ function linhasEntrega(ped, t){
     L.push(`  Use sua ferramenta de criação de arquivos ou de execução de código para gerar ${varios ? "os arquivos" : "o arquivo"} e me dê o link ou botão para baixar.`);
     L.push(`  Se você não conseguir criar arquivos nesta conversa, diga isso na primeira linha da resposta e entregue ${varios ? "o conteúdo completo de cada material, já formatado para eu colar no Word, no Google Documentos ou no Google Apresentações" : lista[0][1].plano}.`);
   }
+  const vis = (ped.arquivo ? [arqDe(ped.arquivo)] : (tipos.length ? tipos : ["Material"]).map(m => arqDe(arqSugerido(m, ped.formato)))).filter((a, i, v) => a.visual && v.indexOf(a) === i);
+  vis.forEach(a => L.push(`  Visual e movimento${vis.length > 1 ? ` no ${a.nome}` : ""}: ${a.visual}.`));
   if(adapt) L.push(`  As versões adaptadas para os estudantes com deficiência também vão em arquivos separados, com o nome da necessidade no nome do arquivo.`);
   L.push(`  O material deve vir completo e pronto para usar com a turma: nada de resumo, esboço ou "complete você".`);
   return L;
@@ -1502,11 +1504,12 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
 4. Use a memória da turma (camada 5): dê progressão ao que já foi trabalhado, repita o que funcionou e evite o que não funcionou.
 5. Prefira metodologias ativas, contextualize no território e no mundo do trabalho (camada 3) e respeite os recursos disponíveis.
 6. Ofereça alternativas segundo o Desenho Universal para a Aprendizagem (múltiplas formas de representação, engajamento e expressão).
-7. Não peça nem invente dados pessoais de estudantes. Indique fontes, sinalize com [VERIFICAR] o que precisa ser conferido, evite estereótipos e respeite direitos autorais.
-8. Se faltar uma informação essencial, faça até 2 perguntas antes de produzir. Se não faltar, produza direto.
-9. Antes de responder, confira o material contra estas regras e verifique se os códigos citados correspondem à etapa e ao componente.
-10. Ao final, apresente um QUADRO DE HABILIDADES (código | texto | por que foi escolhida | onde aparece no material) e ofereça 3 ajustes possíveis (por exemplo, mais curto, mais prático, versão impressa).`,
-    nota:"As regras fixas de qualidade: alinhamento curricular, planejamento reverso, DUA, ética e autoverificação. O quadro final torna a escolha das habilidades visível para você validar."});
+7. Faça um material lúdico e muito visual, que prenda a atenção da turma: use figuras e ilustrações, ícones, infográficos, tabelas, esquemas, cores com bom contraste, GIFs, vídeos curtos e motion design (animações e transições com propósito didático, não só enfeite). Use jogos, personagens, desafios por fases e linguagem próxima da turma. Gere as imagens quando puder; quando não puder, insira no lugar exato a descrição da imagem e um prompt pronto para um gerador de imagens. Indique só vídeos e GIFs reais, com link, sinalizados com [VERIFICAR], e nunca invente links. Todo recurso visual tem texto alternativo, e todo vídeo tem legenda.
+8. Não peça nem invente dados pessoais de estudantes. Indique fontes, sinalize com [VERIFICAR] o que precisa ser conferido, evite estereótipos e respeite direitos autorais.
+9. Se faltar uma informação essencial, faça até 2 perguntas antes de produzir. Se não faltar, produza direto.
+10. Antes de responder, confira o material contra estas regras e verifique se os códigos citados correspondem à etapa e ao componente.
+11. Ao final, apresente um QUADRO DE HABILIDADES (código | texto | por que foi escolhida | onde aparece no material) e ofereça 3 ajustes possíveis (por exemplo, mais curto, mais prático, versão impressa).`,
+    nota:"As regras fixas de qualidade: alinhamento curricular, planejamento reverso, DUA, material lúdico e visual, ética e autoverificação. O quadro final torna a escolha das habilidades visível para você validar."});
 
   // 7 Pedido
   const f = FORMATOS.find(x => x.id === ped.formato);
@@ -1534,7 +1537,9 @@ function linhasInclusao(t){
   if(!defs.length) return [`- Acessibilidade: além do material comum, entregue uma versão adaptada e separada para as necessidades descritas na camada 4.`];
   return [`- Inclusão (obrigatório): entregue primeiro o material comum, para toda a turma. Depois, para cada necessidade abaixo, uma versão extra, separada e com título próprio (ex.: “Versão adaptada — Baixa visão”). Cada versão mantém o mesmo tema, as mesmas habilidades e o mesmo objetivo, mudando a forma de acesso, a apresentação e a resposta. Inclua uma linha para o(a) professor(a) dizendo como aplicar a versão junto com a turma, sem expor o estudante:`,
     ...defs.map(d => `  • ${d}${DEFICIENCIAS[d] ? ": " + DEFICIENCIAS[d] : ""}.`),
-    t.acessibilidade ? `  Considere também: ${t.acessibilidade}` : null].filter(Boolean);
+    t.acessibilidade ? `  Considere também: ${t.acessibilidade}` : null,
+    defs.some(d => /TEA|TDAH|intelectual/.test(d)) ? `  Nessas versões, mantenha o lúdico com visual limpo: poucas animações e um estímulo por vez, sem nada que pisque, toque som ou se mova sozinho.` : null,
+    defs.some(d => /Cegueira|Surdocegueira/.test(d)) ? `  Para quem não enxerga, o lúdico vem do áudio, do tato e da narrativa: descreva cada imagem, GIF e vídeo e ofereça alternativas táteis ou sonoras.` : null].filter(Boolean);
 }
 function linhasMateriais(tipos){
   if(!tipos.length) return ["- Material: (escolha o material)"];
