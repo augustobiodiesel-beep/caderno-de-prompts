@@ -1534,11 +1534,13 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
 function linhasInclusao(t){
   const defs = t.deficiencias || [];
   if(!defs.length && !t.acessibilidade) return [];
-  if(!defs.length) return [`- Acessibilidade: além do material comum, entregue uma versão adaptada e separada para as necessidades descritas na camada 4.`];
+  const visual = `  As versões adaptadas também são ricas em recursos visuais, no mesmo nível do material comum: pictogramas, ícones, sequências ilustradas passo a passo, infográficos simples, tabelas visuais, imagens grandes e cores com alto contraste, ajustados a cada necessidade.`;
+  if(!defs.length) return [`- Acessibilidade: além do material comum, entregue uma versão adaptada e separada para as necessidades descritas na camada 4.`, visual];
   return [`- Inclusão (obrigatório): entregue primeiro o material comum, para toda a turma. Depois, para cada necessidade abaixo, uma versão extra, separada e com título próprio (ex.: “Versão adaptada — Baixa visão”). Cada versão mantém o mesmo tema, as mesmas habilidades e o mesmo objetivo, mudando a forma de acesso, a apresentação e a resposta. Inclua uma linha para o(a) professor(a) dizendo como aplicar a versão junto com a turma, sem expor o estudante:`,
     ...defs.map(d => `  • ${d}${DEFICIENCIAS[d] ? ": " + DEFICIENCIAS[d] : ""}.`),
     t.acessibilidade ? `  Considere também: ${t.acessibilidade}` : null,
-    defs.some(d => /TEA|TDAH|intelectual/.test(d)) ? `  Nessas versões, mantenha o lúdico com visual limpo: poucas animações e um estímulo por vez, sem nada que pisque, toque som ou se mova sozinho.` : null,
+    visual,
+    defs.some(d => /TEA|TDAH|intelectual/.test(d)) ? `  Para TEA, TDAH ou deficiência intelectual: muito apoio visual, organizado e previsível (pictogramas, rotina e passos ilustrados, cores fixas para cada tipo de tarefa, um elemento por vez na tela ou na página). Animações só suaves e acionadas pelo estudante, sem nada que pisque, toque som ou se mova sozinho.` : null,
     defs.some(d => /Cegueira|Surdocegueira/.test(d)) ? `  Para quem não enxerga, o lúdico vem do áudio, do tato e da narrativa: descreva cada imagem, GIF e vídeo e ofereça alternativas táteis ou sonoras.` : null].filter(Boolean);
 }
 function linhasMateriais(tipos){
