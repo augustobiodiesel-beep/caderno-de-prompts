@@ -693,7 +693,7 @@ const FORMATOS = [
   {id:"tabela", nome:"Tabela", dica:"Conteúdo organizado em uma ou mais tabelas.",
    regra:"Organize o conteúdo em uma ou mais tabelas (em Markdown), com colunas bem nomeadas. Fora das tabelas, escreva no máximo uma frase de introdução por tabela."},
   {id:"slides", nome:"Apresentação em slides", dica:"Slide a slide, para colar no Gamma, Canva, PowerPoint ou Google Slides.",
-   regra:"Entregue o conteúdo como apresentação em slides, numerados (Slide 1, Slide 2...). Para cada slide: título curto, de 3 a 5 tópicos breves, sugestão de imagem ou recurso visual e notas do apresentador com o que o professor deve falar. Entre 8 e 15 slides, salvo se o conteúdo exigir outro número. O texto deve poder ser colado direto em um editor de apresentações ou em uma IA de slides (Gamma, Canva, Copilot)."},
+   regra:"Entregue o conteúdo como apresentação em slides, numerados (Slide 1, Slide 2...). Para cada slide: título curto, de 3 a 5 tópicos breves, sugestão de imagem ou recurso visual e notas do apresentador com o que o professor deve falar. Siga a quantidade de slides por aula indicada em QUANTIDADE. O texto deve poder ser colado direto em um editor de apresentações ou em uma IA de slides (Gamma, Canva, Copilot)."},
   {id:"documento", nome:"Documento para impressão", dica:"Pronto para imprimir e entregar aos estudantes ou à coordenação.",
    regra:"Entregue um documento pronto para impressão: cabeçalho (escola, componente, ano/série, professor(a), data, nome do estudante quando couber), seções numeradas, espaço para respostas quando houver atividades e linguagem dirigida a quem vai ler o papel. Evite elementos que dependam de cor ou de tela."},
   {id:"quiz", nome:"Quiz ou questionário", dica:"Questões com alternativas e gabarito comentado.",
@@ -1519,6 +1519,7 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
     compsP.length && `- ${compsP.length > 1 ? "Competências" : "Competência"} da BNCC Computação em foco (Ensino Médio):\n${compsP.map(i => `  C${i + 1}. ${BNCC_COMPETENCIAS.em.itens[i]}`).join("\n")}\n  Escolha as habilidades EM13CO que mais se ligam a ${compsP.length > 1 ? "essas competências" : "essa competência"} e deixe claro, no material, como ${compsP.length > 1 ? "cada uma é trabalhada" : "ela é trabalhada"}.`,
     eixosP.length && `- ${eixosP.length > 1 ? "Eixos" : "Eixo"} da BNCC Computação em foco: ${eixosP.join(", ")}. Escolha as habilidades de Computação ${eixosP.length > 1 ? "desses eixos" : "desse eixo"} e deixe claro, no material, como ${eixosP.length > 1 ? "cada eixo é trabalhado" : "o eixo é trabalhado"}.`,
     ped.aulas && `- Tempo ${(ped.tipos || []).length > 1 ? "para o conjunto" : "para este material"}: ${tempoTxt(ped.aulas, ped.duracao)}. Distribua as atividades nesse tempo.`,
+    ...linhasQuantidade(ped),
     ped.detalhes && `- Detalhes: ${ped.detalhes}`,
     (ped.tipos || []).length > 1
       ? `- Formato de saída: ${f && f.id ? f.nome + " (para todos os materiais)" : "à sua escolha, o mais útil para cada material"}`
@@ -1530,6 +1531,27 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
   c.push({n:"7", nome:"Pedido", tipo:"pedido", txt:r7.join("\n"),
     nota:"A única parte que muda a cada uso: o material, o tema, o formato e o arquivo que a IA deve entregar."});
   return c;
+}
+// Quantidade mínima por aula, para a IA não entregar um material curto dizendo que cobre todas as aulas
+function linhasQuantidade(ped){
+  const n = +ped.aulas || 0, d = +ped.duracao || 50, tipos = ped.tipos || [];
+  if(!n) return [];
+  const sMin = Math.max(6, Math.round(d / 5)), sMax = Math.max(sMin + 2, Math.round(d / 3.5));
+  const temSlides = ped.formato === "slides" || tipos.some(m => /^Slides/.test(m));
+  const L = [];
+  if(n > 1){
+    L.push(`- QUANTIDADE (obrigatório): são ${n} aulas de ${d} minutos. Produza o material de TODAS as ${n} aulas, cada uma separada e com título próprio (“Aula 1 de ${n}: ...”, “Aula 2 de ${n}: ...”). Não resuma várias aulas em uma nem diga que um material curto cobre todas.`);
+    if(tipos.includes("Sequência didática")) L.push(`  Sequência didática: as ${n} aulas detalhadas, cada uma com objetivo, momentos com o tempo em minutos (somando ${d} minutos), atividades e forma de avaliação.`);
+    if(tipos.includes("Plano de aula")) L.push(`  Plano de aula: ${n} planos completos, um para cada aula.`);
+    if(temSlides) L.push(`  Slides: de ${sMin} a ${sMax} slides para CADA aula, ou seja, no mínimo ${sMin * n} slides no total, separados por aula.`);
+    L.push(`  Planeje cada aula para ocupar os ${d} minutos, com o tempo de cada momento.`);
+  } else {
+    L.push(`- QUANTIDADE: material completo para ${d} minutos de aula, com o tempo em minutos de cada momento.`);
+    if(temSlides) L.push(`  Slides: de ${sMin} a ${sMax} slides.`);
+  }
+  L.push(`  Antes de encerrar, apresente um CHECKLIST DE ENTREGA: ${n > 1 ? "para cada aula, " : ""}o que foi entregue (número de slides ou páginas, atividades e minutos). Se faltar algo, complete antes de terminar.`);
+  if(n > 1) L.push(`  Se a resposta ficar longa demais, não encurte o material: entregue a Aula 1 completa (com o arquivo dela) e termine com “Digite CONTINUAR para receber a Aula 2”. Siga assim até a Aula ${n}.`);
+  return L;
 }
 function linhasInclusao(t){
   const defs = t.deficiencias || [];
