@@ -702,6 +702,68 @@ const FORMATOS = [
    regra:"Entregue o conteúdo como mapa mental ou infográfico: primeiro a estrutura hierárquica em tópicos (ideia central, ramos e sub-ramos com palavras-chave curtas); depois o mesmo mapa em código Mermaid (mindmap) dentro de um bloco de código, para gerar o diagrama no Mermaid Live, no Napkin ou no Canva."}
 ];
 
+// Arquivo que a IA deve entregar (pronto para baixar e usar)
+const ARQUIVOS = [
+  {id:"", nome:"Sugerido pelo Caderno (conforme o material)"},
+  {id:"docx", nome:"Word (.docx)", ext:".docx",
+   como:"um arquivo Word (.docx) para baixar, com estilos de título, listas e tabelas de verdade (se usar código: python-docx)",
+   plano:"o conteúdo completo já formatado para eu colar no Word ou no Google Documentos e, se puder, um script Python completo (python-docx) que gera o .docx, para eu rodar no Google Colab"},
+  {id:"pdf", nome:"PDF (.pdf)", ext:".pdf",
+   como:"um arquivo PDF para baixar, paginado e legível na impressão (se usar código: reportlab ou HTML convertido em PDF)",
+   plano:"o conteúdo completo já formatado para eu colar no Word ou no Google Documentos e salvar como PDF"},
+  {id:"pptx", nome:"PowerPoint (.pptx)", ext:".pptx",
+   como:"um arquivo PowerPoint (.pptx) para baixar, com um slide para cada slide planejado, títulos, tópicos curtos e as notas do apresentador no campo de anotações (se usar código: python-pptx)",
+   plano:"o texto slide a slide para eu colar no PowerPoint, no Google Apresentações ou numa IA de slides (Gamma, Canva) e, se puder, um script Python completo (python-pptx) que gera o .pptx, para eu rodar no Google Colab"},
+  {id:"gdocs", nome:"Google Documentos", ext:".docx",
+   como:"um documento do Google Documentos. Se você puder criar ou exportar direto para o Google Documentos, faça isso. Se não, gere um arquivo .docx para baixar (o Google Drive abre .docx como Documento Google)",
+   plano:"o conteúdo completo já formatado, com títulos e listas, para eu colar no Google Documentos"},
+  {id:"gslides", nome:"Google Apresentações", ext:".pptx",
+   como:"uma apresentação do Google Apresentações. Se você puder criar ou exportar direto, faça isso. Se não, gere um arquivo .pptx para baixar (o Google Drive abre .pptx como Apresentação Google), com as notas do apresentador no campo de anotações",
+   plano:"o texto slide a slide para eu colar no Google Apresentações ou numa IA de slides (Gamma, Canva)"},
+  {id:"html", nome:"Página web (.html)", ext:".html",
+   como:"um único arquivo .html para baixar, com todo o CSS dentro do próprio arquivo, que abra em qualquer navegador, funcione no celular e se imprima bem",
+   plano:"o código HTML completo em um único bloco de código, para eu salvar como arquivo .html"},
+  {id:"png", nome:"Imagem (.png)", ext:".png",
+   como:"uma ou mais imagens .png para baixar, em alta resolução, com textos corretos e legíveis em português (use seu gerador de imagens ou código, por exemplo matplotlib)",
+   plano:"a descrição detalhada de cada imagem e um prompt pronto para eu colar num gerador de imagens"},
+  {id:"xlsx", nome:"Planilha (.xlsx)", ext:".xlsx",
+   como:"uma planilha .xlsx para baixar (abre no Excel e no Google Planilhas), com cabeçalhos, colunas bem dimensionadas e fórmulas onde fizer sentido (se usar código: openpyxl)",
+   plano:"a tabela completa em Markdown para eu colar no Excel ou no Google Planilhas"},
+  {id:"chat", nome:"Só texto na conversa (sem arquivo)"}
+];
+const arqDe = id => ARQUIVOS.find(a => a.id === id);
+// Sugestão do Caderno: slides viram .pptx, imagens viram .png, o resto vira .docx
+function arqSugerido(material, formato){
+  if(formato === "slides") return "pptx";
+  if(formato === "mapa") return "png";
+  if(/^Slides/.test(material)) return "pptx";
+  if(/^Imagens/.test(material)) return "png";
+  return "docx";
+}
+const DICA_ARQ = "Nem toda IA cria arquivos. ChatGPT e Claude costumam gerar .docx, .pptx, .pdf e .xlsx para baixar; no Gemini, use “Exportar para Documentos” ou o Canvas; no Copilot, depende da versão e do plano. Se a IA não conseguir, o comando pede o material completo e um jeito simples de convertê-lo.";
+function linhasEntrega(ped, t){
+  const tipos = ped.tipos || [];
+  if(ped.arquivo === "chat") return [`- Entrega: em texto, na própria conversa, completo e pronto para usar.`];
+  const varios = tipos.length > 1, adapt = ((t.deficiencias || []).length || t.acessibilidade);
+  const L = [];
+  if(ped.arquivo){
+    const a = arqDe(ped.arquivo);
+    L.push(`- ENTREGA EM ARQUIVO (obrigatório): o resultado final não é texto solto na conversa. Entregue ${a.como}.`);
+    if(varios) L.push(`  Gere um arquivo para cada material, com nome claro (ex.: 01_${slug(tipos[0])}${a.ext}).`);
+    L.push(`  Use sua ferramenta de criação de arquivos ou de execução de código para gerar ${varios ? "os arquivos" : "o arquivo"} e me dê o link ou botão para baixar.`);
+    L.push(`  Se você não conseguir criar arquivos nesta conversa, diga isso na primeira linha da resposta e entregue ${a.plano}.`);
+  } else {
+    const lista = (tipos.length ? tipos : ["Material"]).map(m => [m, arqDe(arqSugerido(m, ped.formato))]);
+    L.push(`- ENTREGA EM ARQUIVO (obrigatório): o resultado final não é texto solto na conversa. Entregue ${varios ? "um arquivo pronto para baixar para cada material" : lista[0][1].como}.`);
+    if(varios) lista.forEach(([m, a], i) => L.push(`  ${i + 1}. ${m}: ${a.nome}, nome do arquivo ${String(i + 1).padStart(2, "0")}_${slug(m)}${a.ext}`));
+    L.push(`  Use sua ferramenta de criação de arquivos ou de execução de código para gerar ${varios ? "os arquivos" : "o arquivo"} e me dê o link ou botão para baixar.`);
+    L.push(`  Se você não conseguir criar arquivos nesta conversa, diga isso na primeira linha da resposta e entregue ${varios ? "o conteúdo completo de cada material, já formatado para eu colar no Word, no Google Documentos ou no Google Apresentações" : lista[0][1].plano}.`);
+  }
+  if(adapt) L.push(`  As versões adaptadas para os estudantes com deficiência também vão em arquivos separados, com o nome da necessidade no nome do arquivo.`);
+  L.push(`  O material deve vir completo e pronto para usar com a turma: nada de resumo, esboço ou "complete você".`);
+  return L;
+}
+const slug = s => (s || "material").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\(.*?\)/g, "").replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 32);
 
 /* ============================================================
    Caderno de Contexto — engenharia de contexto para professores
@@ -1460,9 +1522,10 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
       : `- Formato de saída: ${f && f.id ? f.nome : "à sua escolha, o mais útil para o material"}`,
     f && f.regra && `  ${f.regra}`,
     f && f.regra && `  O quadro de habilidades entra adaptado a este formato (por exemplo, no último slide ou depois da última questão).`,
-    ...linhasInclusao(t)].filter(Boolean);
+    ...linhasInclusao(t),
+    ...linhasEntrega(ped, t)].filter(Boolean);
   c.push({n:"7", nome:"Pedido", tipo:"pedido", txt:r7.join("\n"),
-    nota:"A única parte que muda a cada uso: o material, o tema e o formato desta vez."});
+    nota:"A única parte que muda a cada uso: o material, o tema, o formato e o arquivo que a IA deve entregar."});
   return c;
 }
 function linhasInclusao(t){
@@ -1518,8 +1581,9 @@ function telaGerar(arg){
       ${comComp ? `${campoChips("g-comps", "2. Quais competências da BNCC Computação são o foco? (opcional: marque uma ou mais)", COMPS_EM_ROT, ped.compsCO || []).replace(/<\/div>$/, `<div class="mat-info" id="g-comps-info" aria-live="polite">${ICO.luz}<span>No Ensino Médio, a BNCC Computação se organiza em 7 competências, e não em eixos. Passe o mouse ou toque numa competência para ler o texto oficial. Sem marcar, a IA escolhe.</span></div></div>`)}` : ""}
       ${campoTexto("g-comp", "Componente", ped.componente || "", "")}
       <div class="field"><label for="g-fmt">3. Em que formato?</label><select id="g-fmt">${FORMATOS.map(f=>`<option value="${f.id}"${f.id===ped.formato?" selected":""}>${f.id ? esc(f.nome) : "Deixar a IA escolher"}</option>`).join("")}</select><div class="hint" id="g-fmt-dica"></div></div>
-      ${campoTexto("g-tema", "4. Sobre qual tema ou conteúdo?", ped.tema, "Ex.: funções do 1º grau aplicadas a orçamento", "tema")}
-      ${campoTempo("g-tempo", "5. Quantas aulas ao todo?", ped.aulas, ped.duracao, "", "Começa com o tempo de aula da turma; ajuste para este pedido.")}
+      <div class="field"><label for="g-arq">4. Em que arquivo quer receber?</label><select id="g-arq">${ARQUIVOS.map(a=>`<option value="${a.id}"${a.id===(ped.arquivo||"")?" selected":""}>${esc(a.nome)}</option>`).join("")}</select><div class="hint" id="g-arq-dica"></div></div>
+      ${campoTexto("g-tema", "5. Sobre qual tema ou conteúdo?", ped.tema, "Ex.: funções do 1º grau aplicadas a orçamento", "tema")}
+      ${campoTempo("g-tempo", "6. Quantas aulas ao todo?", ped.aulas, ped.duracao, "", "Começa com o tempo de aula da turma; ajuste para este pedido.")}
       <details class="full"><summary>Opcional: detalhes e habilidades da BNCC do componente</summary>
         <div class="fields" style="margin-top:12px">
           ${campoArea("g-det", "Detalhes do pedido", ped.detalhes, "Ex.: para a aula de revisão antes da prova; com uma atividade em dupla")}
@@ -1537,13 +1601,13 @@ function telaGerar(arg){
   atualizaComp();
   const ler = () => {
     const tipos = ordenaTipos(lerChips("g-tipos"));
-    Object.assign(ped, tempoG(), {turma:turmaG.id, tipos, tipo:tipos.join(" + "), eixos:comEixo ? EIXOS_CO.filter(x => lerChips("g-eixos").includes(x)) : [], compsCO:comComp ? COMPS_EM_ROT.filter(x => lerChips("g-comps").includes(x)) : [], componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
+    Object.assign(ped, tempoG(), {turma:turmaG.id, tipos, tipo:tipos.join(" + "), eixos:comEixo ? EIXOS_CO.filter(x => lerChips("g-eixos").includes(x)) : [], compsCO:comComp ? COMPS_EM_ROT.filter(x => lerChips("g-comps").includes(x)) : [], componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, arquivo:$("#g-arq").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
     S.pedido = Object.assign({}, ped); delete S.pedido._auto;
     if(ped.tipo || ped.tema) S.ultimo[ped.turma] = {material:ped.tipo, tema:ped.tema, formato:ped.formato};
     salvar();
   };
   comp.addEventListener("input", () => { ped._auto = false; });
-  ["g-comp","g-tema","g-fmt","g-det","g-habs"].forEach(id => $("#"+id).addEventListener("input", () => { ler(); desenhar(); }));
+  ["g-comp","g-tema","g-fmt","g-arq","g-det","g-habs"].forEach(id => $("#"+id).addEventListener("input", () => { ler(); desenhar(); }));
   ligarChips($(".pedido-card"));
   const tiposBox = $('[data-chips="g-tipos"]');
   const tiposTxt = () => { const n = lerChips("g-tipos").length; $("#g-tipos-txt").textContent = n > 1 ? `${n} materiais no mesmo pedido: a IA produz um conjunto articulado, do planejamento à avaliação.` : "Clique para marcar. Marque vários para gerar um conjunto (ex.: sequência didática + planos de aula + slides + avaliação)."; };
@@ -1572,6 +1636,8 @@ function telaGerar(arg){
     const t = S.turmas.find(x => x.id === ped.turma);
     const f = FORMATOS.find(x => x.id === ped.formato);
     $("#g-fmt-dica").textContent = f && f.id ? f.dica : "A IA escolhe o formato mais útil para o material.";
+    const sug = (ped.tipos || []).map(m => arqDe(arqSugerido(m, ped.formato)).nome).filter((x, i, a) => a.indexOf(x) === i);
+    $("#g-arq-dica").textContent = (ped.arquivo === "chat" ? "A IA responde em texto, sem arquivo. " : !ped.arquivo && sug.length ? `Sugestão para este pedido: ${sug.join(" + ")}. ` : "") + DICA_ARQ;
     const cs = montarCamadas(t, ped);
     const pacote = textoCamadas(cs);
     const palavras = contaPalavras(pacote);
