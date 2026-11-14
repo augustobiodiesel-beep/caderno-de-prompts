@@ -17,6 +17,25 @@ Resolução CNE/CEB nº 1/2022).
 Aplicação de página única, sem dependências além das fontes do Google.
 O arquivo `index.html` é autossuficiente.
 
+## Caderno de Contexto (`/contexto`)
+
+Novo aplicativo baseado na metodologia v3 (engenharia de contexto). Em vez de
+gerar um prompt a cada pedido, ele monta uma vez o contexto pedagógico do
+professor e o mantém atualizado com a memória de cada turma.
+
+- Contexto em 7 camadas: referência curricular (texto oficial das habilidades
+  de Computação da etapa), perfil docente, escola, turma, memória da turma,
+  regras de trabalho e pedido
+- Configuração única; depois, três perguntas por uso (turma, material e tema,
+  formato de saída)
+- Entrega por conversa (pacote completo) ou persistente (contexto fixo num
+  projeto ou assistente e só o pedido a cada aula); versão comentada das camadas
+- Caderno de Memória da Turma: registro pós-aula em um minuto, síntese
+  automática e editável, que entra no próximo pacote
+- Modo claro e escuro; dados só no navegador, com exportar, importar e apagar
+
+Arquivo único e autossuficiente: `contexto/index.html`.
+
 ## Créditos
 
 Adaptação do modelo **“Geradores de Prompts de IA para Professores”**, de
