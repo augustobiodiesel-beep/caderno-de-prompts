@@ -328,7 +328,6 @@ input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accen
 @media (max-width:560px){ .passos-uso.h{grid-template-columns:1fr} }
 .fields.f4{grid-template-columns:repeat(3, minmax(0,1fr))}
 .fields.f4 .tema{grid-column:span 2}
-.fields.f4 .ajustes{margin-top:4px}
 @media (max-width:1000px){ .fields.f4{grid-template-columns:1fr 1fr} .fields.f4 .tema{grid-column:1/-1} }
 @media (max-width:640px){ .fields.f4{grid-template-columns:1fr} }
 .check{display:inline-flex; align-items:center; gap:8px; font-size:14px; cursor:pointer; padding:6px 12px; border-radius:999px; border:1px solid var(--border)}
@@ -340,19 +339,6 @@ input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accen
 .camadas .camada{margin-top:0; display:flex; flex-direction:column}
 .camadas .camada pre{flex:1}
 @media (max-width:560px){ .camadas{grid-template-columns:1fr} }
-details.camada > summary.camada-h{display:flex; border:0; border-bottom:1px solid var(--border); border-radius:0; color:var(--text); padding:10px 14px; list-style:none; cursor:pointer}
-details.camada > summary.camada-h::before{content:"▸"; font-size:12px; color:var(--accent); margin-right:-2px}
-details.camada[open] > summary.camada-h::before{content:"▾"}
-details.camada:not([open]) > summary.camada-h{border-bottom:0}
-details.camada > summary.camada-h:hover{background:color-mix(in srgb, var(--accent) 6%, transparent)}
-.copiar-fixo{display:none}
-#g-saida{scroll-margin-top:80px}
-@media (max-width:860px){
-  body.tela-gerar .copiar-fixo{display:flex; gap:8px; position:fixed; left:12px; right:12px; bottom:calc(74px + env(safe-area-inset-bottom)); z-index:35; padding:8px; border-radius:999px; background:color-mix(in srgb, var(--bg) 85%, transparent); border:1px solid var(--border-strong); box-shadow:var(--shadow); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px)}
-  body.tela-gerar .copiar-fixo .btn.pri{flex:1}
-  body.tela-gerar main{padding-bottom:160px}
-  body.tela-gerar .toast{bottom:150px}
-}
 .contador{display:inline-flex; align-items:stretch; border:1px solid var(--border-strong); border-radius:var(--r-s); overflow:hidden; background:var(--surface-solid)}
 .contador input[type=number]{width:70px; text-align:center; border:0; border-radius:0; font-weight:700; font-size:17px; -moz-appearance:textfield; appearance:textfield}
 .contador input::-webkit-outer-spin-button, .contador input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
@@ -432,8 +418,29 @@ details summary::before{content:"+"; font-size:17px; line-height:1; font-weight:
 details[open] summary::before{content:"−"}
 details summary:hover{background:color-mix(in srgb, var(--accent) 10%, transparent); border-style:solid}
 [hidden]{display:none !important}
-dialog#copia-manual{max-width:680px; width:calc(100% - 32px); color:var(--text); background:var(--surface-solid)}
-dialog#copia-manual::backdrop{background:rgba(0,0,0,.55)}
+/* camadas que abrem e fecham */
+.camadas details.camada{display:block}
+details.camada > summary.camada-h{display:flex; border:0; border-radius:0; color:var(--text); padding:10px 14px; border-bottom:1px solid transparent}
+details.camada[open] > summary.camada-h{border-bottom-color:var(--border)}
+details.camada > summary.camada-h::before{content:"▸"; font-size:13px; color:var(--accent)}
+details.camada[open] > summary.camada-h::before{content:"▾"}
+details.camada > summary.camada-h:hover{background:color-mix(in srgb, var(--accent) 7%, transparent)}
+.so-cel{display:none}
+/* botão Copiar sempre à mão no celular */
+.copiar-fixo{display:none}
+@media (max-width:860px){
+  .so-cel{display:block}
+  .copiar-fixo{display:flex; position:fixed; left:12px; right:12px; bottom:calc(72px + env(safe-area-inset-bottom)); z-index:45}
+  .copiar-fixo .btn{width:100%; justify-content:center; box-shadow:var(--glow), 0 12px 30px -10px rgba(0,0,0,.55)}
+  body:has(.copiar-fixo) main{padding-bottom:160px}
+  body:has(.copiar-fixo) .toast{bottom:156px}
+}
+.tag.ex{border-color:var(--warn); color:var(--warn)}
+dialog.dlg{border:1px solid var(--border-strong); border-radius:var(--r); background:var(--surface-solid); color:var(--text); padding:20px; width:min(640px, calc(100vw - 32px)); box-shadow:var(--shadow)}
+dialog.dlg::backdrop{background:rgba(3,8,20,.62)}
+dialog.dlg h2{margin:0 0 6px; font-size:18px}
+dialog.dlg p{color:var(--muted); font-size:14.5px; margin:0 0 12px}
+dialog.dlg textarea{min-height:220px; font-family:var(--mono); font-size:12.5px}
 hr.sep{border:0; border-top:1px solid var(--border); margin:18px 0}
 </style>
 </head>
@@ -459,11 +466,12 @@ hr.sep{border:0; border-top:1px solid var(--border); margin:18px 0}
   <div class="wrap">
     <p>O Caderno de Contexto não produz os materiais: ele organiza o contexto que você leva para a IA de sua escolha. Você continua autor(a) e responsável pelo que for usado em aula.
     Seus dados ficam só neste aparelho (armazenamento do navegador) e nada sobre os estudantes é pedido.</p>
-    <p>Habilidades e competências de Computação transcritas da Resolução CNE/CEB nº 1/2022 (Complemento à BNCC). Versão anterior: <a href="https://gerador-prompts-prof.vercel.app/" target="_blank" rel="noopener">Caderno de Prompts</a>. Licença CC BY-NC-SA 4.0.</p>
+    <p>Habilidades e competências de Computação transcritas da Resolução CNE/CEB nº 1/2022 (Complemento à BNCC). Versão anterior: <a href="https://gerador-prompts-prof.vercel.app" target="_blank" rel="noopener">Caderno de Prompts</a>. Licença CC BY-NC-SA 4.0.</p>
   </div>
 </footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<dialog class="dlg" id="dlg" aria-label="Copiar o texto"></dialog>
 
 <script>
 const SVG_T = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
@@ -818,12 +826,13 @@ const ICO = {
 
 /* ---------- Listas pré-carregadas ---------- */
 const ETAPAS_TURMA = [
-  ["Educação Infantil (pré-escola, 4 e 5 anos)","Educação Infantil"],
+  ["Educação Infantil — creche (0 a 3 anos)","Educação Infantil"],["Educação Infantil — pré-escola (4 e 5 anos)","Educação Infantil"],
   ["1º ano do Ensino Fundamental","1º ano"],["2º ano do Ensino Fundamental","2º ano"],["3º ano do Ensino Fundamental","3º ano"],
   ["4º ano do Ensino Fundamental","4º ano"],["5º ano do Ensino Fundamental","5º ano"],["6º ano do Ensino Fundamental","6º ano"],
   ["7º ano do Ensino Fundamental","7º ano"],["8º ano do Ensino Fundamental","8º ano"],["9º ano do Ensino Fundamental","9º ano"],
   ["1ª série do Ensino Médio","Ensino Médio"],["2ª série do Ensino Médio","Ensino Médio"],["3ª série do Ensino Médio","Ensino Médio"],
-  ["4ª série (técnico integrado)","Ensino Médio"],["Curso técnico subsequente","Ensino Médio"],["EJA — Ensino Fundamental, anos iniciais","1º ao 5º ano (por etapa)"],["EJA — Ensino Fundamental, anos finais","6º ao 9º ano (por etapa)"],["EJA — Ensino Médio","Ensino Médio"]
+  ["4ª série (técnico integrado)","Ensino Médio"],["Curso técnico subsequente","Ensino Médio"],
+  ["EJA — Ensino Fundamental, anos iniciais","1º ao 5º ano (por etapa)"],["EJA — Ensino Fundamental, anos finais","6º ao 9º ano (por etapa)"],["EJA — Ensino Médio","Ensino Médio"]
 ];
 const FORMACOES = ["Formação geral básica","Técnico integrado ao Ensino Médio","Técnico concomitante","Técnico subsequente","Itinerário de formação técnica e profissional"];
 const EIXOS = ["Ambiente e Saúde","Controle e Processos Industriais","Desenvolvimento Educacional e Social","Gestão e Negócios","Informação e Comunicação","Infraestrutura","Produção Alimentícia","Produção Cultural e Design","Produção Industrial","Recursos Naturais","Segurança","Turismo, Hospitalidade e Lazer","Militar"];
@@ -833,8 +842,8 @@ const METODOLOGIAS = ["Aprendizagem baseada em projetos","Aprendizagem baseada e
 const INTERESSES = ["Jogos","Redes sociais","Esportes","Música","Tecnologia","Empreendedorismo","Meio ambiente","Mercado de trabalho","Cultura local","Vestibular e ENEM"];
 // Interesses ligados à etapa: cada faixa vê só o que faz sentido para a idade e o momento escolar
 const INTERESSES_NIVEL = {
+  infantil: ["Brincadeiras","Faz de conta","Histórias e contos","Música e cantigas","Movimento e dança","Desenho e pintura","Blocos e montagem","Animais e natureza","Cultura local"],
   geral: ["Jogos","Esportes","Música","Tecnologia","Meio ambiente","Cultura local"],
-  infantil: ["Brincadeiras e jogos","Histórias e contos","Animais e natureza","Música e movimento","Desenho e pintura","Faz de conta","Experiências e descobertas"],
   iniciais: ["Brincadeiras e jogos","Desenhos e animações","Histórias e contos","Animais e natureza","Desenho e pintura","Experiências e descobertas","Esportes","Música","Cultura local"],
   finais: ["Jogos","Redes sociais","Vídeos e criadores de conteúdo","Esportes","Música","Tecnologia","Séries, filmes e animes","Ciência e curiosidades","Meio ambiente","Cultura local"],
   medio: ["Jogos","Redes sociais","Esportes","Música","Tecnologia","Projeto de vida","Mercado de trabalho","Estágio e primeiro emprego","Empreendedorismo","Vestibular e ENEM","Meio ambiente","Cultura local","Política e cidadania"],
@@ -842,8 +851,8 @@ const INTERESSES_NIVEL = {
 };
 function nivelEtapa(etapa){
   if(!etapa) return "geral";
-  if(/EJA/i.test(etapa)) return "eja";
   if(/Infantil/i.test(etapa)) return "infantil";
+  if(/EJA/i.test(etapa)) return "eja";
   if(/Médio|técnic|série/i.test(etapa)) return "medio";
   const ano = +(etapa.match(/^(\d)º ano/) || [])[1];
   return ano >= 1 && ano <= 5 ? "iniciais" : ano >= 6 ? "finais" : "geral";
@@ -930,7 +939,7 @@ const EIXOS_CO = ["Pensamento Computacional","Mundo Digital","Cultura Digital"];
 // Ensino Médio: a BNCC Computação organiza por competências específicas (C1 a C7), não por eixo
 const COMPS_EM_CURTO = ["Possibilidades e limites da Computação","Análise crítica e segurança de artefatos","Técnicas computacionais para problemas do mundo","Criação de conteúdos e artefatos","Projetos e decisões éticas","Expressar e partilhar com tecnologias","Agir com autonomia e responsabilidade"];
 const COMPS_EF_CURTO = ["Computação para entender e transformar o mundo","Impactos dos artefatos computacionais","Expressar e partilhar com tecnologias","Resolver problemas com a Computação","Avaliar soluções e argumentar","Projetos com sentido para o estudante","Agir com autonomia e responsabilidade"];
-const COMPS_EI_CURTO = ["Padrões e agrupamentos","Interação com artefatos computacionais","Algoritmos com objetos e o corpo","Decompor problemas em partes"];
+const COMPS_EI_CURTO = ["Reconhecer e identificar padrões","Interagir com artefatos computacionais","Criar e testar algoritmos brincando","Decompor problemas em partes menores"];
 const COMPS_EM_ROT = COMPS_EM_CURTO.map((c, i) => `C${i + 1} · ${c}`);
 const ordenaTipos = l => [...l].sort((a, b) => { const i = TIPOS_PED.indexOf(a), j = TIPOS_PED.indexOf(b); return (i < 0 ? 99 : i) - (j < 0 ? 99 : j); });
 const TAGS_POS = ["Engajou a turma","Prática funcionou","Nível adequado","Formato ajudou","Boa ligação com o mundo do trabalho","Trabalho em grupo funcionou","Tempo bem dimensionado"];
@@ -955,22 +964,37 @@ const IAS_USO = ["chatgpt","gemini","claude","copilot","deepseek"];
 const CHAVE = "cdc.v1";
 const VAZIO = () => ({perfil:{}, escolas:[], turmas:[], registros:[], sinteses:{}, ultimo:{}, pedido:{}});
 let S = VAZIO();
-// Garante a forma certa dos dados (vale para o que está salvo e para arquivos importados)
-const obj = x => (x && typeof x === "object" && !Array.isArray(x)) ? x : {};
-const arr = x => Array.isArray(x) ? x.filter(i => i && typeof i === "object") : [];
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
+// Confere e conserta a estrutura dos dados (do navegador ou de um arquivo importado), para nenhuma tela quebrar
 function normalizar(d){
-  d = obj(d);
-  return Object.assign(VAZIO(), d, {perfil:obj(d.perfil), escolas:arr(d.escolas), turmas:arr(d.turmas).filter(t => t.id), registros:arr(d.registros), sinteses:obj(d.sinteses), ultimo:obj(d.ultimo), pedido:obj(d.pedido)});
+  if(!d || typeof d !== "object" || Array.isArray(d)) throw new Error("formato");
+  const obj = x => (x && typeof x === "object" && !Array.isArray(x)) ? x : {};
+  const arr = x => Array.isArray(x) ? x.filter(i => i && typeof i === "object" && !Array.isArray(i)) : [];
+  const soLista = (o, ks) => ks.forEach(k => { if(o[k] != null && !Array.isArray(o[k])) o[k] = []; });
+  const n = VAZIO();
+  n.perfil = obj(d.perfil); n.escolas = arr(d.escolas); n.turmas = arr(d.turmas); n.registros = arr(d.registros);
+  n.sinteses = obj(d.sinteses); n.ultimo = obj(d.ultimo); n.pedido = obj(d.pedido);
+  if(d.escola && typeof d.escola === "object" && !Array.isArray(d.escola)) n.escola = d.escola;
+  if(d.perfilDemo) n.perfilDemo = true;
+  soLista(n.perfil, ["metodologias"]);
+  n.escolas.forEach(e => { if(!e.id) e.id = uid(); soLista(e, ["recursos"]); });
+  n.turmas.forEach(t => { if(!t.id) t.id = uid(); t.nome = String(t.nome || "Turma sem nome"); t.etapa = String(t.etapa || ""); soLista(t, ["interesses","dificuldades","deficiencias"]); });
+  n.registros = n.registros.filter(r => n.turmas.some(t => t.id === r.turmaId));
+  n.registros.forEach(r => { if(!r.id) r.id = uid(); if(!Array.isArray(r.tags)) r.tags = []; });
+  Object.keys(n.sinteses).forEach(k => { if(typeof n.sinteses[k] !== "string") delete n.sinteses[k]; });
+  Object.keys(n.ultimo).forEach(k => { n.ultimo[k] = obj(n.ultimo[k]); });
+  soLista(n.pedido, ["tipos","eixos","compsCO"]);
+  return n;
 }
 try { const raw = localStorage.getItem(CHAVE); if(raw) S = normalizar(JSON.parse(raw)); } catch(e) {}
 function salvar(){ try { localStorage.setItem(CHAVE, JSON.stringify(S)); } catch(e) { toast("Não foi possível salvar neste navegador"); } }
-const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
 // Tipos de escola por etapa e modalidade (LDB, Lei nº 9.394/1996; categorias do Censo Escolar/INEP).
 // Os do grupo "Ensino Médio técnico" pedem eixo tecnológico e cursos técnicos.
 const TIPOS_ESCOLA = [
   ["Educação Infantil", [
-    "Escola municipal de Educação Infantil (creche e pré-escola)",
-    "Escola de Educação Infantil e Ensino Fundamental"]],
+    "Creche ou centro de educação infantil",
+    "Pré-escola",
+    "Escola de Educação Infantil e anos iniciais"]],
   ["Ensino Fundamental — Anos Iniciais (1º ao 5º ano)", [
     "Escola municipal de Ensino Fundamental (anos iniciais)",
     "Escola estadual de Ensino Fundamental (anos iniciais)",
@@ -1003,7 +1027,7 @@ const TIPOS_ESCOLA = [
     "Escola cívico-militar ou militar",
     "Outra"]]
 ];
-const TIPOS_TECNICOS = TIPOS_ESCOLA.find(g => /técnico/.test(g[0]))[1];
+const TIPOS_TECNICOS = TIPOS_ESCOLA.find(g => /técnico/i.test(g[0]))[1];
 const escolaTecnica = tipo => TIPOS_TECNICOS.includes(tipo);
 const TIPO_ANTIGO = {"Escola de Ensino Fundamental": "Escola de Ensino Fundamental completo (1º ao 9º ano)"};
 function selTipoEscola(id, v){
@@ -1027,7 +1051,9 @@ const escolaDe = t => S.escolas.find(x => x.id === (t && t.escolaId)) || {};
 const variasEscolas = () => S.escolas.length > 1;
 migrar();
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const hoje = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }; // data do aparelho, não de Greenwich
+// Data no horário do aparelho (e não no de Greenwich), para o registro da noite não cair no dia seguinte
+const dataLocal = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const hoje = () => dataLocal(new Date());
 const dataBR = iso => { if(!iso) return ""; const [a,m,d] = iso.split("-"); return `${d}/${m}/${a}`; };
 // Público da educação especial (PNEEPEI 2008) e transtornos de aprendizagem (Lei 14.254/2021), com o essencial de cada adaptação
 const DEFICIENCIAS = {
@@ -1064,17 +1090,16 @@ async function copiar(texto, msg){
     const ta = document.createElement("textarea"); ta.value = texto; ta.style.position = "fixed"; ta.style.opacity = "0";
     document.body.appendChild(ta); ta.select(); try { ok = document.execCommand("copy"); } catch(_) {} ta.remove();
   }
-  if(ok) toast(msg || "Copiado!"); else copiaManual(texto);
+  if(ok) toast(msg || "Copiado!"); else mostrarParaCopiar(texto);
   return ok;
 }
-// Quando o navegador bloqueia a cópia: mostra o texto já selecionado para copiar à mão
-function copiaManual(texto){
-  let d = $("#copia-manual");
-  if(!d){ d = document.createElement("dialog"); d.id = "copia-manual"; d.className = "card";
-    d.innerHTML = `<h2>Copie o texto</h2><p class="sub">O navegador não deixou copiar sozinho. O texto já está selecionado: use Ctrl+C (no celular, toque e segure em Copiar).</p><textarea readonly style="min-height:240px"></textarea><div class="row end" style="margin-top:12px"><button class="btn pri" type="button">Fechar</button></div>`;
-    document.body.appendChild(d); d.querySelector("button").addEventListener("click", () => d.close()); }
-  const ta = d.querySelector("textarea"); ta.value = texto;
-  if(d.showModal) d.showModal(); else d.setAttribute("open", "");
+// Se o navegador bloquear a cópia, mostra o texto já selecionado para copiar à mão
+function mostrarParaCopiar(texto){
+  const d = $("#dlg");
+  d.innerHTML = `<h2>Copie o texto abaixo</h2><p>O navegador não deixou copiar automaticamente. O texto já está selecionado: use Ctrl+C (no celular, toque e segure, depois Copiar).</p><textarea readonly id="dlg-txt" aria-label="Texto para copiar"></textarea><div class="row end" style="margin-top:12px"><button class="btn pri" id="dlg-ok" type="button">Fechar</button></div>`;
+  const ta = $("#dlg-txt"); ta.value = texto;
+  $("#dlg-ok").addEventListener("click", () => d.close ? d.close() : d.removeAttribute("open"));
+  if(d.showModal){ if(!d.open) d.showModal(); } else d.setAttribute("open", "");
   ta.focus(); ta.select();
 }
 function baixar(nome, texto, tipo){
@@ -1084,7 +1109,7 @@ function baixar(nome, texto, tipo){
 }
 
 /* ---------- Componentes de formulário ---------- */
-function campoTexto(id, rot, val, ph, extra, hint){ return `<div class="field ${extra||""}"><label for="${id}">${rot}</label><input type="text" id="${id}" value="${esc(val)}" placeholder="${esc(ph||"")}">${hint ? `<div class="hint">${hint}</div>` : ""}</div>`; }
+function campoTexto(id, rot, val, ph, extra){ return `<div class="field ${extra||""}"><label for="${id}">${rot}</label><input type="text" id="${id}" value="${esc(val)}" placeholder="${esc(ph||"")}"></div>`; }
 function campoArea(id, rot, val, ph, extra, hint){ return `<div class="field ${extra||""}"><label for="${id}">${rot}</label><textarea id="${id}" placeholder="${esc(ph||"")}">${esc(val)}</textarea>${hint?`<div class="hint">${hint}</div>`:""}</div>`; }
 function campoSel(id, rot, opcoes, val, extra, vazio){
   return `<div class="field ${extra||""}"><label for="${id}">${rot}</label><select id="${id}">${vazio!==false?`<option value="">${vazio||"Selecione"}</option>`:""}${opcoes.map(o=>{ const v = Array.isArray(o)?o[0]:o; return `<option${v===val?" selected":""}>${esc(v)}</option>`; }).join("")}</select></div>`;
@@ -1126,7 +1151,6 @@ function ligarMaterial(id, cb){
   s.addEventListener("change", () => { const ehOutro = s.value === "Outro"; document.getElementById(id + "-o-w").hidden = !ehOutro; if(ehOutro) o.focus(); cb && cb(); });
   o.addEventListener("input", () => cb && cb());
 }
-const MATS_COMUNS = ["Plano de aula","Sequência didática","Slides da aula","Lista de exercícios","Atividade desplugada","Avaliação ou prova"];
 const lerMaterial = id => val(id) === "Outro" ? val(id + "-o") : val(id);
 const aulasDe = t => {
   if(+t.aulas > 0) return +t.aulas;
@@ -1180,52 +1204,80 @@ const ABAS = [
 function montarAbas(atual){
   $("#tabs").innerHTML = ABAS.map(a => `<a href="#${a.id}" class="${a.id===atual?"on":""}" ${a.id===atual?'aria-current="page"':""}>${ICO[a.ico]}<span>${a.nome}</span></a>`).join("");
 }
-let sujo = false, rastrear = false, hashAtual = location.hash, voltando = false;
-["input", "change"].forEach(ev => document.addEventListener(ev, e => { if(rastrear && e.target.closest("#view")) sujo = true; }, true));
-document.addEventListener("click", e => { if(rastrear && e.target.closest("#view .chip, #view [data-add-chip], #view .cont-btn, #view [data-rem-escola], #view #add-escola")) sujo = true; }, true);
-window.addEventListener("beforeunload", e => { if(rastrear && sujo){ e.preventDefault(); e.returnValue = ""; } });
-const limpo = () => { sujo = false; rastrear = false; };
+// Alterações ainda não salvas em Meu contexto e no cadastro de turma
+let sujo = false, guardar = false, hashAtual = location.hash, voltando = false;
 function rota(){
   if(voltando){ voltando = false; return; }
-  if(rastrear && sujo && location.hash !== hashAtual && !confirm("Você fez alterações que ainda não foram salvas. Sair sem salvar?")){ voltando = true; location.hash = hashAtual; return; }
-  sujo = false; rastrear = false; hashAtual = location.hash;
+  if(sujo && location.hash !== hashAtual && !confirm("Você tem alterações que ainda não foram salvas. Sair sem salvar?")){
+    voltando = true; location.hash = hashAtual; return;
+  }
+  sujo = false; guardar = false; hashAtual = location.hash;
+  const fixo = $("#copiar-fixo"); if(fixo) fixo.remove();
   const [id, arg] = (location.hash.slice(1) || "inicio").split("/");
   const aba = (ABAS.find(a => a.id === id) || id === "gerar") ? id : "inicio";
   montarAbas(aba === "gerar" ? "turmas" : aba);
-  document.body.classList.remove("tela-gerar");
   const v = $("#view");
   v.className = ""; void v.offsetWidth; v.className = "view";
   ({inicio:telaInicio, contexto:telaContexto, turmas:telaTurmas, gerar:telaGerar, caderno:telaCaderno})[aba](arg);
   window.scrollTo({top:0, behavior:"instant" in window ? "instant" : "auto"});
 }
 window.addEventListener("hashchange", rota);
+const marcaSujo = e => { if(guardar && e.target.closest && e.target.closest("input, select, textarea")) sujo = true; };
+$("#view").addEventListener("input", marcaSujo);
+$("#view").addEventListener("change", marcaSujo);
+$("#view").addEventListener("click", e => { if(guardar && e.target.closest && e.target.closest(".chip, .cont-btn, [data-add-chip], [data-rem-escola], #add-escola")) sujo = true; });
+window.addEventListener("beforeunload", e => { if(sujo){ e.preventDefault(); e.returnValue = ""; } });
+// Turma de demonstração: botões "Ver um exemplo" e "Remover o exemplo" em qualquer tela
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-exemplo]"); if(!b) return;
+  e.preventDefault(); b.dataset.exemplo === "ver" ? carregarExemplo() : removerExemplo();
+});
 
 const perfilOk = () => !!(S.perfil.componentes);
-// Exemplo para a oficina: perfil, escola, turma e dois registros fictícios, para ver um pacote completo em 1 minuto
+const escolaOk = () => S.escolas.some(temEscola);
+
+/* ============================================================
+   TURMA DE DEMONSTRAÇÃO (dados fictícios, removíveis)
+   ============================================================ */
+const temExemplo = () => S.turmas.some(t => t.demo);
 function carregarExemplo(){
-  const ex = S.turmas.find(t => t.exemplo);
-  if(ex){ location.hash = "gerar/" + ex.id; return; }
-  if(!perfilOk()) S.perfil = {componentes:"Lógica de Programação; Banco de Dados", formacao:"Licenciatura em Computação", ia:"Uso às vezes", metodologias:["Aprendizagem baseada em problemas","Trabalho em grupo"], linguagem:"Detalhadas, com exemplos", formato:"", _exemplo:true};
-  const esc1 = {id:uid(), nome:"Escola de exemplo", tipo:"Escola estadual de educação profissional", eixo:"Informação e Comunicação", cursos:"Técnico em Informática; Técnico em Administração", recursos:["Laboratório de informática","Projetor","Internet instável","Celulares dos estudantes"], territorio:"Cidade média do interior, com comércio, serviços e cooperativas agrícolas; poucas empresas de tecnologia", exemplo:true};
-  S.escolas.push(esc1);
-  const t = {id:uid(), exemplo:true, nome:"Exemplo · 1ª série Informática", etapa:"1ª série do Ensino Médio", curso:"Técnico em Informática", componente:"Lógica de Programação", escolaId:esc1.id, n:"36", aulas:2, duracao:50, tempo:tempoTxt(2, 50), interesses:["Jogos","Redes sociais","Mercado de trabalho"], dificuldades:["Leitura e interpretação","Matemática básica"], deficiencias:["TDAH"], acessibilidade:"", obs:"Turma participativa, gosta de desafios em grupo."};
-  S.turmas.push(t);
-  const d = n => { const x = new Date(Date.now() - n * 864e5); return new Date(x.getTime() - x.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
-  S.registros.push({id:uid(), criado:Date.now() - 2, turmaId:t.id, data:d(14), material:"Plano de aula", tema:"O que é um algoritmo: receitas e rotas", nota:4, tags:["Engajou a turma","Faltou tempo"], livre:"A atividade desplugada das rotas funcionou bem.", mudaria:"Começar direto pela atividade, com menos explicação inicial.", habilidades:"EM13CO01"},
-                   {id:uid(), criado:Date.now() - 1, turmaId:t.id, data:d(7), material:"Lista de exercícios", tema:"Sequência e decisão em pseudocódigo", nota:2, tags:["Linguagem difícil","Muito longo"], livre:"Os enunciados ficaram longos para a turma.", mudaria:"Enunciados curtos, com exemplo resolvido.", habilidades:"EM13CO02"});
-  S.pedido = {turma:t.id, tipos:["Plano de aula","Slides da aula"], tipo:"Plano de aula + Slides da aula", tema:"Repetição (laços) com exemplos de jogos", aulas:2, duracao:50, formato:"", arquivo:"", comentada:true, componente:"Lógica de Programação"};
-  ligarTurmasSemEscola(); salvar(); toast("Exemplo carregado. Veja o pacote pronto");
-  location.hash = "gerar/" + t.id;
+  let t = S.turmas.find(x => x.demo);
+  if(!t){
+    const eid = uid(), tid = uid();
+    if(!perfilOk()){
+      S.perfil = {componentes:"Matemática; Lógica de Programação", formacao:"Licenciatura em Matemática", ia:"Uso às vezes", metodologias:["Aprendizagem baseada em problemas","Trabalho em grupo","Gamificação"], linguagem:"Detalhadas, com exemplos", formato:""};
+      S.perfilDemo = true;
+    }
+    S.escolas.push({id:eid, demo:true, nome:"Escola Exemplo (fictícia)", tipo:"Escola estadual de educação profissional", eixo:"Informação e Comunicação", cursos:"Técnico em Informática",
+      recursos:["Laboratório de informática","Projetor","Internet instável","Celulares dos estudantes"], territorio:"Bairro comercial de uma capital, com pequenas lojas, feiras e empresas de serviços que contratam jovens aprendizes"});
+    t = {id:tid, demo:true, nome:"Turma Exemplo — 2ª série A", etapa:"2ª série do Ensino Médio", curso:"Técnico em Informática", componente:"Matemática", escolaId:eid, n:"32",
+      aulas:2, duracao:50, tempo:tempoTxt(2, 50), interesses:["Jogos","Redes sociais","Mercado de trabalho"], dificuldades:["Leitura e interpretação","Matemática básica"], deficiencias:["TDAH"],
+      acessibilidade:"", obs:"Turma participativa, que rende mais em duplas e com desafios curtos"};
+    S.turmas.push(t);
+    const dia = n => { const d = new Date(); d.setDate(d.getDate() - n); return dataLocal(d); };
+    S.registros.push(
+      {id:uid(), criado:Date.now() - 2, turmaId:tid, data:dia(14), material:"Lista de exercícios", tema:"Porcentagem em promoções do comércio", nota:3, tags:["Nível adequado","Muito longo"],
+        livre:"A turma fez bem a primeira metade; a lista ficou longa para uma aula", mudaria:"Menos questões, com mais tempo para discutir", habilidades:"EM13MAT101"},
+      {id:uid(), criado:Date.now() - 1, turmaId:tid, data:dia(7), material:"Situação-problema do mundo do trabalho", tema:"Juros simples no parcelamento de um celular", nota:5, tags:["Engajou a turma","Trabalho em grupo funcionou","Boa ligação com o mundo do trabalho"],
+        livre:"O trabalho em duplas com um caso real de uma loja do bairro funcionou muito bem", mudaria:"", habilidades:"EM13MAT203, EM13CO12"});
+  }
+  const tipos = ["Plano de aula","Slides da aula"];
+  S.pedido = {turma:t.id, tipos, tipo:tipos.join(" + "), tema:"Funções do 1º grau aplicadas ao orçamento de um pequeno negócio", aulas:2, duracao:50, formato:"", arquivo:"", componente:t.componente || "", comentada:true, eixos:[], compsCO:[]};
+  S.ultimo[t.id] = {material:S.pedido.tipo, tipos, tema:S.pedido.tema, formato:""};
+  sujo = false; salvar(); toast("Exemplo carregado: os dados são fictícios");
+  if(location.hash === "#gerar/" + t.id) rota(); else location.hash = "gerar/" + t.id;
 }
 function removerExemplo(){
-  const ids = S.turmas.filter(t => t.exemplo).map(t => t.id);
-  S.turmas = S.turmas.filter(t => !t.exemplo); S.escolas = S.escolas.filter(e => !e.exemplo);
-  S.registros = S.registros.filter(r => !ids.includes(r.turmaId)); ids.forEach(i => { delete S.sinteses[i]; delete S.ultimo[i]; });
+  if(!confirm("Remover a turma, a escola e os registros de exemplo? Seus próprios dados não mudam.")) return;
+  const ids = S.turmas.filter(t => t.demo).map(t => t.id);
+  S.turmas = S.turmas.filter(t => !t.demo); S.escolas = S.escolas.filter(e => !e.demo);
+  S.registros = S.registros.filter(r => !ids.includes(r.turmaId));
+  ids.forEach(id => { delete S.sinteses[id]; delete S.ultimo[id]; });
   if(ids.includes(S.pedido.turma)) S.pedido = {};
-  if(S.perfil._exemplo) S.perfil = {};
-  ligarTurmasSemEscola(); salvar(); toast("Exemplo removido"); rota();
+  if(S.perfilDemo){ S.perfil = {}; delete S.perfilDemo; }
+  ligarTurmasSemEscola(); sujo = false; salvar(); toast("Exemplo removido");
+  if(location.hash === "#inicio" || !location.hash) rota(); else location.hash = "inicio";
 }
-const escolaOk = () => S.escolas.some(temEscola);
 
 /* ============================================================
    INÍCIO
@@ -1246,8 +1298,9 @@ function telaInicio(){
       <div class="row">
         <a class="btn pri" href="#${perfilOk() ? (nT ? "turmas" : "turmas/nova") : "contexto"}">${ICO.seta}${perfilOk() ? (nT ? "Escolher a turma e gerar" : "Cadastrar uma turma") : "Começar agora"}</a>
         <a class="btn ghost" href="#caderno">${ICO.caderno}Caderno de Memória</a>
-        <button class="btn ghost" type="button" id="ver-exemplo">${ICO.luz}Ver um exemplo</button>
+        ${temExemplo() ? `<button class="btn ghost" type="button" data-exemplo="remover">${ICO.lixo}Remover o exemplo</button>` : `<button class="btn ghost" type="button" data-exemplo="ver">${ICO.luz}Ver um exemplo</button>`}
       </div>
+      ${temExemplo() ? "" : `<p class="lead" style="font-size:14px; margin-top:10px">Quer ver antes de preencher? “Ver um exemplo” carrega uma turma fictícia e mostra um pacote completo em um minuto.</p>`}
     </div>
     <div class="tiles" aria-hidden="true">
       ${tiles.map(([ic, x, y, s, d], i) => `<span class="tile${i%5===4?" fade":""}" style="left:${x}%; top:${y}%; width:${s}px; height:${s}px; animation-delay:-${d}s">${ICO[ic]}</span>`).join("")}
@@ -1265,7 +1318,7 @@ function telaInicio(){
     <a class="card passo" href="#turmas" style="text-decoration:none; color:inherit">
       <span class="num">2</span><span class="ico-chip">${ICO.gerar}</span>
       <h3>Peça em cinco perguntas</h3>
-      <p>Abra a turma e toque em Gerar: que material, sobre qual tema, em quantas aulas, em que formato e em que arquivo. Você recebe o pacote de contexto para colar na IA de sua escolha.</p>
+      <p>Abra a turma e toque em Gerar: quais materiais, sobre qual tema, quantas aulas, qual eixo ou competência da BNCC Computação e em que arquivo. Você recebe o pacote de contexto para colar na IA de sua escolha.</p>
       <span class="status"><i class="dot ${nT?"ok":""}"></i>${nT} turma${nT===1?"":"s"} cadastrada${nT===1?"":"s"}</span>
     </a>
     <a class="card passo" href="#caderno" style="text-decoration:none; color:inherit">
@@ -1283,16 +1336,16 @@ function telaInicio(){
       <div><span class="ico-chip">${ICO.camadas}</span><p><b>Sete camadas organizadas.</b> Referência curricular, perfil, escola, turma, memória, regras de trabalho e o pedido da vez, cada uma curta e com título.</p></div>
       <div><span class="ico-chip">${ICO.bncc}</span><p><b>BNCC a partir do texto oficial.</b> O contexto leva o código e o texto das habilidades de Computação da etapa. A IA escolhe e justifica; você valida.</p></div>
       <div><span class="ico-chip">${ICO.memoria}</span><p><b>Memória que melhora o resultado.</b> O que já foi trabalhado e o que funcionou entra no contexto da próxima aula, sem repetir o que não deu certo.</p></div>
-      <div><span class="ico-chip">${ICO.escudo}</span><p><b>Privacidade por padrão.</b> Nada sobre os estudantes é pedido. Tudo fica neste aparelho, e você pode exportar ou apagar quando quiser.</p></div>
+      <div><span class="ico-chip">${ICO.escudo}</span><p><b>Privacidade por padrão.</b> Nada sobre os estudantes é pedido. Tudo fica neste aparelho, e você pode exportar ou apagar quando quiser. Em computador compartilhado, use “Terminar neste computador”, no Caderno.</p></div>
     </div>
   </section>`;
-  $("#ver-exemplo").addEventListener("click", carregarExemplo);
 }
 
 /* ============================================================
    MEU CONTEXTO (camadas 2 e 3)
    ============================================================ */
 function telaContexto(){
+  guardar = true;
   const p = S.perfil;
   $("#view").innerHTML = `
   <div class="page-head"><span class="eyebrow">Camadas 2 e 3 · preenchidas uma vez por escola</span><h1>Meu contexto</h1>
@@ -1317,9 +1370,9 @@ function telaContexto(){
     <button class="btn" id="add-escola" type="button">${ICO.mais}Adicionar outra escola</button>
   </section>
   <div class="row end" style="margin-top:18px"><button class="btn pri" id="salvar-ctx">${ICO.escudo}Salvar meu contexto</button></div>`;
-  ligarChips(); rastrear = true;
+  ligarChips();
   let escolas = S.escolas.length ? S.escolas.map(x => Object.assign({}, x)) : [{id:uid(), nome:""}];
-  const lerEscolas = () => escolas.map((x, i) => ({id:x.id, nome:val(`e-nome-${i}`), tipo:val(`e-tipo-${i}`), eixo:escolaTecnica(val(`e-tipo-${i}`)) ? val(`e-eixo-${i}`) : "", cursos:escolaTecnica(val(`e-tipo-${i}`)) ? val(`e-cursos-${i}`) : "", recursos:lerChips(`e-rec-${i}`), territorio:val(`e-terr-${i}`)}));
+  const lerEscolas = () => escolas.map((x, i) => ({id:x.id, demo:x.demo, nome:val(`e-nome-${i}`), tipo:val(`e-tipo-${i}`), eixo:escolaTecnica(val(`e-tipo-${i}`)) ? val(`e-eixo-${i}`) : "", cursos:escolaTecnica(val(`e-tipo-${i}`)) ? val(`e-cursos-${i}`) : "", recursos:lerChips(`e-rec-${i}`), territorio:val(`e-terr-${i}`)}));
   const desenharEscolas = (foco) => {
     const box = $("#escolas");
     box.innerHTML = escolas.map((x, i) => {
@@ -1355,8 +1408,8 @@ function telaContexto(){
     S.perfil = {componentes:val("p-comp"), formacao:val("p-form"), ia:val("p-ia"), metodologias:lerChips("p-met"), linguagem:val("p-ling"), formato:val("p-fmt")};
     S.escolas = lerEscolas().map((x, i, arr) => Object.assign(x, {nome: x.nome || (arr.length > 1 ? `Escola ${i + 1}` : "Minha escola")}))
       .filter((x, i, arr) => arr.length === 1 || temEscola(x) || S.turmas.some(t => t.escolaId === x.id) || x.nome !== `Escola ${i + 1}`);
-    ligarTurmasSemEscola();
-    limpo(); salvar(); toast("Contexto salvo");
+    ligarTurmasSemEscola(); delete S.perfilDemo;
+    sujo = false; salvar(); toast("Contexto salvo");
     setTimeout(()=>{ location.hash = "turmas"; }, 500);
   });
 }
@@ -1369,17 +1422,14 @@ function telaTurmas(arg){
   $("#view").innerHTML = `
   <div class="page-head row"><div><span class="eyebrow">Camada 4 · uma vez por turma</span><h1>Turmas</h1>
     <p>O perfil coletivo de cada turma. Sem nomes nem dados pessoais de estudantes.</p></div><span class="spacer"></span>
-    ${S.turmas.some(t => t.exemplo) ? `<button class="btn ghost" type="button" id="rem-exemplo">${ICO.lixo}Remover exemplo</button>` : `<button class="btn ghost" type="button" id="ver-exemplo">${ICO.luz}Ver um exemplo</button>`}
     <a class="btn pri" href="#turmas/nova">${ICO.mais}Nova turma</a></div>
   ${S.turmas.length ? gruposTurmas().map(([titulo, lst]) => `${titulo ? `<h2 class="grupo-escola">${ICO.escola}${esc(titulo)}<span>${lst.length} turma${lst.length===1?"":"s"}</span></h2>` : ""}<div class="turmas">${lst.map(t => {
       const n = S.registros.filter(r => r.turmaId === t.id).length;
       return `<article class="card turma"><h3>${esc(t.nome)}</h3><div class="meta">${esc(t.etapa)}${t.curso?" · "+esc(t.curso):""}</div>
-      ${t.formacao ? `<span class="tag">${esc(t.formacao)}</span>` : ""}${t.n?`<span class="tag">${esc(t.n)} estudantes</span>`:""}<span class="tag">${n} registro${n===1?"":"s"}</span>
+      ${t.demo ? `<span class="tag ex">Exemplo fictício</span>` : ""}${t.formacao ? `<span class="tag">${esc(t.formacao)}</span>` : ""}${t.n?`<span class="tag">${esc(t.n)} estudantes</span>`:""}<span class="tag">${n} registro${n===1?"":"s"}</span>
       <div class="row" style="margin-top:14px"><a class="btn sm pri" href="#gerar/${t.id}">${ICO.gerar}Gerar</a><a class="btn sm" href="#caderno/${t.id}">${ICO.caderno}Caderno</a><a class="btn sm ghost" href="#turmas/${t.id}" aria-label="Editar turma">${ICO.editar}</a></div></article>`;
-    }).join("")}</div>`).join("")
-  : `<div class="card vazio">${ICO.turma}<h2 style="justify-content:center; margin:10px 0 6px">Nenhuma turma ainda</h2><p>Cadastre a primeira para começar a gerar contextos, ou veja antes um exemplo pronto.</p><a class="btn pri" href="#turmas/nova">${ICO.mais}Cadastrar turma</a></div>`}`;
-  if($("#ver-exemplo")) $("#ver-exemplo").addEventListener("click", carregarExemplo);
-  if($("#rem-exemplo")) $("#rem-exemplo").addEventListener("click", () => { if(confirm("Remover a turma, a escola e os registros de exemplo?")) removerExemplo(); });
+    }).join("")}</div>`).join("") + (temExemplo() ? `<div class="row" style="margin-top:16px"><button class="btn sm ghost" type="button" data-exemplo="remover">${ICO.lixo}Remover o exemplo</button></div>` : "")
+  : `<div class="card vazio">${ICO.turma}<h2 style="justify-content:center; margin:10px 0 6px">Nenhuma turma ainda</h2><p>Cadastre a primeira para começar a gerar contextos, ou veja antes um exemplo pronto, com dados fictícios.</p><div class="row" style="justify-content:center"><a class="btn pri" href="#turmas/nova">${ICO.mais}Cadastrar turma</a><button class="btn" type="button" data-exemplo="ver">${ICO.luz}Ver um exemplo</button></div></div>`}`;
 }
 // O curso técnico só aparece nas etapas de Ensino Médio, técnico e EJA — Ensino Médio (independe do tipo de escola)
 function cursoTecnicoVisivel(escolaId, etapa){
@@ -1393,6 +1443,7 @@ function gruposTurmas(){
   return g;
 }
 function formTurma(t){
+  guardar = true;
   const novo = !t; t = t || {};
   $("#view").innerHTML = `
   <div class="page-head"><span class="eyebrow">Camada 4 · perfil da turma</span><h1>${novo ? "Nova turma" : "Editar turma"}</h1>
@@ -1415,8 +1466,7 @@ function formTurma(t){
     <div class="aviso">${ICO.alerta}<span>Não escreva nomes, apelidos, laudos ou situações que permitam reconhecer um estudante. O contexto vai para a IA que você escolher.</span></div>
   </section>
   <div class="row" style="margin-top:18px">${novo ? "" : `<button class="btn danger" id="t-del">${ICO.lixo}Excluir turma</button>`}<span class="spacer"></span><a class="btn ghost" href="#turmas">Cancelar</a><button class="btn pri" id="t-salvar">${ICO.escudo}Salvar turma</button></div>`;
-  ligarChips(); rastrear = true;
-  $$('#view a.btn.ghost[href="#turmas"]').forEach(a => a.addEventListener("click", () => { sujo = false; }));
+  ligarChips();
   const mostraCurso = () => { $("#t-curso-w").hidden = !cursoTecnicoVisivel(val("t-esc") || (S.escolas.length === 1 ? S.escolas[0].id : ""), val("t-etapa")); };
   ["t-esc", "t-etapa"].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener("change", mostraCurso); });
   $("#t-etapa").addEventListener("change", () => {
@@ -1427,46 +1477,24 @@ function formTurma(t){
   });
   const tempoT = ligarTempo("t-tempo");
   $("#t-salvar").addEventListener("click", () => {
-    const d = {id:t.id || uid(), nome:val("t-nome") || "Turma sem nome", etapa:val("t-etapa"), curso:$("#t-curso-w").hidden ? "" : val("t-curso"), componente:val("t-comp"),
+    const d = {id:t.id || uid(), demo:t.demo, nome:val("t-nome") || "Turma sem nome", etapa:val("t-etapa"), curso:$("#t-curso-w").hidden ? "" : val("t-curso"), componente:val("t-comp"),
       escolaId:val("t-esc"), n:val("t-n"), aulas:tempoT().aulas, duracao:tempoT().duracao, tempo:tempoTxt(tempoT().aulas, tempoT().duracao), interesses:lerChips("t-int"), dificuldades:lerChips("t-dif"), deficiencias:lerChips("t-def"), acessibilidade:val("t-aces"), obs:val("t-obs")};
     if(!d.etapa){ toast("Escolha a etapa e o ano"); $("#t-etapa").focus(); return; }
     if(variasEscolas() && !d.escolaId){ toast("Escolha a escola desta turma"); $("#t-esc").focus(); return; }
     const i = S.turmas.findIndex(x => x.id === d.id);
     if(i >= 0) S.turmas[i] = d; else S.turmas.push(d);
-    limpo(); salvar(); toast("Turma salva"); location.hash = "turmas";
+    sujo = false; salvar(); toast("Turma salva"); location.hash = "turmas";
   });
   if(!novo) $("#t-del").addEventListener("click", () => {
     if(!confirm("Excluir esta turma e todos os registros do Caderno dela?")) return;
     S.turmas = S.turmas.filter(x => x.id !== t.id); S.registros = S.registros.filter(r => r.turmaId !== t.id);
-    delete S.sinteses[t.id]; delete S.ultimo[t.id]; limpo(); salvar(); toast("Turma excluída"); location.hash = "turmas";
+    delete S.sinteses[t.id]; delete S.ultimo[t.id]; sujo = false; salvar(); toast("Turma excluída"); location.hash = "turmas";
   });
 }
 
 /* ============================================================
    MEMÓRIA DA TURMA (camada 5) — síntese por regras simples
    ============================================================ */
-// Alerta de nome próprio: ignora termos conhecidos (ferramentas, etapas, componentes, cursos, recursos)
-const TERMOS_COMUNS = new Set(("google forms docs drive classroom meet sala kahoot wordwall canva mentimeter padlet gamma microsoft word excel powerpoint teams " +
-  "chatgpt gemini claude copilot deepseek youtube instagram tiktok whatsapp scratch python java javascript html css arduino linux windows android " +
-  "ensino médio fundamental infantil técnico técnica bncc enem eja libras braille brasil língua portuguesa matemática física química biologia história geografia " +
-  "filosofia sociologia arte inglês espanhol educação ciências lógica programação banco dados redes informática computação internet " +
-  "dua bloom tea tdah ia aula turma escola professor professora segunda terça quarta quinta sexta sábado domingo janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro").split(" "));
-[...TIPOS, ...RECURSOS, ...METODOLOGIAS, ...EIXOS, ...CURSOS, ...EIXOS_CO].join(" ").toLowerCase().split(/[^a-záéíóúâêôãõç]+/).forEach(w => w && TERMOS_COMUNS.add(w));
-function pareceNome(txt){
-  const M = "A-ZÁÉÍÓÚÂÊÔÃÕÇ", m = "a-záéíóúâêôãõç";
-  const conhecido = w => TERMOS_COMUNS.has(w.toLowerCase()) || (S.perfil.componentes || "").toLowerCase().includes(w.toLowerCase());
-  // 1) palavra com maiúscula depois de artigo ou preposição ("o João", "com a Maria", "pro Pedro")
-  const r1 = new RegExp(`(?:^|[\\s,(])(?:o|a|do|da|no|na|ao|à|com o|com a|pro|pra|para o|para a)\\s+([${M}][${m}]{2,})`, "g");
-  for(const x of txt.matchAll(r1)) if(!conhecido(x[1])) return x[1];
-  // 2) duas palavras com maiúscula seguidas, fora do início da frase ("Ana Souza")
-  const r2 = new RegExp(`([${M}][${m}]{2,})\\s([${M}][${m}]{2,})`, "g");
-  for(const x of txt.matchAll(r2)){
-    const ini = x.index === 0 || /[.!?:]\s*$/.test(txt.slice(0, x.index));
-    const ws = ini ? [x[2]] : [x[1], x[2]];
-    if(ws.some(w => !conhecido(w)) && !(ini && conhecido(x[2]))) return x[0];
-  }
-  return "";
-}
 function registrosDe(tid){ return S.registros.filter(r => r.turmaId === tid).sort((a,b) => (b.data||"").localeCompare(a.data||"") || (b.criado||0) - (a.criado||0)); }
 function sinteseAuto(tid){
   const regs = registrosDe(tid);
@@ -1517,8 +1545,7 @@ const sinteseDe = tid => (S.sinteses[tid] && S.sinteses[tid].trim()) ? S.sintese
 function etapaBNCC(t){ const e = ETAPAS_TURMA.find(x => x[0] === t.etapa); return e ? e[1] : "Ensino Médio"; }
 function habsComputacao(etapa){ const par = BNCC_PAR[etapa]; return BNCC_HAB.filter(h => h.e === etapa || (par && h.e === par)); }
 function compsComputacao(etapa){ return etapa === "Ensino Médio" ? BNCC_COMPETENCIAS.em : etapa === "Educação Infantil" ? BNCC_COMPETENCIAS.ei : BNCC_COMPETENCIAS.ef; }
-// Contexto técnico só para turmas de Ensino Médio, técnico ou EJA Médio (um 2º ano numa escola técnica não é turma técnica)
-const tecnica = t => cursoTecnicoVisivel(t.escolaId, t.etapa) && (escolaTecnica(escolaDe(t).tipo) || !!t.curso || /técnic/i.test(t.formacao || "") || /técnic/i.test(t.etapa || ""));
+const tecnica = t => escolaTecnica(escolaDe(t).tipo) || !!t.curso || /técnic/i.test(t.formacao || "");
 
 function montarCamadas(t, ped){
   const etapa = etapaBNCC(t), todas = habsComputacao(etapa), comps = compsComputacao(etapa);
@@ -1529,23 +1556,26 @@ function montarCamadas(t, ped){
   const porEixo = {}; habs.forEach(h => (porEixo[h.x] = porEixo[h.x] || []).push(h));
   const p = S.perfil, e = escolaDe(t);
   const c = [];
+  const tec = tecnica(t), ehEI = etapa === "Educação Infantil", trabalho = tec || etapa === "Ensino Médio";
 
   // Abertura: como usar
   c.push({n:"0", nome:"Como usar este contexto", tipo:"fixa", txt:
 `# CONTEXTO PEDAGÓGICO (Caderno de Contexto)
-Apoie um(a) professor(a) de escola pública ${tecnica(t) ? "de educação profissional técnica de nível médio" : etapa === "Educação Infantil" ? "de Educação Infantil" : "de educação básica"}. As camadas 1 a 6 trazem o contexto e as regras; a 7 é o pedido. Use o contexto para adequar o material, sem repeti-lo na resposta.`,
+Apoie um(a) professor(a) de escola pública de ${ehEI ? "Educação Infantil" : tec ? "educação básica técnica" : "educação básica"}. As camadas 1 a 6 trazem o contexto e as regras; a 7 é o pedido. Use o contexto para adequar o material, sem repeti-lo na resposta.`,
   nota:"A abertura diz à IA o que é cada parte. Textos com títulos claros são mais bem aproveitados pelos modelos."});
 
   // 1 Referência curricular
-  const compsCurto = comps === BNCC_COMPETENCIAS.em ? COMPS_EM_CURTO : comps === BNCC_COMPETENCIAS.ei ? COMPS_EI_CURTO : COMPS_EF_CURTO;
+  const compsCurto = ehEI ? COMPS_EI_CURTO : comps === BNCC_COMPETENCIAS.em ? COMPS_EM_CURTO : COMPS_EF_CURTO;
   let r1 = `## 1. REFERÊNCIA CURRICULAR
 Etapa: ${etapa}${t.etapa && t.etapa !== etapa ? ` (${t.etapa})` : ""}
-Base: BNCC (competências gerais, com destaque para a 5, Cultura digital); BNCC Computação, ${etapa === "Educação Infantil" ? "premissas" : "competências"} da etapa: ${compsCurto.map((x, i) => `C${i + 1} ${x}`).join("; ")}; Política Nacional de Educação Digital (Lei 14.533/2023): uso crítico, ético e seguro, privacidade, direitos autorais e checagem de informações.
+Base: BNCC (competências gerais, com destaque para a 5, Cultura digital); BNCC Computação, ${ehEI ? "premissas" : "competências"} da etapa: ${compsCurto.map((x, i) => `${ehEI ? "P" : "C"}${i + 1} ${x}`).join("; ")}; Política Nacional de Educação Digital (Lei 14.533/2023): uso crítico, ético e seguro, privacidade, direitos autorais e checagem de informações.
 
 Habilidades da BNCC Computação (escolha entre estas; código — texto oficial)${filtra ? `, só do${eixosP.length > 1 ? "s eixos" : " eixo"} em foco neste pedido` : habs.some(h => h.x) ? ", por eixo" : ""}:
 ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefined" ? `[${x}]\n` : "") + hs.map(h => `${h.c} — ${h.t}`).join("\n")).join("\n")}`;
   if(ped.habsBNCC) r1 += `\n\nHabilidades do componente, coladas pelo(a) professor(a) do documento oficial:\n${ped.habsBNCC}`;
+  else if(ehEI) r1 += `\n\nObjetivos de aprendizagem e desenvolvimento: selecione dos campos de experiência da BNCC da Educação Infantil, com código e texto; marque [VERIFICAR] se tiver dúvida.`;
   else r1 += `\n\nHabilidades do componente ${ped.componente || t.componente || "informado"}: selecione do documento oficial da BNCC para a etapa, com código e texto; marque [VERIFICAR] se tiver dúvida.`;
+  if(ehEI && /creche/i.test(t.etapa)) r1 += `\nAs habilidades EI03CO foram escritas para crianças de 4 e 5 anos: na creche, use-as como horizonte e adapte à faixa etária.`;
   if(tecnica(t)) r1 += `\n\nFormação técnica: ${t.curso || e.cursos || "curso técnico"}${e.eixo ? `, eixo ${e.eixo}` : ""}. Considere o perfil profissional do Catálogo Nacional de Cursos Técnicos e as Diretrizes da EPT (Res. CNE/CP 1/2021).`;
   c.push({n:"1", nome:"Referência curricular", tipo:"fixa", txt:r1,
     nota:`O App insere o texto oficial das ${habs.length} habilidades de Computação desta etapa. A IA escolhe entre elas, em vez de lembrar de memória, o que reduz códigos inventados. Para os demais componentes, cole as habilidades no campo opcional do pedido.`});
@@ -1593,10 +1623,10 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
   // 6 Regras
   c.push({n:"6", nome:"Regras de trabalho", tipo:"fixa", txt:
 `## 6. REGRAS
-1. Atue como professor(a) especialista ${etapa === "Educação Infantil" ? "em Educação Infantil" : "no componente e na etapa"}, com experiência em escola pública${tecnica(t) ? " técnica" : ""}.
-2. Comece pelos objetivos: ${etapa === "Educação Infantil" ? "2 a 4 objetivos de aprendizagem e desenvolvimento dos campos de experiência" : `2 a 4 habilidades do componente${tecnica(t) ? " (ou competências do curso)" : ""}`} e ao menos 1 da BNCC Computação (camada 1), com código, texto e uma frase de justificativa.
+1. Atue como professor(a) especialista ${ehEI ? "na Educação Infantil" : "no componente e na etapa"}, com experiência em escola pública${tec ? " técnica" : ""}.
+2. Comece pelos objetivos: ${ehEI ? "2 a 4 objetivos de aprendizagem dos campos de experiência" : `2 a 4 habilidades do componente${tec ? " (ou competências do curso)" : ""}`} e ao menos 1 da BNCC Computação (camada 1), com código, texto e uma frase de justificativa.
 3. Planejamento reverso: avaliação antes das atividades; indique o nível de Bloom e evite atividades só de memorização.
-4. Dê progressão à memória da turma (camada 5). Use metodologias ativas, o território, o mundo do trabalho e os recursos da escola (camada 3).
+4. Dê progressão à memória da turma (camada 5). Use ${ehEI ? "o brincar, as interações" : "metodologias ativas"}, o território${trabalho ? ", o mundo do trabalho" : ""} e os recursos da escola (camada 3).
 5. Siga o DUA: várias formas de representação, engajamento e expressão.
 6. Material lúdico e muito visual: figuras, ícones, infográficos, tabelas, GIFs, vídeos curtos e motion design com propósito; jogos, personagens e desafios por fases. Texto alternativo e legendas sempre.
    BANCO DE RECURSOS VISUAIS (obrigatório, mesmo que você gere as imagens): marque no material onde entra cada recurso ([IMG 1], [GIF 2], [VÍDEO 3], [ÍCONE 4], [INFOGRÁFICO 5]) e, no fim de cada aula ou material, liste cada um com: onde entra (ex.: Slide 3), prompt pronto em português para gerador de imagem ou vídeo (ChatGPT, Gemini, Canva, Bing), estilo, proporção (16:9, 1:1...) e texto alternativo. Para vídeos reais, dê termos de busca no YouTube; nunca invente links.
@@ -1654,11 +1684,10 @@ function linhasMateriais(tipos){
     ...tipos.map((m, i) => `  ${i + 1}. ${m}${NOTA_TIPO[m] ? ` — ${NOTA_TIPO[m]}` : ""}`)];
 }
 const textoCamadas = (cs, quais) => cs.filter(x => !quais || quais.includes(x.n)).map(x => x.txt).join("\n\n");
-const celular = () => window.matchMedia && matchMedia("(max-width: 860px)").matches;
 const contaPalavras = s => (s.match(/\S+/g) || []).length;
 
 /* ============================================================
-   GERAR (3 perguntas)
+   GERAR (5 perguntas: material, tema, aulas, eixo ou competência e arquivo)
    ============================================================ */
 function telaGerar(arg){
   if(!S.turmas.length){
@@ -1670,6 +1699,7 @@ function telaGerar(arg){
   const turmaG = S.turmas.find(t => t.id === arg);
   if(!turmaG){ toast("Escolha a turma e toque em Gerar"); location.replace("#turmas"); return; }
   const mesma = S.pedido.turma === arg;
+  // Versão comentada ligada no primeiro uso: as notas explicam cada camada (o professor pode desligar)
   const ped = Object.assign({formato:(FORMATOS.find(f=>f.nome===S.perfil.formato)||{}).id || "", comentada:true}, S.pedido, {turma:arg});
   delete ped.entrega;
   if(!mesma){ ped.eixos = []; ped.compsCO = []; }
@@ -1680,24 +1710,25 @@ function telaGerar(arg){
   if(!mesma || !ped.aulas){ ped.aulas = aulasDe(turmaG); ped.duracao = duracaoDe(turmaG); }
   $("#view").innerHTML = `
   <div class="page-head row"><div><a class="voltar" href="#turmas">${ICO.seta}Turmas</a><span class="eyebrow">Gerar para a turma</span><h1>${esc(turmaG.nome)}</h1>
-    <p>${esc(turmaG.etapa)}${turmaG.curso ? " · " + esc(turmaG.curso) : ""}${escolaDe(turmaG).nome && (variasEscolas() || escolaDe(turmaG).nome !== "Minha escola") ? " · " + esc(escolaDe(turmaG).nome) : ""}. Escolha o material e o formato: o Caderno junta tudo o que já sabe desta turma e entrega o contexto pronto para a IA.</p></div><span class="spacer"></span>
+    <p>${esc(turmaG.etapa)}${turmaG.curso ? " · " + esc(turmaG.curso) : ""}${escolaDe(turmaG).nome && (variasEscolas() || escolaDe(turmaG).nome !== "Minha escola") ? " · " + esc(escolaDe(turmaG).nome) : ""}. Responda às cinco perguntas: o Caderno junta tudo o que já sabe desta turma e entrega o contexto pronto para a IA.</p></div><span class="spacer"></span>
     <a class="btn sm" href="#caderno/${turmaG.id}">${ICO.caderno}Caderno da turma</a></div>
+  ${turmaG.demo ? `<div class="aviso" style="margin-bottom:14px">${ICO.luz}<span><b>Esta é uma turma de exemplo, com dados fictícios.</b> Mude as respostas à vontade e veja o pacote mudar. Quando terminar: <a href="#" data-exemplo="remover">remover o exemplo</a> e <a href="#contexto">preencher os seus dados</a>.</span></div>` : ""}
   <section class="card pedido-card">
-    <h2><span class="ico-chip">${ICO.gerar}</span>O pedido</h2>
-    <p class="sub">Camada 7: a única parte que muda a cada uso.</p>
+    <h2><span class="ico-chip">${ICO.gerar}</span>O pedido em cinco perguntas</h2>
+    <p class="sub">Camada 7: a única parte que muda a cada uso. Material, tema, aulas, ${comComp ? "competência" : "eixo"} da BNCC Computação e arquivo.</p>
     <div class="fields f4">
       ${campoMateriais(ped.tipos)}
       ${campoTexto("g-tema", "2. Sobre qual tema ou conteúdo?", ped.tema, "Ex.: funções do 1º grau aplicadas a orçamento", "tema")}
       ${campoTempo("g-tempo", "3. Quantas aulas ao todo?", ped.aulas, ped.duracao, "", "Começa com o tempo de aula da turma; ajuste para este pedido.")}
-      <div class="field"><label for="g-fmt">4. Em que formato?</label><select id="g-fmt">${FORMATOS.map(f=>`<option value="${f.id}"${f.id===ped.formato?" selected":""}>${f.id ? esc(f.nome) : "Deixar a IA escolher"}</option>`).join("")}</select><div class="hint" id="g-fmt-dica"></div></div>
-      <div class="field"><label for="g-arq">5. Em que arquivo quer receber?</label><select id="g-arq">${ARQUIVOS.map(a=>`<option value="${a.id}"${a.id===(ped.arquivo||"")?" selected":""}>${esc(a.nome)}</option>`).join("")}</select><div class="hint" id="g-arq-dica"></div></div>
-      <details class="full ajustes"${(ped.eixos||[]).length || (ped.compsCO||[]).length || ped.detalhes || ped.habsBNCC ? " open" : ""}><summary>Ajustes opcionais: ${comComp ? "competência" : "eixo"} da BNCC Computação, componente, detalhes e habilidades</summary>
+      ${comEixo ? `${campoChips("g-eixos", "4. Qual eixo da BNCC Computação é o foco? (opcional: um, dois ou os três)", EIXOS_CO, ped.eixos || []).replace(/<\/div>$/, `<div class="hint">Nesta etapa (${turmaG.etapa && /Infantil/.test(turmaG.etapa) ? "na Educação Infantil" : "até o 9º ano"}), a BNCC Computação se organiza em três eixos. <b>Pensamento Computacional:</b> resolver problemas com algoritmos, padrões e abstração. <b>Mundo Digital:</b> como dados, máquinas e redes funcionam. <b>Cultura Digital:</b> uso crítico, ético e seguro das tecnologias. Sem marcar, a IA escolhe entre os três.</div></div>`)}` : ""}
+      ${comComp ? `${campoChips("g-comps", "4. Quais competências da BNCC Computação são o foco? (opcional: uma ou mais)", COMPS_EM_ROT, ped.compsCO || []).replace(/<\/div>$/, `<div class="mat-info" id="g-comps-info" aria-live="polite">${ICO.luz}<span>No Ensino Médio, a BNCC Computação se organiza em 7 competências, e não em eixos. Passe o mouse ou toque numa competência para ler o texto oficial. Sem marcar, a IA escolhe.</span></div></div>`)}` : ""}
+      <div class="field tema"><label for="g-arq">5. Em que arquivo quer receber?</label><select id="g-arq">${ARQUIVOS.map(a=>`<option value="${a.id}"${a.id===(ped.arquivo||"")?" selected":""}>${esc(a.nome)}</option>`).join("")}</select><div class="hint" id="g-arq-dica"></div></div>
+      <details class="full ajustes"><summary id="g-aj-sum">Ajustes opcionais</summary>
         <div class="fields" style="margin-top:12px">
-          ${comEixo ? `${campoChips("g-eixos", "Eixo da BNCC Computação em foco (marque um, dois ou os três)", EIXOS_CO, ped.eixos || []).replace(/<\/div>$/, `<div class="hint"><b>Pensamento Computacional:</b> resolver problemas com algoritmos, padrões e abstração. <b>Mundo Digital:</b> como dados, máquinas e redes funcionam. <b>Cultura Digital:</b> uso crítico, ético e seguro das tecnologias. Sem marcar, a IA escolhe entre os três.</div></div>`)}` : ""}
-          ${comComp ? `${campoChips("g-comps", "Competências da BNCC Computação em foco (marque uma ou mais)", COMPS_EM_ROT, ped.compsCO || []).replace(/<\/div>$/, `<div class="mat-info" id="g-comps-info" aria-live="polite">${ICO.luz}<span>No Ensino Médio, a BNCC Computação se organiza em 7 competências, e não em eixos. Passe o mouse ou toque numa competência para ler o texto oficial. Sem marcar, a IA escolhe.</span></div></div>`)}` : ""}
-          ${campoTexto("g-comp", "Componente", ped.componente || "", "", "", "Vem do cadastro da turma.")}
+          <div class="field"><label for="g-fmt">Em que formato? (texto, tabela, slides, quiz...)</label><select id="g-fmt">${FORMATOS.map(f=>`<option value="${f.id}"${f.id===ped.formato?" selected":""}>${f.id ? esc(f.nome) : "Deixar a IA escolher"}</option>`).join("")}</select><div class="hint" id="g-fmt-dica"></div></div>
+          ${campoTexto("g-comp", "Componente (já vem o da turma)", ped.componente || "", "", "full")}
           ${campoArea("g-det", "Detalhes do pedido", ped.detalhes, "Ex.: para a aula de revisão antes da prova; com uma atividade em dupla")}
-          ${campoArea("g-habs", "Habilidades da BNCC do componente (cole do documento oficial)", ped.habsBNCC, "Ex.: EM13MAT101 — Interpretar criticamente situações econômicas...", "full", `Quando você cola o texto oficial, a IA escolhe entre essas habilidades, como já acontece com as de Computação. Consulte e copie na <a href="https://basenacionalcomum.mec.gov.br/abase/" target="_blank" rel="noopener">BNCC on-line do MEC</a>${tecnica(turmaG) ? ` ou no <a href="https://cnct.mec.gov.br/" target="_blank" rel="noopener">Catálogo Nacional de Cursos Técnicos</a>` : ""}.`)}
+          ${campoArea("g-habs", "Habilidades da BNCC do componente (cole do documento oficial)", ped.habsBNCC, "Ex.: EM13MAT101 — Interpretar criticamente situações econômicas...", "", `Copie do <a href="https://basenacionalcomum.mec.gov.br/" target="_blank" rel="noopener">site oficial da BNCC</a>. Com o texto oficial colado, a IA escolhe entre essas habilidades, como já acontece com as de Computação; sem ele, cita os códigos de memória e pode errar.`)}
         </div>
       </details>
     </div>
@@ -1705,9 +1736,30 @@ function telaGerar(arg){
     <span class="lbl">Como usar</span>
     <ol class="passos-uso h"><li>Copie o pacote completo.</li><li>Abra a IA de sua preferência e cole como primeira mensagem.</li><li>Confira o material e valide as habilidades no quadro final.</li><li>Depois da aula, registre no Caderno: o próximo sai melhor.</li></ol>
   </section>
-  <section class="card" id="g-saida"></section>
-  <div class="copiar-fixo" id="g-fixo"><button class="btn pri" type="button" id="g-fixo-copiar">${ICO.copiar}Copiar pacote</button><button class="btn" type="button" id="g-fixo-ver">Ver pacote</button></div>`;
-  document.body.classList.add("tela-gerar");
+  <section class="card" id="g-saida"></section>`;
+  // Botão Copiar fixo no celular (fica fora da área animada, para não rolar com a página)
+  const fixo = document.createElement("div"); fixo.className = "copiar-fixo"; fixo.id = "copiar-fixo";
+  fixo.innerHTML = `<button class="btn pri" type="button" id="g-copiar-fixo">${ICO.copiar}Copiar pacote</button>`;
+  document.body.appendChild(fixo);
+  const celular = window.matchMedia("(max-width:860px)").matches;
+  // No celular, as camadas 0 a 6 começam fechadas e só o pedido fica aberto
+  const abertas = new Set(celular ? ["7"] : ["0","1","2","3","4","5","6","7"]);
+  let pacoteAtual = "";
+  const atualizaAjustes = () => {
+    const n = [ped.formato, ped.detalhes, ped.habsBNCC, ped.componente && ped.componente !== (turmaG.componente || "")].filter(Boolean).length;
+    $("#g-aj-sum").textContent = n ? `Ajustes opcionais · ${n} preenchido${n > 1 ? "s" : ""}` : "Ajustes opcionais: formato, componente, detalhes e habilidades do componente";
+  };
+  // 7. Pedido incompleto: pergunta antes de copiar e leva ao campo que falta
+  const podeSair = () => {
+    const falta = !(ped.tipos || []).length ? "material" : !ped.tema ? "tema" : "";
+    if(!falta) return true;
+    if(confirm(falta === "tema" ? "O pedido está sem tema. Copiar assim mesmo?" : "Nenhum material foi marcado. Copiar assim mesmo?")) return true;
+    const el = falta === "tema" ? $("#g-tema") : $('[data-chips="g-tipos"] .chip');
+    el.scrollIntoView({behavior:"smooth", block:"center"}); el.focus({preventScroll:true});
+    return false;
+  };
+  const marcar = () => { S.ultimo[turmaG.id] = {material:ped.tipo, tipos:ped.tipos, tema:ped.tema, formato:ped.formato}; salvar(); };
+  $("#g-copiar-fixo").addEventListener("click", () => { if(!podeSair()) return; marcar(); copiar(pacoteAtual, "Pacote completo copiado (camadas 0 a 7)"); });
   const comp = $("#g-comp");
   const atualizaComp = () => { const t = turmaG; if(!ped.componente || ped._auto){ comp.value = t.componente || ""; ped._auto = true; } };
   atualizaComp();
@@ -1716,7 +1768,7 @@ function telaGerar(arg){
     Object.assign(ped, tempoG(), {turma:turmaG.id, tipos, tipo:tipos.join(" + "), eixos:comEixo ? EIXOS_CO.filter(x => lerChips("g-eixos").includes(x)) : [], compsCO:comComp ? COMPS_EM_ROT.filter(x => lerChips("g-comps").includes(x)) : [], componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, arquivo:$("#g-arq").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
     S.pedido = Object.assign({}, ped); delete S.pedido._auto;
     if(ped.tipo || ped.tema) S.ultimo[ped.turma] = {material:ped.tipo, tipos:ped.tipos, tema:ped.tema, formato:ped.formato};
-    salvar();
+    salvar(); atualizaAjustes();
   };
   comp.addEventListener("input", () => { ped._auto = false; });
   ["g-comp","g-tema","g-fmt","g-arq","g-det","g-habs"].forEach(id => $("#"+id).addEventListener("input", () => { ler(); desenhar(); }));
@@ -1743,17 +1795,8 @@ function telaGerar(arg){
   $("#g-tipos-novo").addEventListener("keydown", e => { if(e.key === "Enter") mudouTipos(); });
   tiposTxt();
   const tempoG = ligarTempo("g-tempo", () => { ler(); desenhar(); });
+  atualizaAjustes();
 
-  // Antes de copiar: avisa se faltam o material ou o tema, e leva ao campo
-  const completo = () => {
-    const falta = [!(ped.tipos || []).length && "o material (pergunta 1)", !ped.tema && "o tema (pergunta 2)"].filter(Boolean);
-    if(!falta.length || confirm(`Falta ${falta.join(" e ")}. Sem isso a IA recebe um pedido incompleto. Copiar assim mesmo?`)) return true;
-    const alvo = !(ped.tipos || []).length ? $('[data-chips="g-tipos"] .chip') : $("#g-tema");
-    alvo.scrollIntoView({behavior:"smooth", block:"center"}); alvo.focus({preventScroll:true}); return false;
-  };
-  let copiarFixo = () => {};
-  $("#g-fixo-copiar").addEventListener("click", () => copiarFixo());
-  $("#g-fixo-ver").addEventListener("click", () => $("#g-saida").scrollIntoView({behavior:"smooth", block:"start"}));
   function desenhar(){
     const t = S.turmas.find(x => x.id === ped.turma);
     const f = FORMATOS.find(x => x.id === ped.formato);
@@ -1762,6 +1805,7 @@ function telaGerar(arg){
     $("#g-arq-dica").textContent = (ped.arquivo === "chat" ? "A IA responde em texto, sem arquivo. " : !ped.arquivo && sug.length ? `Sugestão para este pedido: ${sug.join(" + ")}. ` : "") + DICA_ARQ;
     const cs = montarCamadas(t, ped);
     const pacote = textoCamadas(cs);
+    pacoteAtual = pacote;
     const palavras = contaPalavras(pacote);
     const pct = Math.min(100, Math.round(palavras / 2500 * 100));
     const ok = (ped.tipos || []).length && ped.tema;
@@ -1783,8 +1827,9 @@ function telaGerar(arg){
           <div class="ias">${IAS_USO.map(k => { const ia = IAS[k]; return `<button class="ia" style="--ia:${ia.cor}" data-ia="${k}" title="Copia o pacote completo e abre o ${ia.nome} numa nova aba">${ia.icone}${ia.nome}${ICO.seta}</button>`; }).join("")}</div>
         </div>
       </div>
+      <p class="field so-cel" style="margin:14px 0 0"><span class="hint">Toque numa camada para abrir ou fechar. O botão Copiar leva todas as camadas, mesmo as fechadas.</span></p>
       <div class="camadas">
-      ${cs.map(x => `<details class="camada${x.vazio ? " off" : ""}"${!celular() || x.n === "7" ? " open" : ""}>
+      ${cs.map(x => `<details class="camada${x.vazio ? " off" : ""}" data-n="${x.n}"${abertas.has(x.n) ? " open" : ""}>
           <summary class="camada-h"><span class="n">${x.n}</span>${esc(x.nome)}<span class="k">${x.tipo}</span></summary>
           <pre>${esc(x.txt)}</pre>
           ${ped.comentada ? `<div class="coment">${ICO.luz}<span>${esc(x.nota)}</span></div>` : ""}
@@ -1792,18 +1837,21 @@ function telaGerar(arg){
       </div>
       <div class="row" style="margin-top:16px"><a class="btn" href="#caderno/${t.id}/registrar">${ICO.caderno}Registrar esta aula depois</a></div>`;
     $("#g-com").addEventListener("change", e => { ped.comentada = e.target.checked; ler(); desenhar(); });
+    // Guarda na hora do toque (o evento "toggle" chega depois e se perderia se o pacote fosse redesenhado antes)
+    $$("#g-saida details.camada").forEach(d => {
+      d.querySelector("summary").addEventListener("click", () => { !d.open ? abertas.add(d.dataset.n) : abertas.delete(d.dataset.n); });
+      d.addEventListener("toggle", () => { if(d.isConnected) d.open ? abertas.add(d.dataset.n) : abertas.delete(d.dataset.n); });
+    });
     const textos = {pacote};
-    const marcar = () => { S.ultimo[t.id] = {material:ped.tipo, tipos:ped.tipos, tema:ped.tema, formato:ped.formato}; salvar(); };
-    $$("[data-copiar]").forEach(b => b.addEventListener("click", () => { if(!completo()) return; marcar(); copiar(textos[b.dataset.copiar], "Pacote completo copiado (camadas 0 a 7)"); }));
-    copiarFixo = () => { if(!completo()) return; marcar(); copiar(pacote, "Pacote completo copiado (camadas 0 a 7)"); };
+    $$("[data-copiar]").forEach(b => b.addEventListener("click", () => { if(!podeSair()) return; marcar(); copiar(textos[b.dataset.copiar], "Pacote completo copiado (camadas 0 a 7)"); }));
     $$("[data-ia]").forEach(b => b.addEventListener("click", () => {
-      if(!completo()) return;
+      if(!podeSair()) return;
       marcar(); const ia = IAS[b.dataset.ia];
       copiar(pacote, `Pacote completo copiado! Cole no ${ia.nome}`);
       window.open(ia.url, "_blank", "noopener");
     }));
     $("#g-md").addEventListener("click", () => {
-      if(!completo()) return;
+      if(!podeSair()) return;
       marcar();
       const nome = (t.nome || "turma").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/gi,"-").toLowerCase();
       baixar(`contexto-${nome}.md`, pacote);
@@ -1815,6 +1863,31 @@ function telaGerar(arg){
 /* ============================================================
    CADERNO DE MEMÓRIA DA TURMA
    ============================================================ */
+// Palavras com maiúscula que não são nomes de pessoas: ferramentas, etapas, componentes, lugares e datas
+const NOMES_OK = new Set(("google forms meet classroom drive docs slides sheets kahoot wordwall canva gamma powerpoint word excel mentimeter padlet quizizz youtube tiktok instagram whatsapp facebook " +
+  "chatgpt gemini claude copilot deepseek perplexity scratch python java javascript arduino linux windows android chromebook internet wifi moodle teams zoom minecraft roblox " +
+  "libras braille enem encceja saeb ideb bncc mec inep ensino médio fundamental infantil superior educação básica técnico técnica profissional computação informática robótica " +
+  "matemática português língua portuguesa ciências história geografia física química biologia arte artes inglês inglesa espanhol filosofia sociologia redação literatura religioso natureza humanas linguagens " +
+  "pensamento computacional mundo digital cultura projeto vida brasil nordeste norte sul sudeste maranhão piauí ceará bahia pará amazonas pernambuco paraíba goiás minas gerais paulo rio janeiro são luís " +
+  "fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro segunda terça quarta quinta sexta sábado domingo natal páscoa carnaval deus bloom").split(" "));
+const ANTES_DE_NOME = new Set("o a os as do da dos das de no na com para pro pra pelo pela ao à e que aluno aluna alunos alunas estudante estudantes menino menina garoto garota colega".split(" "));
+// Devolve o trecho que parece nome de pessoa (ou ""). Ignora começo de frase e termos conhecidos ou já cadastrados pelo professor.
+function pareceNome(txt, extras){
+  const ok = new Set(NOMES_OK);
+  (extras || []).forEach(x => String(x || "").toLowerCase().split(/[^a-zà-ú0-9]+/i).forEach(w => w && ok.add(w)));
+  const limpa = w => (w || "").replace(/^[^A-Za-zÀ-ú]+|[^A-Za-zÀ-ú]+$/g, "");
+  const nome = w => /^[A-ZÁÉÍÓÚÂÊÔÃÕÇ][a-záéíóúâêôãõç]{2,}$/.test(w) && !ok.has(w.toLowerCase());
+  for(const frase of String(txt || "").split(/[.!?…:;]+\s+|\n+/)){
+    const pal = frase.trim().split(/\s+/);
+    for(let i = 1; i < pal.length; i++){
+      const w = limpa(pal[i]); if(!nome(w)) continue;
+      const prox = limpa(pal[i + 1]);
+      if(nome(prox)) return `${w} ${prox}`;
+      if(ANTES_DE_NOME.has(limpa(pal[i - 1]).toLowerCase())) return w;
+    }
+  }
+  return "";
+}
 function telaCaderno(arg){
   const parts = location.hash.slice(1).split("/");
   if(!S.turmas.length){
@@ -1828,10 +1901,12 @@ function telaCaderno(arg){
   const regs = registrosDe(tid);
   const abrirForm = parts[2] === "registrar";
   const ult = S.ultimo[tid] || {};
-  const matsUlt = Array.isArray(ult.tipos) ? ult.tipos : (ult.material ? ult.material.split(" + ") : []);
   const media = regs.length ? (regs.reduce((s,r)=>s+(+r.nota||0),0)/regs.length).toFixed(1).replace(".", ",") : "–";
   const serie = regs.slice(0, 12).reverse();
   const editada = !!(S.sinteses[tid] && S.sinteses[tid].trim());
+  // 14. Pedido com vários materiais: eles aparecem como opções já marcadas, em vez de "Outro: A + B + C"
+  const ultTipos = Array.isArray(ult.tipos) && ult.tipos.length ? ult.tipos : (ult.material || "").split(" + ").map(x => x.trim()).filter(Boolean);
+  const matChips = ultTipos.length > 1;
   $("#view").innerHTML = `
   <div class="page-head row"><div><span class="eyebrow">Camada 5 · um minuto depois da aula</span><h1>Caderno de Memória da Turma</h1>
     <p>O que acontece em aula vira contexto para a próxima. Registre sempre a turma como coletivo.</p></div><span class="spacer"></span>
@@ -1844,15 +1919,15 @@ function telaCaderno(arg){
         <p class="sub">${ult.material ? `Último pedido: ${esc(ult.material)}${ult.tema ? " — " + esc(ult.tema) : ""}.` : "Três perguntas rápidas."}</p>
         <div class="fields">
           <div class="field"><label for="r-data">Data</label><input type="date" id="r-data" value="${hoje()}"></div>
-          ${campoChips("r-mats", "Material usado", matsUlt.length ? matsUlt : MATS_COMUNS, matsUlt, null, true).replace(/<div class="hint">[^<]*<\/div><\/div>$/, `<div class="hint">${matsUlt.length ? "Já vêm marcados os materiais do último pedido. Desmarque o que não usou." : "Marque o que usou ou escreva outro."}</div></div>`)}
+          ${matChips ? campoChips("r-mats", "Materiais usados (os do último pedido já vêm marcados)", ultTipos, ultTipos, null, true).replace(/<div class="hint">[^<]*<\/div><\/div>$/, `<div class="hint">Desmarque o que não foi usado nesta aula, ou adicione outro.</div></div>`) : campoMaterial("r-mat", "Material usado", ult.material)}
           ${campoTexto("r-tema", "Tema", ult.tema, "", "full")}
           <div class="field full"><span class="lbl">1. Como foi a aula?</span><div class="stars" id="r-nota" role="radiogroup" aria-label="Nota de 1 a 5">${[1,2,3,4,5].map(n=>`<button type="button" data-n="${n}" role="radio" aria-checked="false" aria-label="${n} de 5">★</button>`).join("")}</div></div>
           ${campoChips("r-tags", "2. O que funcionou e o que não funcionou?", TAGS_POS.concat(TAGS_NEG), [], TAGS_NEG)}
           ${campoArea("r-livre", "Comentário (opcional)", "", "Ex.: a turma se envolveu na simulação do orçamento, mas a parte escrita ficou longa", "full")}
           ${campoTexto("r-mud", "O que você mudaria na próxima? (opcional)", "", "Ex.: começar pelo problema real, antes da teoria", "full")}
           ${campoTexto("r-habs", "3. Habilidades efetivamente trabalhadas", "", "Ex.: EM13MAT101, EM13CO05 (confirme ou corrija as sugeridas pela IA)", "full")}
-          <details class="full"><summary>Atalho: colar o quadro de habilidades que a IA devolveu</summary>
-            <div class="field" style="margin-top:10px"><label for="r-quadro" class="sr">Quadro de habilidades da IA</label><textarea id="r-quadro" placeholder="Cole aqui o QUADRO DE HABILIDADES do fim da resposta da IA. Os códigos vão sozinhos para o campo 3."></textarea><div class="hint">Só os códigos são aproveitados. Depois, apague do campo 3 o que não foi trabalhado de fato.</div></div>
+          <details class="full"><summary>Colar o quadro de habilidades que a IA devolveu</summary>
+            <div style="margin-top:12px">${campoArea("r-quadro", "Cole aqui o quadro (ou a resposta inteira da IA)", "", "Ex.: EM13MAT101 | Interpretar criticamente situações... | por que | onde aparece", "", "O Caderno encontra os códigos (EF05CO04, EM13MAT101...) e preenche a pergunta 3 para você conferir. O texto colado não é guardado.")}</div>
           </details>
         </div>
         <div class="aviso">${ICO.alerta}<span>Não escreva nomes ou situações que identifiquem estudantes. Fale da turma como um todo.</span></div>
@@ -1870,7 +1945,7 @@ function telaCaderno(arg){
     <div>
       <section class="card">
         <h2><span class="ico-chip">${ICO.memoria}</span>Memória da turma</h2>
-        <p class="sub">Esta síntese entra como camada 5 em todo pacote de ${esc(t.nome)}. ${editada ? "<b>Você editou esta síntese.</b> Cada novo registro é acrescentado ao fim dela; para refazer tudo a partir dos registros, use Voltar à automática." : "Gerada automaticamente a partir dos registros; se você editar e salvar, os próximos registros são acrescentados ao fim."}</p>
+        <p class="sub">Esta síntese entra como camada 5 em todo pacote de ${esc(t.nome)}. ${editada ? "<b>Você editou esta síntese</b>, então ela não se atualiza sozinha: a cada novo registro, o Caderno pergunta se quer juntá-lo. Para voltar a atualizar sozinha, use “Voltar à automática”." : "Gerada automaticamente a partir dos registros: atualiza a cada aula registrada."}</p>
         <div class="kpis">
           <div class="kpi"><b>${regs.length}</b><span>aulas registradas</span></div>
           <div class="kpi"><b>${media}</b><span>média das avaliações</span></div>
@@ -1888,28 +1963,39 @@ function telaCaderno(arg){
       ${cardDados()}
     </div>
   </div>`;
-  ligarChips(); ligarDados();
-  $("#c-turma").addEventListener("change", e => { location.hash = "caderno/" + e.target.value; });
+  ligarChips(); ligarDados(); if(!matChips) ligarMaterial("r-mat");
+  // Sugestão 6: a resposta da IA volta para o Caderno e preenche as habilidades
   $("#r-quadro").addEventListener("input", e => {
-    const cods = [...new Set((e.target.value.toUpperCase().match(/\b(?:EI|EF|EM)\d{2}[A-Z]{2,4}\d{2,3}\b/g) || []))];
-    if(cods.length){ const atuais = val("r-habs").split(/[,;\s]+/).filter(Boolean); $("#r-habs").value = [...new Set([...atuais, ...cods])].join(", "); toast(`${cods.length} código${cods.length > 1 ? "s" : ""} copiado${cods.length > 1 ? "s" : ""} para o campo 3`); }
+    const achados = [...new Set(e.target.value.toUpperCase().match(/\bE[FIM]\d{2}[A-Z]{2,4}\d{2,3}\b/g) || [])];
+    if(!achados.length) return;
+    const ja = val("r-habs").split(/[,;\s]+/).filter(Boolean).map(x => x.toUpperCase());
+    $("#r-habs").value = [...new Set(ja.concat(achados))].join(", ");
+    toast(`${achados.length} código${achados.length > 1 ? "s" : ""} encontrado${achados.length > 1 ? "s" : ""}. Confira antes de salvar`);
   });
+  $("#c-turma").addEventListener("change", e => { location.hash = "caderno/" + e.target.value; });
   let nota = 0;
   $$("#r-nota button").forEach(b => b.addEventListener("click", () => {
     nota = +b.dataset.n; $$("#r-nota button").forEach(x => { const on = +x.dataset.n <= nota; x.classList.toggle("on", on); x.setAttribute("aria-checked", +x.dataset.n === nota); });
   }));
   $("#r-salvar").addEventListener("click", () => {
     if(!nota){ toast("Dê uma nota de 1 a 5 para a aula"); return; }
-    const nome = pareceNome([val("r-livre"), val("r-mud")].join(". "));
-    if(nome && !confirm(`“${nome}” parece um nome próprio. Confirme que ele não identifica nenhum estudante. Salvar assim mesmo?`)) return;
-    S.registros.push({id:uid(), criado:Date.now(), turmaId:tid, data:val("r-data") || hoje(), material:lerChips("r-mats").join(" + "), tema:val("r-tema"), nota, tags:lerChips("r-tags"),
-      livre:val("r-livre"), mudaria:val("r-mud"), habilidades:val("r-habs")});
+    const material = matChips ? lerChips("r-mats").join(" + ") : lerMaterial("r-mat");
+    const e = escolaDe(t);
+    const achou = pareceNome(val("r-livre") + ". " + val("r-mud"), [t.nome, t.componente, t.curso, e.nome, e.cursos, e.territorio, S.perfil.componentes, val("r-tema"), material]);
+    if(achou && !confirm(`“${achou}” parece ser um nome próprio. Confirme que o comentário não identifica nenhum estudante. Salvar assim mesmo?`)) return;
+    const reg = {id:uid(), criado:Date.now(), turmaId:tid, data:val("r-data") || hoje(), material, tema:val("r-tema"), nota, tags:lerChips("r-tags"),
+      livre:val("r-livre"), mudaria:val("r-mud"), habilidades:val("r-habs")};
+    S.registros.push(reg);
     let aviso = "Aula registrada. A memória foi atualizada";
-    if(S.sinteses[tid] && S.sinteses[tid].trim()){
-      // a síntese foi editada à mão: o novo registro é acrescentado ao fim dela, para não ficar de fora do pacote
-      const r = S.registros[S.registros.length - 1];
-      S.sinteses[tid] = S.sinteses[tid].trimEnd() + `\n\nRegistro de ${dataBR(r.data)}: ${r.material || "Material"}${r.tema ? " — " + r.tema : ""} · nota ${r.nota}/5${r.tags.length ? " · " + r.tags.join("; ") : ""}${r.livre ? ` · "${r.livre}"` : ""}${r.mudaria ? " · mudaria: " + r.mudaria : ""}${r.habilidades ? " · habilidades: " + r.habilidades : ""}`;
-      aviso = "Aula registrada e acrescentada à sua síntese editada";
+    if(editada){
+      // A síntese editada não se refaz sozinha: o professor decide se o novo registro entra nela
+      if(confirm("Você editou a síntese desta turma, então ela não se atualiza sozinha.\n\nOK: juntar este registro ao final da sua síntese.\nCancelar: manter a síntese como está (o registro fica guardado no Caderno)."))
+      {
+        const marca = "Registros depois da sua edição:";
+        const linha = `- ${dataBR(reg.data)}: ${reg.material || "Material"}${reg.tema ? " — " + reg.tema : ""} · nota ${reg.nota}/5${reg.tags.length ? " · " + reg.tags.join("; ") : ""}${reg.livre ? ` · "${reg.livre}"` : ""}${reg.mudaria ? ` · mudaria: ${reg.mudaria}` : ""}${reg.habilidades ? ` · habilidades: ${reg.habilidades}` : ""}`;
+        S.sinteses[tid] = S.sinteses[tid].trimEnd() + (S.sinteses[tid].includes(marca) ? "\n" : `\n\n${marca}\n`) + linha;
+        aviso = "Aula registrada e juntada à sua síntese";
+      } else aviso = "Aula registrada. Sua síntese editada não mudou";
     }
     salvar(); toast(aviso);
     if(location.hash === "#caderno/" + tid) rota(); else location.hash = "caderno/" + tid;
@@ -1919,9 +2005,11 @@ function telaCaderno(arg){
     S.registros = S.registros.filter(r => r.id !== b.dataset.del); salvar(); rota();
   }));
   $("#c-salvar-sint").addEventListener("click", () => {
-    const v = $("#c-sint").value;
-    if(!v.trim() || (!editada && v.trim() === sinteseAuto(tid).trim())){ toast("Nada mudou: a síntese continua automática"); return; }
-    S.sinteses[tid] = v; salvar(); toast("Síntese salva. Novos registros serão acrescentados ao fim dela"); rota();
+    // 1. Só vira "síntese editada" se o texto mudou de verdade; senão a memória continuaria congelada sem motivo
+    const txt = $("#c-sint").value.trim();
+    if(txt === sinteseDe(tid).trim()){ toast(editada ? "Nada mudou na síntese" : "Nada mudou: a síntese continua automática"); return; }
+    if(!txt || txt === sinteseAuto(tid).trim()){ delete S.sinteses[tid]; salvar(); toast("Síntese automática restaurada"); rota(); return; }
+    S.sinteses[tid] = txt; salvar(); toast("Síntese editada salva"); rota();
   });
   $("#c-regen").addEventListener("click", () => { delete S.sinteses[tid]; salvar(); toast("Síntese automática restaurada"); rota(); });
   $("#c-pedido-ia").addEventListener("click", () => {
@@ -1941,37 +2029,39 @@ function cardDados(){
     <div class="row"><button class="btn sm" id="d-exp">${ICO.baixar}Exportar</button>
     <label class="btn sm" style="cursor:pointer">${ICO.importar}Importar<input type="file" id="d-imp" accept="application/json,.json" hidden></label>
     <span class="spacer"></span><button class="btn sm danger" id="d-apagar">${ICO.lixo}Apagar tudo</button></div>
-    <div class="row" style="margin-top:12px"><button class="btn sm ghost" id="d-fim">${ICO.escudo}Terminar neste computador</button><span class="hint" style="font-size:12.5px; color:var(--faint)">Em computador compartilhado: baixa a cópia e apaga daqui.</span></div>
+    <div class="aviso" style="margin-top:14px">${ICO.escudo}<span><b>Computador compartilhado (laboratório, sala dos professores)?</b> Ao sair, use “Terminar neste computador”: o Caderno baixa uma cópia dos seus dados e apaga tudo daqui, para a próxima pessoa não ver seu perfil e suas turmas.</span></div>
+    <div class="row" style="margin-top:10px"><button class="btn sm" id="d-terminar">${ICO.baixar}Terminar neste computador</button></div>
   </section>`;
 }
-function exportar(sufixo){ baixar(`caderno-de-contexto-${sufixo ? sufixo + "-" : ""}${hoje()}.json`, JSON.stringify(S, null, 2), "application/json"); }
-// Para computadores compartilhados (laboratório, oficina): guarda uma cópia e limpa o navegador
-function terminarAqui(){
-  if(!confirm("Terminar neste computador? O Caderno baixa uma cópia dos seus dados (guarde o arquivo) e depois apaga tudo deste navegador. Em outro aparelho, use Importar com esse arquivo.")) return;
-  exportar();
-  setTimeout(() => { S = VAZIO(); salvar(); toast("Cópia baixada e dados apagados deste computador"); location.hash = "inicio"; rota(); }, 600);
-}
 function ligarDados(){
-  $("#d-exp").addEventListener("click", () => exportar());
-  $("#d-fim").addEventListener("click", terminarAqui);
+  $("#d-exp").addEventListener("click", () => baixar(`caderno-de-contexto-${hoje()}.json`, JSON.stringify(S, null, 2), "application/json"));
   $("#d-imp").addEventListener("change", e => {
     const f = e.target.files[0]; if(!f) return;
     const rd = new FileReader();
     rd.onload = () => {
-      e.target.value = "";
-      let d;
-      try { d = JSON.parse(rd.result); } catch(_) { d = null; }
-      if(!d || typeof d !== "object" || !Array.isArray(d.turmas) || (d.perfil != null && typeof d.perfil !== "object")){ toast("Este arquivo não é uma cópia do Caderno de Contexto"); return; }
-      const temDados = S.turmas.length || S.escolas.length || S.registros.length || S.perfil.componentes;
-      if(!confirm(`Substituir os dados deste aparelho pelos do arquivo (${d.turmas.length} turma${d.turmas.length === 1 ? "" : "s"})?${temDados ? " Antes, o Caderno baixa uma cópia dos dados atuais, por segurança." : ""}`)) return;
-      if(temDados) exportar("copia-antes-de-importar");
-      S = normalizar(d); migrar(); salvar(); toast("Dados importados"); rota();
+      // Confere o arquivo antes de trocar qualquer coisa; um arquivo com defeito não chega a substituir os dados
+      let novo;
+      try { const d = JSON.parse(rd.result); if(!d || !Array.isArray(d.turmas)) throw 0; novo = normalizar(d); }
+      catch(_) { toast("Arquivo inválido: não é uma cópia do Caderno de Contexto"); e.target.value = ""; return; }
+      const tem = perfilOk() || S.escolas.length || S.turmas.length;
+      const nT = novo.turmas.length, nR = novo.registros.length;
+      if(!confirm(`Substituir os dados deste aparelho pelos do arquivo (${nT} turma${nT === 1 ? "" : "s"} e ${nR} registro${nR === 1 ? "" : "s"})?${tem ? "\n\nAntes, o Caderno baixa uma cópia de segurança dos dados atuais." : ""}`)){ e.target.value = ""; return; }
+      if(tem) baixar(`caderno-de-contexto-copia-de-seguranca-${hoje()}.json`, JSON.stringify(S, null, 2), "application/json");
+      S = novo; migrar(); sujo = false; salvar(); toast("Dados importados"); rota();
     };
     rd.readAsText(f);
   });
   $("#d-apagar").addEventListener("click", () => {
     if(!confirm("Apagar perfil, escolas, turmas e todo o Caderno deste aparelho? Não dá para desfazer.")) return;
     S = VAZIO(); salvar(); toast("Dados apagados"); location.hash = "inicio"; rota();
+  });
+  $("#d-terminar").addEventListener("click", () => {
+    if(!confirm("Terminar neste computador?\n\nO Caderno baixa uma cópia dos seus dados (guarde o arquivo: com ele você usa Importar em outro aparelho) e depois apaga tudo deste navegador.")) return;
+    baixar(`caderno-de-contexto-${hoje()}.json`, JSON.stringify(S, null, 2), "application/json");
+    setTimeout(() => {
+      S = VAZIO(); sujo = false; salvar(); try { localStorage.removeItem(CHAVE); } catch(_) {}
+      toast("Cópia baixada e dados apagados deste computador"); location.hash = "inicio"; rota();
+    }, 700);
   });
 }
 
