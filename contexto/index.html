@@ -328,6 +328,7 @@ input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accen
 @media (max-width:560px){ .passos-uso.h{grid-template-columns:1fr} }
 .fields.f4{grid-template-columns:repeat(3, minmax(0,1fr))}
 .fields.f4 .tema{grid-column:span 2}
+.fields.f4 .ajustes{margin-top:4px}
 @media (max-width:1000px){ .fields.f4{grid-template-columns:1fr 1fr} .fields.f4 .tema{grid-column:1/-1} }
 @media (max-width:640px){ .fields.f4{grid-template-columns:1fr} }
 .check{display:inline-flex; align-items:center; gap:8px; font-size:14px; cursor:pointer; padding:6px 12px; border-radius:999px; border:1px solid var(--border)}
@@ -339,6 +340,19 @@ input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accen
 .camadas .camada{margin-top:0; display:flex; flex-direction:column}
 .camadas .camada pre{flex:1}
 @media (max-width:560px){ .camadas{grid-template-columns:1fr} }
+details.camada > summary.camada-h{display:flex; border:0; border-bottom:1px solid var(--border); border-radius:0; color:var(--text); padding:10px 14px; list-style:none; cursor:pointer}
+details.camada > summary.camada-h::before{content:"▸"; font-size:12px; color:var(--accent); margin-right:-2px}
+details.camada[open] > summary.camada-h::before{content:"▾"}
+details.camada:not([open]) > summary.camada-h{border-bottom:0}
+details.camada > summary.camada-h:hover{background:color-mix(in srgb, var(--accent) 6%, transparent)}
+.copiar-fixo{display:none}
+#g-saida{scroll-margin-top:80px}
+@media (max-width:860px){
+  body.tela-gerar .copiar-fixo{display:flex; gap:8px; position:fixed; left:12px; right:12px; bottom:calc(74px + env(safe-area-inset-bottom)); z-index:35; padding:8px; border-radius:999px; background:color-mix(in srgb, var(--bg) 85%, transparent); border:1px solid var(--border-strong); box-shadow:var(--shadow); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px)}
+  body.tela-gerar .copiar-fixo .btn.pri{flex:1}
+  body.tela-gerar main{padding-bottom:160px}
+  body.tela-gerar .toast{bottom:150px}
+}
 .contador{display:inline-flex; align-items:stretch; border:1px solid var(--border-strong); border-radius:var(--r-s); overflow:hidden; background:var(--surface-solid)}
 .contador input[type=number]{width:70px; text-align:center; border:0; border-radius:0; font-weight:700; font-size:17px; -moz-appearance:textfield; appearance:textfield}
 .contador input::-webkit-outer-spin-button, .contador input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
@@ -418,6 +432,8 @@ details summary::before{content:"+"; font-size:17px; line-height:1; font-weight:
 details[open] summary::before{content:"−"}
 details summary:hover{background:color-mix(in srgb, var(--accent) 10%, transparent); border-style:solid}
 [hidden]{display:none !important}
+dialog#copia-manual{max-width:680px; width:calc(100% - 32px); color:var(--text); background:var(--surface-solid)}
+dialog#copia-manual::backdrop{background:rgba(0,0,0,.55)}
 hr.sep{border:0; border-top:1px solid var(--border); margin:18px 0}
 </style>
 </head>
@@ -443,7 +459,7 @@ hr.sep{border:0; border-top:1px solid var(--border); margin:18px 0}
   <div class="wrap">
     <p>O Caderno de Contexto não produz os materiais: ele organiza o contexto que você leva para a IA de sua escolha. Você continua autor(a) e responsável pelo que for usado em aula.
     Seus dados ficam só neste aparelho (armazenamento do navegador) e nada sobre os estudantes é pedido.</p>
-    <p>Habilidades e competências de Computação transcritas da Resolução CNE/CEB nº 1/2022 (Complemento à BNCC). Versão anterior: <a href="/">Caderno de Prompts</a>. Licença CC BY-NC-SA 4.0.</p>
+    <p>Habilidades e competências de Computação transcritas da Resolução CNE/CEB nº 1/2022 (Complemento à BNCC). Versão anterior: <a href="https://gerador-prompts-prof.vercel.app/" target="_blank" rel="noopener">Caderno de Prompts</a>. Licença CC BY-NC-SA 4.0.</p>
   </div>
 </footer>
 
@@ -537,16 +553,16 @@ const BNCC_HAB = [
   {c:"EI03CO10",e:"Educação Infantil",x:"Cultura Digital",t:"Utilizar tecnologia digital de maneira segura, consciente e respeitosa."},
   {c:"EI03CO11",e:"Educação Infantil",x:"Cultura Digital",t:"Adotar hábitos saudáveis de uso de artefatos computacionais, seguindo recomendações de órgãos de saúde competentes."},
   {c:"EF01CO01",e:"1º ano",x:"Pensamento Computacional",t:"Organizar objetos físicos ou digitais considerando diferentes características para esta organização, explicitando semelhanças (padrões) e diferenças."},
-  {c:"EF01CO02",e:"1º ano",x:"Mundo Digital",t:"Identificar e seguir sequências de passos aplicados no dia a dia para resolver problemas."},
-  {c:"EF01CO03",e:"1º ano",x:"Mundo Digital",t:"Reorganizar e criar sequências de passos em meios físicos ou digitais, relacionando essas sequências à palavra “Algoritmos”."},
+  {c:"EF01CO02",e:"1º ano",x:"Pensamento Computacional",t:"Identificar e seguir sequências de passos aplicados no dia a dia para resolver problemas."},
+  {c:"EF01CO03",e:"1º ano",x:"Pensamento Computacional",t:"Reorganizar e criar sequências de passos em meios físicos ou digitais, relacionando essas sequências à palavra “Algoritmos”."},
   {c:"EF01CO04",e:"1º ano",x:"Mundo Digital",t:"Reconhecer o que é a informação, que ela pode ser armazenada, transmitida como mensagem por diversos meios e descrita em várias linguagens."},
   {c:"EF01CO05",e:"1º ano",x:"Mundo Digital",t:"Representar informação usando diferentes codificações."},
   {c:"EF01CO06",e:"1º ano",x:"Cultura Digital",t:"Reconhecer e explorar artefatos computacionais voltados a atender necessidades pessoais ou coletivas."},
   {c:"EF01CO07",e:"1º ano",x:"Cultura Digital",t:"Conhecer as possibilidades de uso seguro das tecnologias computacionais para proteção dos dados pessoais e para garantir a própria segurança."},
   {c:"EF02CO01",e:"2º ano",x:"Pensamento Computacional",t:"Criar e comparar modelos (representações) de objetos, identificando padrões e atributos essenciais."},
-  {c:"EF02CO02",e:"2º ano",x:"Mundo Digital",t:"Criar e simular algoritmos representados em linguagem oral, escrita ou pictográfica, construídos como sequências com repetições simples (iterações definidas) com base em instruções preestabelecidas ou criadas, analisando como a precisão da instrução impacta na execução do algoritmo."},
+  {c:"EF02CO02",e:"2º ano",x:"Pensamento Computacional",t:"Criar e simular algoritmos representados em linguagem oral, escrita ou pictográfica, construídos como sequências com repetições simples (iterações definidas) com base em instruções preestabelecidas ou criadas, analisando como a precisão da instrução impacta na execução do algoritmo."},
   {c:"EF02CO03",e:"2º ano",x:"Mundo Digital",t:"Identificar que máquinas diferentes executam conjuntos próprios de instruções e que podem ser usadas para definir algoritmos."},
-  {c:"EF02CO04",e:"2º ano",x:"Cultura Digital",t:"Diferenciar componentes físicos (hardware) e programas que fornecem as instruções (software) para o hardware."},
+  {c:"EF02CO04",e:"2º ano",x:"Mundo Digital",t:"Diferenciar componentes físicos (hardware) e programas que fornecem as instruções (software) para o hardware."},
   {c:"EF02CO05",e:"2º ano",x:"Cultura Digital",t:"Reconhecer as características e usos das tecnologias computacionais no cotidiano dentro e fora da escola."},
   {c:"EF02CO06",e:"2º ano",x:"Cultura Digital",t:"Reconhecer os cuidados com a segurança no uso de dispositivos computacionais."},
   {c:"EF03CO01",e:"3º ano",x:"Pensamento Computacional",t:"Associar os valores 'verdadeiro' e 'falso' a sentenças lógicas que dizem respeito a situações do dia a dia, fazendo uso de termos que indicam negação."},
@@ -562,14 +578,14 @@ const BNCC_HAB = [
   {c:"EF04CO02",e:"4º ano",x:"Pensamento Computacional",t:"Reconhecer objetos do mundo real e/ou digital que podem ser representados através de registros que estabelecem uma organização na qual cada componente é identificado por um nome, fazendo manipulações sobre estas representações."},
   {c:"EF04CO03",e:"4º ano",x:"Pensamento Computacional",t:"Criar e simular algoritmos representados em linguagem oral, escrita ou pictográfica, que incluam sequências e repetições simples e aninhadas (iterações definidas e indefinidas), para resolver problemas de forma independente e em colaboração."},
   {c:"EF04CO04",e:"4º ano",x:"Mundo Digital",t:"Entender que para guardar, manipular e transmitir dados deve-se codificá-los de alguma forma que seja compreendida pela máquina (formato digital)."},
-  {c:"EF04CO05",e:"4º ano",x:"Cultura Digital",t:"Codificar diferentes informações para representação em computador (binária, ASCII, atributos de pixel, como RGB etc.)."},
+  {c:"EF04CO05",e:"4º ano",x:"Mundo Digital",t:"Codificar diferentes informações para representação em computador (binária, ASCII, atributos de pixel, como RGB etc.)."},
   {c:"EF04CO06",e:"4º ano",x:"Cultura Digital",t:"Usar diferentes ferramentas computacionais para criação de conteúdo (textos, apresentações, vídeos etc.)."},
   {c:"EF04CO07",e:"4º ano",x:"Cultura Digital",t:"Demonstrar postura ética nas atividades de coleta, transferência, guarda e uso de dados."},
   {c:"EF04CO08",e:"4º ano",x:"Cultura Digital",t:"Reconhecer a importância de verificar a confiabilidade das fontes de informações obtidas na Internet."},
   {c:"EF05CO01",e:"5º ano",x:"Pensamento Computacional",t:"Reconhecer objetos do mundo real e/ou digital que podem ser representados através de listas que estabelecem uma organização na qual há um número variável de itens dispostos em sequência, fazendo manipulações simples sobre estas representações."},
   {c:"EF05CO02",e:"5º ano",x:"Pensamento Computacional",t:"Reconhecer objetos do mundo real e digital que podem ser representados através de grafos que estabelecem uma organização com uma quantidade variável de vértices conectados por arestas, fazendo manipulações simples sobre estas representações."},
   {c:"EF05CO03",e:"5º ano",x:"Pensamento Computacional",t:"Realizar operações de negação, conjunção e disjunção sobre sentenças lógicas e valores 'verdadeiro' e 'falso'."},
-  {c:"EF05CO04",e:"5º ano",x:"Mundo Digital",t:"Criar e simular algoritmos representados em linguagem oral, escrita ou pictográfica, que incluam sequências, repetições e seleções condicionais para resolver problemas de forma independente e em colaboração."},
+  {c:"EF05CO04",e:"5º ano",x:"Pensamento Computacional",t:"Criar e simular algoritmos representados em linguagem oral, escrita ou pictográfica, que incluam sequências, repetições e seleções condicionais para resolver problemas de forma independente e em colaboração."},
   {c:"EF05CO05",e:"5º ano",x:"Mundo Digital",t:"Identificar os componentes principais de um computador (dispositivos de entrada/saída, processadores e armazenamento)."},
   {c:"EF05CO06",e:"5º ano",x:"Mundo Digital",t:"Reconhecer que os dados podem ser armazenados em um dispositivo local ou remoto."},
   {c:"EF05CO07",e:"5º ano",x:"Mundo Digital",t:"Reconhecer a necessidade de um sistema operacional para a execução de programas e gerenciamento do hardware."},
@@ -582,8 +598,8 @@ const BNCC_HAB = [
   {c:"EF15CO03",e:"1º ao 5º ano (por etapa)",x:"Pensamento Computacional",t:"Realizar operações de negação, conjunção e disjunção sobre sentenças lógicas e valores 'verdadeiro' e 'falso'."},
   {c:"EF15CO04",e:"1º ao 5º ano (por etapa)",x:"Pensamento Computacional",t:"Aplicar a estratégia de decomposição para resolver problemas complexos, dividindo esse problema em partes menores, resolvendo-as e combinando suas soluções."},
   {c:"EF15CO05",e:"1º ao 5º ano (por etapa)",x:"Mundo Digital",t:"Codificar a informação de diferentes formas, entendendo a importância desta codificação para o armazenamento, manipulação e transmissão em dispositivos computacionais."},
-  {c:"EF15CO06",e:"1º ao 5º ano (por etapa)",x:"Cultura Digital",t:"Conhecer os componentes básicos de dispositivos computacionais, entendendo os princípios de seu funcionamento."},
-  {c:"EF15CO07",e:"1º ao 5º ano (por etapa)",x:"Cultura Digital",t:"Conhecer o conceito de Sistema Operacional e sua importância na integração entre software e hardware."},
+  {c:"EF15CO06",e:"1º ao 5º ano (por etapa)",x:"Mundo Digital",t:"Conhecer os componentes básicos de dispositivos computacionais, entendendo os princípios de seu funcionamento."},
+  {c:"EF15CO07",e:"1º ao 5º ano (por etapa)",x:"Mundo Digital",t:"Conhecer o conceito de Sistema Operacional e sua importância na integração entre software e hardware."},
   {c:"EF15CO08",e:"1º ao 5º ano (por etapa)",x:"Cultura Digital",t:"Reconhecer e utilizar tecnologias computacionais para pesquisar e acessar informações, expressar-se crítica e criativamente e resolver problemas."},
   {c:"EF15CO09",e:"1º ao 5º ano (por etapa)",x:"Cultura Digital",t:"Entender que as tecnologias devem ser utilizadas de maneira segura, ética e responsável, respeitando direitos autorais, de imagem e as leis vigentes."},
   {c:"EF06CO01",e:"6º ano",x:"Pensamento Computacional",t:"Classificar informações, agrupando-as em coleções (conjuntos) e associando cada coleção a um “tipo de dados”."},
@@ -592,15 +608,15 @@ const BNCC_HAB = [
   {c:"EF06CO04",e:"6º ano",x:"Pensamento Computacional",t:"Construir soluções de problemas usando a técnica de decomposição e automatizar tais soluções usando uma linguagem de programação."},
   {c:"EF06CO05",e:"6º ano",x:"Pensamento Computacional",t:"Identificar os recursos ou insumos necessários (entradas) para a resolução de problemas, bem como os resultados esperados (saídas), determinando os respectivos tipos de dados, e estabelecendo a definição de problema como uma relação entre entrada e saída."},
   {c:"EF06CO06",e:"6º ano",x:"Pensamento Computacional",t:"Comparar diferentes casos particulares (instâncias) de um mesmo problema, identificando as semelhanças e diferenças entre eles, e criar um algoritmo para resolver todos, fazendo uso de variáveis (parâmetros) para permitir o tratamento de todos os casos de forma genérica."},
-  {c:"EF06CO07",e:"6º ano",x:"Cultura Digital",t:"Entender o processo de transmissão de dados, como a informação é quebrada em pedaços, transmitida em pacotes através de múltiplos equipamentos, e reconstruída no destino."},
-  {c:"EF06CO08",e:"6º ano",x:"Cultura Digital",t:"Compreender e utilizar diferentes formas de armazenar, manipular, compactar e recuperar arquivos, documentos e metadados."},
+  {c:"EF06CO07",e:"6º ano",x:"Mundo Digital",t:"Entender o processo de transmissão de dados, como a informação é quebrada em pedaços, transmitida em pacotes através de múltiplos equipamentos, e reconstruída no destino."},
+  {c:"EF06CO08",e:"6º ano",x:"Mundo Digital",t:"Compreender e utilizar diferentes formas de armazenar, manipular, compactar e recuperar arquivos, documentos e metadados."},
   {c:"EF06CO09",e:"6º ano",x:"Cultura Digital",t:"Apresentar conduta e linguagem apropriadas ao se comunicar em ambiente digital, considerando a ética e o respeito."},
   {c:"EF06CO10",e:"6º ano",x:"Cultura Digital",t:"Analisar o consumo de tecnologia na sociedade, compreendendo criticamente o caminho da produção dos recursos bem como aspectos ligados à obsolescência e a sustentabilidade."},
   {c:"EF07CO01",e:"7º ano",x:"Pensamento Computacional",t:"Criar soluções de problemas para os quais seja adequado o uso de registros e matrizes unidimensionais para descrever suas informações e automatizá-las usando uma linguagem de programação."},
   {c:"EF07CO02",e:"7º ano",x:"Pensamento Computacional",t:"Analisar programas para detectar e remover erros, ampliando a confiança na sua correção."},
   {c:"EF07CO03",e:"7º ano",x:"Pensamento Computacional",t:"Construir soluções computacionais de problemas de diferentes áreas do conhecimento, de forma individual e colaborativa, selecionando as estruturas de dados e técnicas adequadas, aperfeiçoando e articulando saberes escolares."},
   {c:"EF07CO04",e:"7º ano",x:"Pensamento Computacional",t:"Explorar propriedades básicas de grafos."},
-  {c:"EF07CO05",e:"7º ano",x:"Mundo Digital",t:"Criar algoritmos fazendo uso da decomposição e do reúso no processo de solução de forma colaborativa e cooperativa e automatizá-los usando uma linguagem de programação."},
+  {c:"EF07CO05",e:"7º ano",x:"Pensamento Computacional",t:"Criar algoritmos fazendo uso da decomposição e do reúso no processo de solução de forma colaborativa e cooperativa e automatizá-los usando uma linguagem de programação."},
   {c:"EF07CO06",e:"7º ano",x:"Mundo Digital",t:"Compreender o papel de protocolos para a transmissão de dados."},
   {c:"EF07CO07",e:"7º ano",x:"Mundo Digital",t:"Identificar problemas de segurança cibernética e experimentar formas de proteção."},
   {c:"EF07CO08",e:"7º ano",x:"Cultura Digital",t:"Demonstrar empatia sobre opiniões divergentes na web."},
@@ -608,9 +624,9 @@ const BNCC_HAB = [
   {c:"EF07CO10",e:"7º ano",x:"Cultura Digital",t:"Identificar os impactos ambientais do descarte de peças de computadores e eletrônicos, bem como sua relação com a sustentabilidade."},
   {c:"EF07CO11",e:"7º ano",x:"Cultura Digital",t:"Criar, documentar e publicar, de forma individual ou colaborativa, produtos (vídeos, podcasts, web sites) usando recursos de tecnologia."},
   {c:"EF08CO01",e:"8º ano",x:"Pensamento Computacional",t:"Construir soluções de problemas usando a técnica de recursão e automatizar tais soluções usando uma linguagem de programação."},
-  {c:"EF08CO02",e:"8º ano",x:"Mundo Digital",t:"Criar soluções de problemas para os quais seja adequado o uso de listas para descrever suas informações e automatizá-las usando uma linguagem de programação, empregando ou não a recursão como uma técnica de resolver o problema."},
-  {c:"EF08CO03",e:"8º ano",x:"Mundo Digital",t:"Utilizar algoritmos clássicos de manipulação sobre listas."},
-  {c:"EF08CO04",e:"8º ano",x:"Mundo Digital",t:"Construir soluções computacionais de problemas de diferentes áreas do conhecimento, de forma individual e colaborativa, selecionando as estruturas de dados e técnicas adequadas, aperfeiçoando e articulando saberes escolares."},
+  {c:"EF08CO02",e:"8º ano",x:"Pensamento Computacional",t:"Criar soluções de problemas para os quais seja adequado o uso de listas para descrever suas informações e automatizá-las usando uma linguagem de programação, empregando ou não a recursão como uma técnica de resolver o problema."},
+  {c:"EF08CO03",e:"8º ano",x:"Pensamento Computacional",t:"Utilizar algoritmos clássicos de manipulação sobre listas."},
+  {c:"EF08CO04",e:"8º ano",x:"Pensamento Computacional",t:"Construir soluções computacionais de problemas de diferentes áreas do conhecimento, de forma individual e colaborativa, selecionando as estruturas de dados e técnicas adequadas, aperfeiçoando e articulando saberes escolares."},
   {c:"EF08CO05",e:"8º ano",x:"Mundo Digital",t:"Compreender os conceitos de paralelismo, concorrência e armazenamento/ processamento distribuídos."},
   {c:"EF08CO06",e:"8º ano",x:"Mundo Digital",t:"Entender como é a estrutura e funcionamento da internet."},
   {c:"EF08CO07",e:"8º ano",x:"Cultura Digital",t:"Compartilhar informações por meio de redes sociais, compreendendo a sua dinâmica de funcionamento, de forma responsável e avaliando sua confiabilidade, considerando o respeito e a ética."},
@@ -619,10 +635,10 @@ const BNCC_HAB = [
   {c:"EF08CO10",e:"8º ano",x:"Cultura Digital",t:"Discutir questões sobre segurança e privacidade relacionadas ao uso dos ambientes virtuais."},
   {c:"EF08CO11",e:"8º ano",x:"Cultura Digital",t:"Avaliar a precisão, relevância, adequação, abrangência e vieses que ocorrem em fontes de informação eletrônica."},
   {c:"EF09CO01",e:"9º ano",x:"Pensamento Computacional",t:"Criar soluções de problemas para os quais seja adequado o uso de árvores e grafos para descrever suas informações e automatizá-las usando uma linguagem de programação."},
-  {c:"EF09CO02",e:"9º ano",x:"Mundo Digital",t:"Construir soluções computacionais de problemas de diferentes áreas do conhecimento, de forma individual e colaborativa, selecionando as estruturas de dados e técnicas adequadas, aperfeiçoando e articulando saberes escolares."},
-  {c:"EF09CO03",e:"9º ano",x:"Mundo Digital",t:"Usar autômatos para descrever comportamentos de forma abstrata automatizando-os através de uma linguagem de programação baseada em eventos."},
+  {c:"EF09CO02",e:"9º ano",x:"Pensamento Computacional",t:"Construir soluções computacionais de problemas de diferentes áreas do conhecimento, de forma individual e colaborativa, selecionando as estruturas de dados e técnicas adequadas, aperfeiçoando e articulando saberes escolares."},
+  {c:"EF09CO03",e:"9º ano",x:"Pensamento Computacional",t:"Usar autômatos para descrever comportamentos de forma abstrata automatizando-os através de uma linguagem de programação baseada em eventos."},
   {c:"EF09CO04",e:"9º ano",x:"Mundo Digital",t:"Compreender o funcionamento de malwares e outros ataques cibernéticos."},
-  {c:"EF09CO05",e:"9º ano",x:"Cultura Digital",t:"Analisar técnicas de criptografia para armazenamento e transmissão de dados."},
+  {c:"EF09CO05",e:"9º ano",x:"Mundo Digital",t:"Analisar técnicas de criptografia para armazenamento e transmissão de dados."},
   {c:"EF09CO06",e:"9º ano",x:"Cultura Digital",t:"Analisar problemas sociais de sua cidade e estado a partir de ambientes digitais, propondo soluções."},
   {c:"EF09CO07",e:"9º ano",x:"Cultura Digital",t:"Avaliar aplicações e implicações políticas, socioambientais e culturais das tecnologias digitais para propor alternativas aos desafios do mundo contemporâneo, incluindo aqueles relativos ao mundo do trabalho."},
   {c:"EF09CO08",e:"9º ano",x:"Cultura Digital",t:"Discutir como a distribuição desigual de recursos de computação em uma economia global levanta questões de equidade, acesso e poder."},
@@ -635,9 +651,9 @@ const BNCC_HAB = [
   {c:"EF69CO05",e:"6º ao 9º ano (por etapa)",x:"Pensamento Computacional",t:"Identificar os recursos ou insumos necessários (entradas) para a resolução de problemas, bem como os resultados esperados (saídas), determinando os respectivos tipos de dados, e estabelecendo a definição de problema como uma relação entre entrada e saída."},
   {c:"EF69CO06",e:"6º ao 9º ano (por etapa)",x:"Pensamento Computacional",t:"Comparar diferentes casos particulares (instâncias) de um mesmo problema, identificando as semelhanças e diferenças entre eles, e criar um algoritmo para resolver todos, fazendo uso de variáveis (parâmetros) para permitir o tratamento de todos os casos de forma genérica."},
   {c:"EF69CO07",e:"6º ao 9º ano (por etapa)",x:"Mundo Digital",t:"Entender o processo de transmissão de dados, como a informação é quebrada em pedaços, transmitida em pacotes através de múltiplos equipamentos, e reconstruída no destino."},
-  {c:"EF69CO08",e:"6º ao 9º ano (por etapa)",x:"Cultura Digital",t:"Compreender e utilizar diferentes formas de armazenar, manipular, compactar e recuperar arquivos, documentos e metadados."},
-  {c:"EF69CO09",e:"6º ao 9º ano (por etapa)",x:"Cultura Digital",t:"Compreender os conceitos de paralelismo, concorrência e armazenamento/ processamento distribuídos."},
-  {c:"EF69CO10",e:"6º ao 9º ano (por etapa)",x:"Cultura Digital",t:"Entender como é a estrutura e funcionamento da internet."},
+  {c:"EF69CO08",e:"6º ao 9º ano (por etapa)",x:"Mundo Digital",t:"Compreender e utilizar diferentes formas de armazenar, manipular, compactar e recuperar arquivos, documentos e metadados."},
+  {c:"EF69CO09",e:"6º ao 9º ano (por etapa)",x:"Mundo Digital",t:"Compreender os conceitos de paralelismo, concorrência e armazenamento/ processamento distribuídos."},
+  {c:"EF69CO10",e:"6º ao 9º ano (por etapa)",x:"Mundo Digital",t:"Entender como é a estrutura e funcionamento da internet."},
   {c:"EF69CO11",e:"6º ao 9º ano (por etapa)",x:"Cultura Digital",t:"Apresentar conduta e linguagem apropriadas ao se comunicar em ambiente digital, considerando a ética e o respeito."},
   {c:"EF69CO12",e:"6º ao 9º ano (por etapa)",x:"Cultura Digital",t:"Analisar o consumo de tecnologia na sociedade, compreendendo criticamente o caminho da produção dos recursos bem como aspectos ligados à obsolescência e a sustentabilidade."},
   {c:"EM13CO01",e:"Ensino Médio",x:null,t:"Explorar e construir a solução de problemas por meio da reutilização de partes de soluções existentes."},
@@ -802,11 +818,12 @@ const ICO = {
 
 /* ---------- Listas pré-carregadas ---------- */
 const ETAPAS_TURMA = [
+  ["Educação Infantil (pré-escola, 4 e 5 anos)","Educação Infantil"],
   ["1º ano do Ensino Fundamental","1º ano"],["2º ano do Ensino Fundamental","2º ano"],["3º ano do Ensino Fundamental","3º ano"],
   ["4º ano do Ensino Fundamental","4º ano"],["5º ano do Ensino Fundamental","5º ano"],["6º ano do Ensino Fundamental","6º ano"],
   ["7º ano do Ensino Fundamental","7º ano"],["8º ano do Ensino Fundamental","8º ano"],["9º ano do Ensino Fundamental","9º ano"],
   ["1ª série do Ensino Médio","Ensino Médio"],["2ª série do Ensino Médio","Ensino Médio"],["3ª série do Ensino Médio","Ensino Médio"],
-  ["4ª série (técnico integrado)","Ensino Médio"],["Curso técnico subsequente","Ensino Médio"],["EJA — Ensino Médio","Ensino Médio"]
+  ["4ª série (técnico integrado)","Ensino Médio"],["Curso técnico subsequente","Ensino Médio"],["EJA — Ensino Fundamental, anos iniciais","1º ao 5º ano (por etapa)"],["EJA — Ensino Fundamental, anos finais","6º ao 9º ano (por etapa)"],["EJA — Ensino Médio","Ensino Médio"]
 ];
 const FORMACOES = ["Formação geral básica","Técnico integrado ao Ensino Médio","Técnico concomitante","Técnico subsequente","Itinerário de formação técnica e profissional"];
 const EIXOS = ["Ambiente e Saúde","Controle e Processos Industriais","Desenvolvimento Educacional e Social","Gestão e Negócios","Informação e Comunicação","Infraestrutura","Produção Alimentícia","Produção Cultural e Design","Produção Industrial","Recursos Naturais","Segurança","Turismo, Hospitalidade e Lazer","Militar"];
@@ -817,6 +834,7 @@ const INTERESSES = ["Jogos","Redes sociais","Esportes","Música","Tecnologia","E
 // Interesses ligados à etapa: cada faixa vê só o que faz sentido para a idade e o momento escolar
 const INTERESSES_NIVEL = {
   geral: ["Jogos","Esportes","Música","Tecnologia","Meio ambiente","Cultura local"],
+  infantil: ["Brincadeiras e jogos","Histórias e contos","Animais e natureza","Música e movimento","Desenho e pintura","Faz de conta","Experiências e descobertas"],
   iniciais: ["Brincadeiras e jogos","Desenhos e animações","Histórias e contos","Animais e natureza","Desenho e pintura","Experiências e descobertas","Esportes","Música","Cultura local"],
   finais: ["Jogos","Redes sociais","Vídeos e criadores de conteúdo","Esportes","Música","Tecnologia","Séries, filmes e animes","Ciência e curiosidades","Meio ambiente","Cultura local"],
   medio: ["Jogos","Redes sociais","Esportes","Música","Tecnologia","Projeto de vida","Mercado de trabalho","Estágio e primeiro emprego","Empreendedorismo","Vestibular e ENEM","Meio ambiente","Cultura local","Política e cidadania"],
@@ -825,6 +843,7 @@ const INTERESSES_NIVEL = {
 function nivelEtapa(etapa){
   if(!etapa) return "geral";
   if(/EJA/i.test(etapa)) return "eja";
+  if(/Infantil/i.test(etapa)) return "infantil";
   if(/Médio|técnic|série/i.test(etapa)) return "medio";
   const ano = +(etapa.match(/^(\d)º ano/) || [])[1];
   return ano >= 1 && ano <= 5 ? "iniciais" : ano >= 6 ? "finais" : "geral";
@@ -833,7 +852,7 @@ const interessesDaEtapa = etapa => INTERESSES_NIVEL[nivelEtapa(etapa)];
 // Interesses salvos que não cabem na etapa (ex.: ENEM no 8º ano) ficam de fora
 const interessesValidos = t => (t.interesses || []).filter(i => !t.etapa || interessesDaEtapa(t.etapa).includes(i));
 function campoInteresses(etapa, sel){
-  const h = etapa ? `Opções para ${nivelEtapa(etapa) === "iniciais" ? "os anos iniciais" : nivelEtapa(etapa) === "finais" ? "os anos finais" : nivelEtapa(etapa) === "eja" ? "a EJA" : "o Ensino Médio e o técnico"}. Mudou a etapa, a lista muda junto.` : "Escolha a etapa e ano para ver os interesses próprios dessa idade.";
+  const h = etapa ? `Opções para ${nivelEtapa(etapa) === "infantil" ? "a Educação Infantil" : nivelEtapa(etapa) === "iniciais" ? "os anos iniciais" : nivelEtapa(etapa) === "finais" ? "os anos finais" : nivelEtapa(etapa) === "eja" ? "a EJA" : "o Ensino Médio e o técnico"}. Mudou a etapa, a lista muda junto.` : "Escolha a etapa e ano para ver os interesses próprios dessa idade.";
   return campoChips("t-int", "Interesses da turma", interessesDaEtapa(etapa), sel).replace(/<\/div>$/, `<div class="hint">${h}</div></div>`);
 }
 const DIFICULDADES = ["Leitura e interpretação","Matemática básica","Escrita","Concentração","Pouco acesso à internet em casa","Defasagem de conteúdos anteriores","Faltas frequentes","Timidez para participar"];
@@ -911,6 +930,7 @@ const EIXOS_CO = ["Pensamento Computacional","Mundo Digital","Cultura Digital"];
 // Ensino Médio: a BNCC Computação organiza por competências específicas (C1 a C7), não por eixo
 const COMPS_EM_CURTO = ["Possibilidades e limites da Computação","Análise crítica e segurança de artefatos","Técnicas computacionais para problemas do mundo","Criação de conteúdos e artefatos","Projetos e decisões éticas","Expressar e partilhar com tecnologias","Agir com autonomia e responsabilidade"];
 const COMPS_EF_CURTO = ["Computação para entender e transformar o mundo","Impactos dos artefatos computacionais","Expressar e partilhar com tecnologias","Resolver problemas com a Computação","Avaliar soluções e argumentar","Projetos com sentido para o estudante","Agir com autonomia e responsabilidade"];
+const COMPS_EI_CURTO = ["Padrões e agrupamentos","Interação com artefatos computacionais","Algoritmos com objetos e o corpo","Decompor problemas em partes"];
 const COMPS_EM_ROT = COMPS_EM_CURTO.map((c, i) => `C${i + 1} · ${c}`);
 const ordenaTipos = l => [...l].sort((a, b) => { const i = TIPOS_PED.indexOf(a), j = TIPOS_PED.indexOf(b); return (i < 0 ? 99 : i) - (j < 0 ? 99 : j); });
 const TAGS_POS = ["Engajou a turma","Prática funcionou","Nível adequado","Formato ajudou","Boa ligação com o mundo do trabalho","Trabalho em grupo funcionou","Tempo bem dimensionado"];
@@ -935,12 +955,22 @@ const IAS_USO = ["chatgpt","gemini","claude","copilot","deepseek"];
 const CHAVE = "cdc.v1";
 const VAZIO = () => ({perfil:{}, escolas:[], turmas:[], registros:[], sinteses:{}, ultimo:{}, pedido:{}});
 let S = VAZIO();
-try { const raw = localStorage.getItem(CHAVE); if(raw) S = Object.assign(VAZIO(), JSON.parse(raw)); } catch(e) {}
+// Garante a forma certa dos dados (vale para o que está salvo e para arquivos importados)
+const obj = x => (x && typeof x === "object" && !Array.isArray(x)) ? x : {};
+const arr = x => Array.isArray(x) ? x.filter(i => i && typeof i === "object") : [];
+function normalizar(d){
+  d = obj(d);
+  return Object.assign(VAZIO(), d, {perfil:obj(d.perfil), escolas:arr(d.escolas), turmas:arr(d.turmas).filter(t => t.id), registros:arr(d.registros), sinteses:obj(d.sinteses), ultimo:obj(d.ultimo), pedido:obj(d.pedido)});
+}
+try { const raw = localStorage.getItem(CHAVE); if(raw) S = normalizar(JSON.parse(raw)); } catch(e) {}
 function salvar(){ try { localStorage.setItem(CHAVE, JSON.stringify(S)); } catch(e) { toast("Não foi possível salvar neste navegador"); } }
 const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
 // Tipos de escola por etapa e modalidade (LDB, Lei nº 9.394/1996; categorias do Censo Escolar/INEP).
 // Os do grupo "Ensino Médio técnico" pedem eixo tecnológico e cursos técnicos.
 const TIPOS_ESCOLA = [
+  ["Educação Infantil", [
+    "Escola municipal de Educação Infantil (creche e pré-escola)",
+    "Escola de Educação Infantil e Ensino Fundamental"]],
   ["Ensino Fundamental — Anos Iniciais (1º ao 5º ano)", [
     "Escola municipal de Ensino Fundamental (anos iniciais)",
     "Escola estadual de Ensino Fundamental (anos iniciais)",
@@ -973,7 +1003,7 @@ const TIPOS_ESCOLA = [
     "Escola cívico-militar ou militar",
     "Outra"]]
 ];
-const TIPOS_TECNICOS = TIPOS_ESCOLA[3][1];
+const TIPOS_TECNICOS = TIPOS_ESCOLA.find(g => /técnico/.test(g[0]))[1];
 const escolaTecnica = tipo => TIPOS_TECNICOS.includes(tipo);
 const TIPO_ANTIGO = {"Escola de Ensino Fundamental": "Escola de Ensino Fundamental completo (1º ao 9º ano)"};
 function selTipoEscola(id, v){
@@ -997,7 +1027,7 @@ const escolaDe = t => S.escolas.find(x => x.id === (t && t.escolaId)) || {};
 const variasEscolas = () => S.escolas.length > 1;
 migrar();
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const hoje = () => new Date().toISOString().slice(0,10);
+const hoje = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }; // data do aparelho, não de Greenwich
 const dataBR = iso => { if(!iso) return ""; const [a,m,d] = iso.split("-"); return `${d}/${m}/${a}`; };
 // Público da educação especial (PNEEPEI 2008) e transtornos de aprendizagem (Lei 14.254/2021), com o essencial de cada adaptação
 const DEFICIENCIAS = {
@@ -1028,12 +1058,24 @@ $("#tema").addEventListener("click", () => {
 let tt;
 function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("on"), 2200); }
 async function copiar(texto, msg){
-  try { await navigator.clipboard.writeText(texto); }
+  let ok = false;
+  try { await navigator.clipboard.writeText(texto); ok = true; }
   catch(e){
     const ta = document.createElement("textarea"); ta.value = texto; ta.style.position = "fixed"; ta.style.opacity = "0";
-    document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch(_) {} ta.remove();
+    document.body.appendChild(ta); ta.select(); try { ok = document.execCommand("copy"); } catch(_) {} ta.remove();
   }
-  toast(msg || "Copiado!");
+  if(ok) toast(msg || "Copiado!"); else copiaManual(texto);
+  return ok;
+}
+// Quando o navegador bloqueia a cópia: mostra o texto já selecionado para copiar à mão
+function copiaManual(texto){
+  let d = $("#copia-manual");
+  if(!d){ d = document.createElement("dialog"); d.id = "copia-manual"; d.className = "card";
+    d.innerHTML = `<h2>Copie o texto</h2><p class="sub">O navegador não deixou copiar sozinho. O texto já está selecionado: use Ctrl+C (no celular, toque e segure em Copiar).</p><textarea readonly style="min-height:240px"></textarea><div class="row end" style="margin-top:12px"><button class="btn pri" type="button">Fechar</button></div>`;
+    document.body.appendChild(d); d.querySelector("button").addEventListener("click", () => d.close()); }
+  const ta = d.querySelector("textarea"); ta.value = texto;
+  if(d.showModal) d.showModal(); else d.setAttribute("open", "");
+  ta.focus(); ta.select();
 }
 function baixar(nome, texto, tipo){
   const b = new Blob([texto], {type: tipo || "text/markdown;charset=utf-8"});
@@ -1042,7 +1084,7 @@ function baixar(nome, texto, tipo){
 }
 
 /* ---------- Componentes de formulário ---------- */
-function campoTexto(id, rot, val, ph, extra){ return `<div class="field ${extra||""}"><label for="${id}">${rot}</label><input type="text" id="${id}" value="${esc(val)}" placeholder="${esc(ph||"")}"></div>`; }
+function campoTexto(id, rot, val, ph, extra, hint){ return `<div class="field ${extra||""}"><label for="${id}">${rot}</label><input type="text" id="${id}" value="${esc(val)}" placeholder="${esc(ph||"")}">${hint ? `<div class="hint">${hint}</div>` : ""}</div>`; }
 function campoArea(id, rot, val, ph, extra, hint){ return `<div class="field ${extra||""}"><label for="${id}">${rot}</label><textarea id="${id}" placeholder="${esc(ph||"")}">${esc(val)}</textarea>${hint?`<div class="hint">${hint}</div>`:""}</div>`; }
 function campoSel(id, rot, opcoes, val, extra, vazio){
   return `<div class="field ${extra||""}"><label for="${id}">${rot}</label><select id="${id}">${vazio!==false?`<option value="">${vazio||"Selecione"}</option>`:""}${opcoes.map(o=>{ const v = Array.isArray(o)?o[0]:o; return `<option${v===val?" selected":""}>${esc(v)}</option>`; }).join("")}</select></div>`;
@@ -1084,6 +1126,7 @@ function ligarMaterial(id, cb){
   s.addEventListener("change", () => { const ehOutro = s.value === "Outro"; document.getElementById(id + "-o-w").hidden = !ehOutro; if(ehOutro) o.focus(); cb && cb(); });
   o.addEventListener("input", () => cb && cb());
 }
+const MATS_COMUNS = ["Plano de aula","Sequência didática","Slides da aula","Lista de exercícios","Atividade desplugada","Avaliação ou prova"];
 const lerMaterial = id => val(id) === "Outro" ? val(id + "-o") : val(id);
 const aulasDe = t => {
   if(+t.aulas > 0) return +t.aulas;
@@ -1137,10 +1180,19 @@ const ABAS = [
 function montarAbas(atual){
   $("#tabs").innerHTML = ABAS.map(a => `<a href="#${a.id}" class="${a.id===atual?"on":""}" ${a.id===atual?'aria-current="page"':""}>${ICO[a.ico]}<span>${a.nome}</span></a>`).join("");
 }
+let sujo = false, rastrear = false, hashAtual = location.hash, voltando = false;
+["input", "change"].forEach(ev => document.addEventListener(ev, e => { if(rastrear && e.target.closest("#view")) sujo = true; }, true));
+document.addEventListener("click", e => { if(rastrear && e.target.closest("#view .chip, #view [data-add-chip], #view .cont-btn, #view [data-rem-escola], #view #add-escola")) sujo = true; }, true);
+window.addEventListener("beforeunload", e => { if(rastrear && sujo){ e.preventDefault(); e.returnValue = ""; } });
+const limpo = () => { sujo = false; rastrear = false; };
 function rota(){
+  if(voltando){ voltando = false; return; }
+  if(rastrear && sujo && location.hash !== hashAtual && !confirm("Você fez alterações que ainda não foram salvas. Sair sem salvar?")){ voltando = true; location.hash = hashAtual; return; }
+  sujo = false; rastrear = false; hashAtual = location.hash;
   const [id, arg] = (location.hash.slice(1) || "inicio").split("/");
   const aba = (ABAS.find(a => a.id === id) || id === "gerar") ? id : "inicio";
   montarAbas(aba === "gerar" ? "turmas" : aba);
+  document.body.classList.remove("tela-gerar");
   const v = $("#view");
   v.className = ""; void v.offsetWidth; v.className = "view";
   ({inicio:telaInicio, contexto:telaContexto, turmas:telaTurmas, gerar:telaGerar, caderno:telaCaderno})[aba](arg);
@@ -1149,6 +1201,30 @@ function rota(){
 window.addEventListener("hashchange", rota);
 
 const perfilOk = () => !!(S.perfil.componentes);
+// Exemplo para a oficina: perfil, escola, turma e dois registros fictícios, para ver um pacote completo em 1 minuto
+function carregarExemplo(){
+  const ex = S.turmas.find(t => t.exemplo);
+  if(ex){ location.hash = "gerar/" + ex.id; return; }
+  if(!perfilOk()) S.perfil = {componentes:"Lógica de Programação; Banco de Dados", formacao:"Licenciatura em Computação", ia:"Uso às vezes", metodologias:["Aprendizagem baseada em problemas","Trabalho em grupo"], linguagem:"Detalhadas, com exemplos", formato:"", _exemplo:true};
+  const esc1 = {id:uid(), nome:"Escola de exemplo", tipo:"Escola estadual de educação profissional", eixo:"Informação e Comunicação", cursos:"Técnico em Informática; Técnico em Administração", recursos:["Laboratório de informática","Projetor","Internet instável","Celulares dos estudantes"], territorio:"Cidade média do interior, com comércio, serviços e cooperativas agrícolas; poucas empresas de tecnologia", exemplo:true};
+  S.escolas.push(esc1);
+  const t = {id:uid(), exemplo:true, nome:"Exemplo · 1ª série Informática", etapa:"1ª série do Ensino Médio", curso:"Técnico em Informática", componente:"Lógica de Programação", escolaId:esc1.id, n:"36", aulas:2, duracao:50, tempo:tempoTxt(2, 50), interesses:["Jogos","Redes sociais","Mercado de trabalho"], dificuldades:["Leitura e interpretação","Matemática básica"], deficiencias:["TDAH"], acessibilidade:"", obs:"Turma participativa, gosta de desafios em grupo."};
+  S.turmas.push(t);
+  const d = n => { const x = new Date(Date.now() - n * 864e5); return new Date(x.getTime() - x.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+  S.registros.push({id:uid(), criado:Date.now() - 2, turmaId:t.id, data:d(14), material:"Plano de aula", tema:"O que é um algoritmo: receitas e rotas", nota:4, tags:["Engajou a turma","Faltou tempo"], livre:"A atividade desplugada das rotas funcionou bem.", mudaria:"Começar direto pela atividade, com menos explicação inicial.", habilidades:"EM13CO01"},
+                   {id:uid(), criado:Date.now() - 1, turmaId:t.id, data:d(7), material:"Lista de exercícios", tema:"Sequência e decisão em pseudocódigo", nota:2, tags:["Linguagem difícil","Muito longo"], livre:"Os enunciados ficaram longos para a turma.", mudaria:"Enunciados curtos, com exemplo resolvido.", habilidades:"EM13CO02"});
+  S.pedido = {turma:t.id, tipos:["Plano de aula","Slides da aula"], tipo:"Plano de aula + Slides da aula", tema:"Repetição (laços) com exemplos de jogos", aulas:2, duracao:50, formato:"", arquivo:"", comentada:true, componente:"Lógica de Programação"};
+  ligarTurmasSemEscola(); salvar(); toast("Exemplo carregado. Veja o pacote pronto");
+  location.hash = "gerar/" + t.id;
+}
+function removerExemplo(){
+  const ids = S.turmas.filter(t => t.exemplo).map(t => t.id);
+  S.turmas = S.turmas.filter(t => !t.exemplo); S.escolas = S.escolas.filter(e => !e.exemplo);
+  S.registros = S.registros.filter(r => !ids.includes(r.turmaId)); ids.forEach(i => { delete S.sinteses[i]; delete S.ultimo[i]; });
+  if(ids.includes(S.pedido.turma)) S.pedido = {};
+  if(S.perfil._exemplo) S.perfil = {};
+  ligarTurmasSemEscola(); salvar(); toast("Exemplo removido"); rota();
+}
 const escolaOk = () => S.escolas.some(temEscola);
 
 /* ============================================================
@@ -1170,6 +1246,7 @@ function telaInicio(){
       <div class="row">
         <a class="btn pri" href="#${perfilOk() ? (nT ? "turmas" : "turmas/nova") : "contexto"}">${ICO.seta}${perfilOk() ? (nT ? "Escolher a turma e gerar" : "Cadastrar uma turma") : "Começar agora"}</a>
         <a class="btn ghost" href="#caderno">${ICO.caderno}Caderno de Memória</a>
+        <button class="btn ghost" type="button" id="ver-exemplo">${ICO.luz}Ver um exemplo</button>
       </div>
     </div>
     <div class="tiles" aria-hidden="true">
@@ -1187,8 +1264,8 @@ function telaInicio(){
     </a>
     <a class="card passo" href="#turmas" style="text-decoration:none; color:inherit">
       <span class="num">2</span><span class="ico-chip">${ICO.gerar}</span>
-      <h3>Peça em três perguntas</h3>
-      <p>Abra a turma e toque em Gerar: que material, sobre qual tema e em que formato. Você recebe o pacote de contexto para colar na IA de sua escolha.</p>
+      <h3>Peça em cinco perguntas</h3>
+      <p>Abra a turma e toque em Gerar: que material, sobre qual tema, em quantas aulas, em que formato e em que arquivo. Você recebe o pacote de contexto para colar na IA de sua escolha.</p>
       <span class="status"><i class="dot ${nT?"ok":""}"></i>${nT} turma${nT===1?"":"s"} cadastrada${nT===1?"":"s"}</span>
     </a>
     <a class="card passo" href="#caderno" style="text-decoration:none; color:inherit">
@@ -1209,6 +1286,7 @@ function telaInicio(){
       <div><span class="ico-chip">${ICO.escudo}</span><p><b>Privacidade por padrão.</b> Nada sobre os estudantes é pedido. Tudo fica neste aparelho, e você pode exportar ou apagar quando quiser.</p></div>
     </div>
   </section>`;
+  $("#ver-exemplo").addEventListener("click", carregarExemplo);
 }
 
 /* ============================================================
@@ -1239,7 +1317,7 @@ function telaContexto(){
     <button class="btn" id="add-escola" type="button">${ICO.mais}Adicionar outra escola</button>
   </section>
   <div class="row end" style="margin-top:18px"><button class="btn pri" id="salvar-ctx">${ICO.escudo}Salvar meu contexto</button></div>`;
-  ligarChips();
+  ligarChips(); rastrear = true;
   let escolas = S.escolas.length ? S.escolas.map(x => Object.assign({}, x)) : [{id:uid(), nome:""}];
   const lerEscolas = () => escolas.map((x, i) => ({id:x.id, nome:val(`e-nome-${i}`), tipo:val(`e-tipo-${i}`), eixo:escolaTecnica(val(`e-tipo-${i}`)) ? val(`e-eixo-${i}`) : "", cursos:escolaTecnica(val(`e-tipo-${i}`)) ? val(`e-cursos-${i}`) : "", recursos:lerChips(`e-rec-${i}`), territorio:val(`e-terr-${i}`)}));
   const desenharEscolas = (foco) => {
@@ -1278,7 +1356,7 @@ function telaContexto(){
     S.escolas = lerEscolas().map((x, i, arr) => Object.assign(x, {nome: x.nome || (arr.length > 1 ? `Escola ${i + 1}` : "Minha escola")}))
       .filter((x, i, arr) => arr.length === 1 || temEscola(x) || S.turmas.some(t => t.escolaId === x.id) || x.nome !== `Escola ${i + 1}`);
     ligarTurmasSemEscola();
-    salvar(); toast("Contexto salvo");
+    limpo(); salvar(); toast("Contexto salvo");
     setTimeout(()=>{ location.hash = "turmas"; }, 500);
   });
 }
@@ -1291,6 +1369,7 @@ function telaTurmas(arg){
   $("#view").innerHTML = `
   <div class="page-head row"><div><span class="eyebrow">Camada 4 · uma vez por turma</span><h1>Turmas</h1>
     <p>O perfil coletivo de cada turma. Sem nomes nem dados pessoais de estudantes.</p></div><span class="spacer"></span>
+    ${S.turmas.some(t => t.exemplo) ? `<button class="btn ghost" type="button" id="rem-exemplo">${ICO.lixo}Remover exemplo</button>` : `<button class="btn ghost" type="button" id="ver-exemplo">${ICO.luz}Ver um exemplo</button>`}
     <a class="btn pri" href="#turmas/nova">${ICO.mais}Nova turma</a></div>
   ${S.turmas.length ? gruposTurmas().map(([titulo, lst]) => `${titulo ? `<h2 class="grupo-escola">${ICO.escola}${esc(titulo)}<span>${lst.length} turma${lst.length===1?"":"s"}</span></h2>` : ""}<div class="turmas">${lst.map(t => {
       const n = S.registros.filter(r => r.turmaId === t.id).length;
@@ -1298,7 +1377,9 @@ function telaTurmas(arg){
       ${t.formacao ? `<span class="tag">${esc(t.formacao)}</span>` : ""}${t.n?`<span class="tag">${esc(t.n)} estudantes</span>`:""}<span class="tag">${n} registro${n===1?"":"s"}</span>
       <div class="row" style="margin-top:14px"><a class="btn sm pri" href="#gerar/${t.id}">${ICO.gerar}Gerar</a><a class="btn sm" href="#caderno/${t.id}">${ICO.caderno}Caderno</a><a class="btn sm ghost" href="#turmas/${t.id}" aria-label="Editar turma">${ICO.editar}</a></div></article>`;
     }).join("")}</div>`).join("")
-  : `<div class="card vazio">${ICO.turma}<h2 style="justify-content:center; margin:10px 0 6px">Nenhuma turma ainda</h2><p>Cadastre a primeira para começar a gerar contextos.</p><a class="btn pri" href="#turmas/nova">${ICO.mais}Cadastrar turma</a></div>`}`;
+  : `<div class="card vazio">${ICO.turma}<h2 style="justify-content:center; margin:10px 0 6px">Nenhuma turma ainda</h2><p>Cadastre a primeira para começar a gerar contextos, ou veja antes um exemplo pronto.</p><a class="btn pri" href="#turmas/nova">${ICO.mais}Cadastrar turma</a></div>`}`;
+  if($("#ver-exemplo")) $("#ver-exemplo").addEventListener("click", carregarExemplo);
+  if($("#rem-exemplo")) $("#rem-exemplo").addEventListener("click", () => { if(confirm("Remover a turma, a escola e os registros de exemplo?")) removerExemplo(); });
 }
 // O curso técnico só aparece nas etapas de Ensino Médio, técnico e EJA — Ensino Médio (independe do tipo de escola)
 function cursoTecnicoVisivel(escolaId, etapa){
@@ -1334,7 +1415,8 @@ function formTurma(t){
     <div class="aviso">${ICO.alerta}<span>Não escreva nomes, apelidos, laudos ou situações que permitam reconhecer um estudante. O contexto vai para a IA que você escolher.</span></div>
   </section>
   <div class="row" style="margin-top:18px">${novo ? "" : `<button class="btn danger" id="t-del">${ICO.lixo}Excluir turma</button>`}<span class="spacer"></span><a class="btn ghost" href="#turmas">Cancelar</a><button class="btn pri" id="t-salvar">${ICO.escudo}Salvar turma</button></div>`;
-  ligarChips();
+  ligarChips(); rastrear = true;
+  $$('#view a.btn.ghost[href="#turmas"]').forEach(a => a.addEventListener("click", () => { sujo = false; }));
   const mostraCurso = () => { $("#t-curso-w").hidden = !cursoTecnicoVisivel(val("t-esc") || (S.escolas.length === 1 ? S.escolas[0].id : ""), val("t-etapa")); };
   ["t-esc", "t-etapa"].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener("change", mostraCurso); });
   $("#t-etapa").addEventListener("change", () => {
@@ -1351,18 +1433,40 @@ function formTurma(t){
     if(variasEscolas() && !d.escolaId){ toast("Escolha a escola desta turma"); $("#t-esc").focus(); return; }
     const i = S.turmas.findIndex(x => x.id === d.id);
     if(i >= 0) S.turmas[i] = d; else S.turmas.push(d);
-    salvar(); toast("Turma salva"); location.hash = "turmas";
+    limpo(); salvar(); toast("Turma salva"); location.hash = "turmas";
   });
   if(!novo) $("#t-del").addEventListener("click", () => {
     if(!confirm("Excluir esta turma e todos os registros do Caderno dela?")) return;
     S.turmas = S.turmas.filter(x => x.id !== t.id); S.registros = S.registros.filter(r => r.turmaId !== t.id);
-    delete S.sinteses[t.id]; delete S.ultimo[t.id]; salvar(); toast("Turma excluída"); location.hash = "turmas";
+    delete S.sinteses[t.id]; delete S.ultimo[t.id]; limpo(); salvar(); toast("Turma excluída"); location.hash = "turmas";
   });
 }
 
 /* ============================================================
    MEMÓRIA DA TURMA (camada 5) — síntese por regras simples
    ============================================================ */
+// Alerta de nome próprio: ignora termos conhecidos (ferramentas, etapas, componentes, cursos, recursos)
+const TERMOS_COMUNS = new Set(("google forms docs drive classroom meet sala kahoot wordwall canva mentimeter padlet gamma microsoft word excel powerpoint teams " +
+  "chatgpt gemini claude copilot deepseek youtube instagram tiktok whatsapp scratch python java javascript html css arduino linux windows android " +
+  "ensino médio fundamental infantil técnico técnica bncc enem eja libras braille brasil língua portuguesa matemática física química biologia história geografia " +
+  "filosofia sociologia arte inglês espanhol educação ciências lógica programação banco dados redes informática computação internet " +
+  "dua bloom tea tdah ia aula turma escola professor professora segunda terça quarta quinta sexta sábado domingo janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro").split(" "));
+[...TIPOS, ...RECURSOS, ...METODOLOGIAS, ...EIXOS, ...CURSOS, ...EIXOS_CO].join(" ").toLowerCase().split(/[^a-záéíóúâêôãõç]+/).forEach(w => w && TERMOS_COMUNS.add(w));
+function pareceNome(txt){
+  const M = "A-ZÁÉÍÓÚÂÊÔÃÕÇ", m = "a-záéíóúâêôãõç";
+  const conhecido = w => TERMOS_COMUNS.has(w.toLowerCase()) || (S.perfil.componentes || "").toLowerCase().includes(w.toLowerCase());
+  // 1) palavra com maiúscula depois de artigo ou preposição ("o João", "com a Maria", "pro Pedro")
+  const r1 = new RegExp(`(?:^|[\\s,(])(?:o|a|do|da|no|na|ao|à|com o|com a|pro|pra|para o|para a)\\s+([${M}][${m}]{2,})`, "g");
+  for(const x of txt.matchAll(r1)) if(!conhecido(x[1])) return x[1];
+  // 2) duas palavras com maiúscula seguidas, fora do início da frase ("Ana Souza")
+  const r2 = new RegExp(`([${M}][${m}]{2,})\\s([${M}][${m}]{2,})`, "g");
+  for(const x of txt.matchAll(r2)){
+    const ini = x.index === 0 || /[.!?:]\s*$/.test(txt.slice(0, x.index));
+    const ws = ini ? [x[2]] : [x[1], x[2]];
+    if(ws.some(w => !conhecido(w)) && !(ini && conhecido(x[2]))) return x[0];
+  }
+  return "";
+}
 function registrosDe(tid){ return S.registros.filter(r => r.turmaId === tid).sort((a,b) => (b.data||"").localeCompare(a.data||"") || (b.criado||0) - (a.criado||0)); }
 function sinteseAuto(tid){
   const regs = registrosDe(tid);
@@ -1412,8 +1516,9 @@ const sinteseDe = tid => (S.sinteses[tid] && S.sinteses[tid].trim()) ? S.sintese
    ============================================================ */
 function etapaBNCC(t){ const e = ETAPAS_TURMA.find(x => x[0] === t.etapa); return e ? e[1] : "Ensino Médio"; }
 function habsComputacao(etapa){ const par = BNCC_PAR[etapa]; return BNCC_HAB.filter(h => h.e === etapa || (par && h.e === par)); }
-function compsComputacao(etapa){ return etapa === "Ensino Médio" ? BNCC_COMPETENCIAS.em : BNCC_COMPETENCIAS.ef; }
-const tecnica = t => escolaTecnica(escolaDe(t).tipo) || !!t.curso || /técnic/i.test(t.formacao || "");
+function compsComputacao(etapa){ return etapa === "Ensino Médio" ? BNCC_COMPETENCIAS.em : etapa === "Educação Infantil" ? BNCC_COMPETENCIAS.ei : BNCC_COMPETENCIAS.ef; }
+// Contexto técnico só para turmas de Ensino Médio, técnico ou EJA Médio (um 2º ano numa escola técnica não é turma técnica)
+const tecnica = t => cursoTecnicoVisivel(t.escolaId, t.etapa) && (escolaTecnica(escolaDe(t).tipo) || !!t.curso || /técnic/i.test(t.formacao || "") || /técnic/i.test(t.etapa || ""));
 
 function montarCamadas(t, ped){
   const etapa = etapaBNCC(t), todas = habsComputacao(etapa), comps = compsComputacao(etapa);
@@ -1428,14 +1533,14 @@ function montarCamadas(t, ped){
   // Abertura: como usar
   c.push({n:"0", nome:"Como usar este contexto", tipo:"fixa", txt:
 `# CONTEXTO PEDAGÓGICO (Caderno de Contexto)
-Apoie um(a) professor(a) de escola pública de educação básica técnica. As camadas 1 a 6 trazem o contexto e as regras; a 7 é o pedido. Use o contexto para adequar o material, sem repeti-lo na resposta.`,
+Apoie um(a) professor(a) de escola pública ${tecnica(t) ? "de educação profissional técnica de nível médio" : etapa === "Educação Infantil" ? "de Educação Infantil" : "de educação básica"}. As camadas 1 a 6 trazem o contexto e as regras; a 7 é o pedido. Use o contexto para adequar o material, sem repeti-lo na resposta.`,
   nota:"A abertura diz à IA o que é cada parte. Textos com títulos claros são mais bem aproveitados pelos modelos."});
 
   // 1 Referência curricular
-  const compsCurto = comps === BNCC_COMPETENCIAS.em ? COMPS_EM_CURTO : COMPS_EF_CURTO;
+  const compsCurto = comps === BNCC_COMPETENCIAS.em ? COMPS_EM_CURTO : comps === BNCC_COMPETENCIAS.ei ? COMPS_EI_CURTO : COMPS_EF_CURTO;
   let r1 = `## 1. REFERÊNCIA CURRICULAR
 Etapa: ${etapa}${t.etapa && t.etapa !== etapa ? ` (${t.etapa})` : ""}
-Base: BNCC (competências gerais, com destaque para a 5, Cultura digital); BNCC Computação, competências da etapa: ${compsCurto.map((x, i) => `C${i + 1} ${x}`).join("; ")}; Política Nacional de Educação Digital (Lei 14.533/2023): uso crítico, ético e seguro, privacidade, direitos autorais e checagem de informações.
+Base: BNCC (competências gerais, com destaque para a 5, Cultura digital); BNCC Computação, ${etapa === "Educação Infantil" ? "premissas" : "competências"} da etapa: ${compsCurto.map((x, i) => `C${i + 1} ${x}`).join("; ")}; Política Nacional de Educação Digital (Lei 14.533/2023): uso crítico, ético e seguro, privacidade, direitos autorais e checagem de informações.
 
 Habilidades da BNCC Computação (escolha entre estas; código — texto oficial)${filtra ? `, só do${eixosP.length > 1 ? "s eixos" : " eixo"} em foco neste pedido` : habs.some(h => h.x) ? ", por eixo" : ""}:
 ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefined" ? `[${x}]\n` : "") + hs.map(h => `${h.c} — ${h.t}`).join("\n")).join("\n")}`;
@@ -1488,8 +1593,8 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
   // 6 Regras
   c.push({n:"6", nome:"Regras de trabalho", tipo:"fixa", txt:
 `## 6. REGRAS
-1. Atue como professor(a) especialista no componente e na etapa, com experiência em escola pública técnica.
-2. Comece pelos objetivos: 2 a 4 habilidades do componente${tecnica(t) ? " (ou competências do curso)" : ""} e ao menos 1 da BNCC Computação (camada 1), com código, texto e uma frase de justificativa.
+1. Atue como professor(a) especialista ${etapa === "Educação Infantil" ? "em Educação Infantil" : "no componente e na etapa"}, com experiência em escola pública${tecnica(t) ? " técnica" : ""}.
+2. Comece pelos objetivos: ${etapa === "Educação Infantil" ? "2 a 4 objetivos de aprendizagem e desenvolvimento dos campos de experiência" : `2 a 4 habilidades do componente${tecnica(t) ? " (ou competências do curso)" : ""}`} e ao menos 1 da BNCC Computação (camada 1), com código, texto e uma frase de justificativa.
 3. Planejamento reverso: avaliação antes das atividades; indique o nível de Bloom e evite atividades só de memorização.
 4. Dê progressão à memória da turma (camada 5). Use metodologias ativas, o território, o mundo do trabalho e os recursos da escola (camada 3).
 5. Siga o DUA: várias formas de representação, engajamento e expressão.
@@ -1549,6 +1654,7 @@ function linhasMateriais(tipos){
     ...tipos.map((m, i) => `  ${i + 1}. ${m}${NOTA_TIPO[m] ? ` — ${NOTA_TIPO[m]}` : ""}`)];
 }
 const textoCamadas = (cs, quais) => cs.filter(x => !quais || quais.includes(x.n)).map(x => x.txt).join("\n\n");
+const celular = () => window.matchMedia && matchMedia("(max-width: 860px)").matches;
 const contaPalavras = s => (s.match(/\S+/g) || []).length;
 
 /* ============================================================
@@ -1564,7 +1670,7 @@ function telaGerar(arg){
   const turmaG = S.turmas.find(t => t.id === arg);
   if(!turmaG){ toast("Escolha a turma e toque em Gerar"); location.replace("#turmas"); return; }
   const mesma = S.pedido.turma === arg;
-  const ped = Object.assign({formato:(FORMATOS.find(f=>f.nome===S.perfil.formato)||{}).id || "", comentada:false}, S.pedido, {turma:arg});
+  const ped = Object.assign({formato:(FORMATOS.find(f=>f.nome===S.perfil.formato)||{}).id || "", comentada:true}, S.pedido, {turma:arg});
   delete ped.entrega;
   if(!mesma){ ped.eixos = []; ped.compsCO = []; }
   const comEixo = habsComputacao(etapaBNCC(turmaG)).some(h => h.x);
@@ -1581,17 +1687,17 @@ function telaGerar(arg){
     <p class="sub">Camada 7: a única parte que muda a cada uso.</p>
     <div class="fields f4">
       ${campoMateriais(ped.tipos)}
-      ${comEixo ? `${campoChips("g-eixos", "2. Qual eixo da BNCC Computação é o foco? (opcional: marque um, dois ou os três)", EIXOS_CO, ped.eixos || []).replace(/<\/div>$/, `<div class="hint"><b>Pensamento Computacional:</b> resolver problemas com algoritmos, padrões e abstração. <b>Mundo Digital:</b> como dados, máquinas e redes funcionam. <b>Cultura Digital:</b> uso crítico, ético e seguro das tecnologias. Sem marcar, a IA escolhe entre os três.</div></div>`)}` : ""}
-      ${comComp ? `${campoChips("g-comps", "2. Quais competências da BNCC Computação são o foco? (opcional: marque uma ou mais)", COMPS_EM_ROT, ped.compsCO || []).replace(/<\/div>$/, `<div class="mat-info" id="g-comps-info" aria-live="polite">${ICO.luz}<span>No Ensino Médio, a BNCC Computação se organiza em 7 competências, e não em eixos. Passe o mouse ou toque numa competência para ler o texto oficial. Sem marcar, a IA escolhe.</span></div></div>`)}` : ""}
-      ${campoTexto("g-comp", "Componente", ped.componente || "", "")}
-      <div class="field"><label for="g-fmt">3. Em que formato?</label><select id="g-fmt">${FORMATOS.map(f=>`<option value="${f.id}"${f.id===ped.formato?" selected":""}>${f.id ? esc(f.nome) : "Deixar a IA escolher"}</option>`).join("")}</select><div class="hint" id="g-fmt-dica"></div></div>
-      <div class="field"><label for="g-arq">4. Em que arquivo quer receber?</label><select id="g-arq">${ARQUIVOS.map(a=>`<option value="${a.id}"${a.id===(ped.arquivo||"")?" selected":""}>${esc(a.nome)}</option>`).join("")}</select><div class="hint" id="g-arq-dica"></div></div>
-      ${campoTexto("g-tema", "5. Sobre qual tema ou conteúdo?", ped.tema, "Ex.: funções do 1º grau aplicadas a orçamento", "tema")}
-      ${campoTempo("g-tempo", "6. Quantas aulas ao todo?", ped.aulas, ped.duracao, "", "Começa com o tempo de aula da turma; ajuste para este pedido.")}
-      <details class="full"><summary>Opcional: detalhes e habilidades da BNCC do componente</summary>
+      ${campoTexto("g-tema", "2. Sobre qual tema ou conteúdo?", ped.tema, "Ex.: funções do 1º grau aplicadas a orçamento", "tema")}
+      ${campoTempo("g-tempo", "3. Quantas aulas ao todo?", ped.aulas, ped.duracao, "", "Começa com o tempo de aula da turma; ajuste para este pedido.")}
+      <div class="field"><label for="g-fmt">4. Em que formato?</label><select id="g-fmt">${FORMATOS.map(f=>`<option value="${f.id}"${f.id===ped.formato?" selected":""}>${f.id ? esc(f.nome) : "Deixar a IA escolher"}</option>`).join("")}</select><div class="hint" id="g-fmt-dica"></div></div>
+      <div class="field"><label for="g-arq">5. Em que arquivo quer receber?</label><select id="g-arq">${ARQUIVOS.map(a=>`<option value="${a.id}"${a.id===(ped.arquivo||"")?" selected":""}>${esc(a.nome)}</option>`).join("")}</select><div class="hint" id="g-arq-dica"></div></div>
+      <details class="full ajustes"${(ped.eixos||[]).length || (ped.compsCO||[]).length || ped.detalhes || ped.habsBNCC ? " open" : ""}><summary>Ajustes opcionais: ${comComp ? "competência" : "eixo"} da BNCC Computação, componente, detalhes e habilidades</summary>
         <div class="fields" style="margin-top:12px">
+          ${comEixo ? `${campoChips("g-eixos", "Eixo da BNCC Computação em foco (marque um, dois ou os três)", EIXOS_CO, ped.eixos || []).replace(/<\/div>$/, `<div class="hint"><b>Pensamento Computacional:</b> resolver problemas com algoritmos, padrões e abstração. <b>Mundo Digital:</b> como dados, máquinas e redes funcionam. <b>Cultura Digital:</b> uso crítico, ético e seguro das tecnologias. Sem marcar, a IA escolhe entre os três.</div></div>`)}` : ""}
+          ${comComp ? `${campoChips("g-comps", "Competências da BNCC Computação em foco (marque uma ou mais)", COMPS_EM_ROT, ped.compsCO || []).replace(/<\/div>$/, `<div class="mat-info" id="g-comps-info" aria-live="polite">${ICO.luz}<span>No Ensino Médio, a BNCC Computação se organiza em 7 competências, e não em eixos. Passe o mouse ou toque numa competência para ler o texto oficial. Sem marcar, a IA escolhe.</span></div></div>`)}` : ""}
+          ${campoTexto("g-comp", "Componente", ped.componente || "", "", "", "Vem do cadastro da turma.")}
           ${campoArea("g-det", "Detalhes do pedido", ped.detalhes, "Ex.: para a aula de revisão antes da prova; com uma atividade em dupla")}
-          ${campoArea("g-habs", "Habilidades da BNCC do componente (cole do documento oficial)", ped.habsBNCC, "Ex.: EM13MAT101 — Interpretar criticamente situações econômicas...", "", "Quando você cola o texto oficial, a IA escolhe entre essas habilidades, como já acontece com as de Computação.")}
+          ${campoArea("g-habs", "Habilidades da BNCC do componente (cole do documento oficial)", ped.habsBNCC, "Ex.: EM13MAT101 — Interpretar criticamente situações econômicas...", "full", `Quando você cola o texto oficial, a IA escolhe entre essas habilidades, como já acontece com as de Computação. Consulte e copie na <a href="https://basenacionalcomum.mec.gov.br/abase/" target="_blank" rel="noopener">BNCC on-line do MEC</a>${tecnica(turmaG) ? ` ou no <a href="https://cnct.mec.gov.br/" target="_blank" rel="noopener">Catálogo Nacional de Cursos Técnicos</a>` : ""}.`)}
         </div>
       </details>
     </div>
@@ -1599,7 +1705,9 @@ function telaGerar(arg){
     <span class="lbl">Como usar</span>
     <ol class="passos-uso h"><li>Copie o pacote completo.</li><li>Abra a IA de sua preferência e cole como primeira mensagem.</li><li>Confira o material e valide as habilidades no quadro final.</li><li>Depois da aula, registre no Caderno: o próximo sai melhor.</li></ol>
   </section>
-  <section class="card" id="g-saida"></section>`;
+  <section class="card" id="g-saida"></section>
+  <div class="copiar-fixo" id="g-fixo"><button class="btn pri" type="button" id="g-fixo-copiar">${ICO.copiar}Copiar pacote</button><button class="btn" type="button" id="g-fixo-ver">Ver pacote</button></div>`;
+  document.body.classList.add("tela-gerar");
   const comp = $("#g-comp");
   const atualizaComp = () => { const t = turmaG; if(!ped.componente || ped._auto){ comp.value = t.componente || ""; ped._auto = true; } };
   atualizaComp();
@@ -1607,7 +1715,7 @@ function telaGerar(arg){
     const tipos = ordenaTipos(lerChips("g-tipos"));
     Object.assign(ped, tempoG(), {turma:turmaG.id, tipos, tipo:tipos.join(" + "), eixos:comEixo ? EIXOS_CO.filter(x => lerChips("g-eixos").includes(x)) : [], compsCO:comComp ? COMPS_EM_ROT.filter(x => lerChips("g-comps").includes(x)) : [], componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, arquivo:$("#g-arq").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
     S.pedido = Object.assign({}, ped); delete S.pedido._auto;
-    if(ped.tipo || ped.tema) S.ultimo[ped.turma] = {material:ped.tipo, tema:ped.tema, formato:ped.formato};
+    if(ped.tipo || ped.tema) S.ultimo[ped.turma] = {material:ped.tipo, tipos:ped.tipos, tema:ped.tema, formato:ped.formato};
     salvar();
   };
   comp.addEventListener("input", () => { ped._auto = false; });
@@ -1636,6 +1744,16 @@ function telaGerar(arg){
   tiposTxt();
   const tempoG = ligarTempo("g-tempo", () => { ler(); desenhar(); });
 
+  // Antes de copiar: avisa se faltam o material ou o tema, e leva ao campo
+  const completo = () => {
+    const falta = [!(ped.tipos || []).length && "o material (pergunta 1)", !ped.tema && "o tema (pergunta 2)"].filter(Boolean);
+    if(!falta.length || confirm(`Falta ${falta.join(" e ")}. Sem isso a IA recebe um pedido incompleto. Copiar assim mesmo?`)) return true;
+    const alvo = !(ped.tipos || []).length ? $('[data-chips="g-tipos"] .chip') : $("#g-tema");
+    alvo.scrollIntoView({behavior:"smooth", block:"center"}); alvo.focus({preventScroll:true}); return false;
+  };
+  let copiarFixo = () => {};
+  $("#g-fixo-copiar").addEventListener("click", () => copiarFixo());
+  $("#g-fixo-ver").addEventListener("click", () => $("#g-saida").scrollIntoView({behavior:"smooth", block:"start"}));
   function desenhar(){
     const t = S.turmas.find(x => x.id === ped.turma);
     const f = FORMATOS.find(x => x.id === ped.formato);
@@ -1666,23 +1784,26 @@ function telaGerar(arg){
         </div>
       </div>
       <div class="camadas">
-      ${cs.map(x => `<div class="camada${x.vazio ? " off" : ""}">
-          <div class="camada-h"><span class="n">${x.n}</span>${esc(x.nome)}<span class="k">${x.tipo}</span></div>
+      ${cs.map(x => `<details class="camada${x.vazio ? " off" : ""}"${!celular() || x.n === "7" ? " open" : ""}>
+          <summary class="camada-h"><span class="n">${x.n}</span>${esc(x.nome)}<span class="k">${x.tipo}</span></summary>
           <pre>${esc(x.txt)}</pre>
           ${ped.comentada ? `<div class="coment">${ICO.luz}<span>${esc(x.nota)}</span></div>` : ""}
-        </div>`).join("")}
+        </details>`).join("")}
       </div>
       <div class="row" style="margin-top:16px"><a class="btn" href="#caderno/${t.id}/registrar">${ICO.caderno}Registrar esta aula depois</a></div>`;
     $("#g-com").addEventListener("change", e => { ped.comentada = e.target.checked; ler(); desenhar(); });
     const textos = {pacote};
-    const marcar = () => { S.ultimo[t.id] = {material:ped.tipo, tema:ped.tema, formato:ped.formato}; salvar(); };
-    $$("[data-copiar]").forEach(b => b.addEventListener("click", () => { marcar(); copiar(textos[b.dataset.copiar], "Pacote completo copiado (camadas 0 a 7)"); }));
+    const marcar = () => { S.ultimo[t.id] = {material:ped.tipo, tipos:ped.tipos, tema:ped.tema, formato:ped.formato}; salvar(); };
+    $$("[data-copiar]").forEach(b => b.addEventListener("click", () => { if(!completo()) return; marcar(); copiar(textos[b.dataset.copiar], "Pacote completo copiado (camadas 0 a 7)"); }));
+    copiarFixo = () => { if(!completo()) return; marcar(); copiar(pacote, "Pacote completo copiado (camadas 0 a 7)"); };
     $$("[data-ia]").forEach(b => b.addEventListener("click", () => {
+      if(!completo()) return;
       marcar(); const ia = IAS[b.dataset.ia];
       copiar(pacote, `Pacote completo copiado! Cole no ${ia.nome}`);
       window.open(ia.url, "_blank", "noopener");
     }));
     $("#g-md").addEventListener("click", () => {
+      if(!completo()) return;
       marcar();
       const nome = (t.nome || "turma").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/gi,"-").toLowerCase();
       baixar(`contexto-${nome}.md`, pacote);
@@ -1707,6 +1828,7 @@ function telaCaderno(arg){
   const regs = registrosDe(tid);
   const abrirForm = parts[2] === "registrar";
   const ult = S.ultimo[tid] || {};
+  const matsUlt = Array.isArray(ult.tipos) ? ult.tipos : (ult.material ? ult.material.split(" + ") : []);
   const media = regs.length ? (regs.reduce((s,r)=>s+(+r.nota||0),0)/regs.length).toFixed(1).replace(".", ",") : "–";
   const serie = regs.slice(0, 12).reverse();
   const editada = !!(S.sinteses[tid] && S.sinteses[tid].trim());
@@ -1722,13 +1844,16 @@ function telaCaderno(arg){
         <p class="sub">${ult.material ? `Último pedido: ${esc(ult.material)}${ult.tema ? " — " + esc(ult.tema) : ""}.` : "Três perguntas rápidas."}</p>
         <div class="fields">
           <div class="field"><label for="r-data">Data</label><input type="date" id="r-data" value="${hoje()}"></div>
-          ${campoMaterial("r-mat", "Material usado", ult.material)}
+          ${campoChips("r-mats", "Material usado", matsUlt.length ? matsUlt : MATS_COMUNS, matsUlt, null, true).replace(/<div class="hint">[^<]*<\/div><\/div>$/, `<div class="hint">${matsUlt.length ? "Já vêm marcados os materiais do último pedido. Desmarque o que não usou." : "Marque o que usou ou escreva outro."}</div></div>`)}
           ${campoTexto("r-tema", "Tema", ult.tema, "", "full")}
           <div class="field full"><span class="lbl">1. Como foi a aula?</span><div class="stars" id="r-nota" role="radiogroup" aria-label="Nota de 1 a 5">${[1,2,3,4,5].map(n=>`<button type="button" data-n="${n}" role="radio" aria-checked="false" aria-label="${n} de 5">★</button>`).join("")}</div></div>
           ${campoChips("r-tags", "2. O que funcionou e o que não funcionou?", TAGS_POS.concat(TAGS_NEG), [], TAGS_NEG)}
           ${campoArea("r-livre", "Comentário (opcional)", "", "Ex.: a turma se envolveu na simulação do orçamento, mas a parte escrita ficou longa", "full")}
           ${campoTexto("r-mud", "O que você mudaria na próxima? (opcional)", "", "Ex.: começar pelo problema real, antes da teoria", "full")}
           ${campoTexto("r-habs", "3. Habilidades efetivamente trabalhadas", "", "Ex.: EM13MAT101, EM13CO05 (confirme ou corrija as sugeridas pela IA)", "full")}
+          <details class="full"><summary>Atalho: colar o quadro de habilidades que a IA devolveu</summary>
+            <div class="field" style="margin-top:10px"><label for="r-quadro" class="sr">Quadro de habilidades da IA</label><textarea id="r-quadro" placeholder="Cole aqui o QUADRO DE HABILIDADES do fim da resposta da IA. Os códigos vão sozinhos para o campo 3."></textarea><div class="hint">Só os códigos são aproveitados. Depois, apague do campo 3 o que não foi trabalhado de fato.</div></div>
+          </details>
         </div>
         <div class="aviso">${ICO.alerta}<span>Não escreva nomes ou situações que identifiquem estudantes. Fale da turma como um todo.</span></div>
         <div class="row end" style="margin-top:14px"><button class="btn pri" id="r-salvar">${ICO.memoria}Salvar no Caderno</button></div>
@@ -1745,7 +1870,7 @@ function telaCaderno(arg){
     <div>
       <section class="card">
         <h2><span class="ico-chip">${ICO.memoria}</span>Memória da turma</h2>
-        <p class="sub">Esta síntese entra como camada 5 em todo pacote de ${esc(t.nome)}. ${editada ? "<b>Você editou esta síntese.</b>" : "Gerada automaticamente a partir dos registros."}</p>
+        <p class="sub">Esta síntese entra como camada 5 em todo pacote de ${esc(t.nome)}. ${editada ? "<b>Você editou esta síntese.</b> Cada novo registro é acrescentado ao fim dela; para refazer tudo a partir dos registros, use Voltar à automática." : "Gerada automaticamente a partir dos registros; se você editar e salvar, os próximos registros são acrescentados ao fim."}</p>
         <div class="kpis">
           <div class="kpi"><b>${regs.length}</b><span>aulas registradas</span></div>
           <div class="kpi"><b>${media}</b><span>média das avaliações</span></div>
@@ -1763,27 +1888,41 @@ function telaCaderno(arg){
       ${cardDados()}
     </div>
   </div>`;
-  ligarChips(); ligarDados(); ligarMaterial("r-mat");
+  ligarChips(); ligarDados();
   $("#c-turma").addEventListener("change", e => { location.hash = "caderno/" + e.target.value; });
+  $("#r-quadro").addEventListener("input", e => {
+    const cods = [...new Set((e.target.value.toUpperCase().match(/\b(?:EI|EF|EM)\d{2}[A-Z]{2,4}\d{2,3}\b/g) || []))];
+    if(cods.length){ const atuais = val("r-habs").split(/[,;\s]+/).filter(Boolean); $("#r-habs").value = [...new Set([...atuais, ...cods])].join(", "); toast(`${cods.length} código${cods.length > 1 ? "s" : ""} copiado${cods.length > 1 ? "s" : ""} para o campo 3`); }
+  });
   let nota = 0;
   $$("#r-nota button").forEach(b => b.addEventListener("click", () => {
     nota = +b.dataset.n; $$("#r-nota button").forEach(x => { const on = +x.dataset.n <= nota; x.classList.toggle("on", on); x.setAttribute("aria-checked", +x.dataset.n === nota); });
   }));
   $("#r-salvar").addEventListener("click", () => {
     if(!nota){ toast("Dê uma nota de 1 a 5 para a aula"); return; }
-    const livre = val("r-livre") + " " + val("r-mud");
-    if(/\b(?:[A-ZÁÉÍÓÚÂÊÔÃÕÇ][a-záéíóúâêôãõç]{2,})\s(?:[A-ZÁÉÍÓÚÂÊÔÃÕÇ][a-záéíóúâêôãõç]{2,})\b/.test(livre.replace(/^\s*\S+/, ""))
-        && !confirm("Parece haver um nome próprio no comentário. Confirme que ele não identifica nenhum estudante. Salvar assim mesmo?")) return;
-    S.registros.push({id:uid(), criado:Date.now(), turmaId:tid, data:val("r-data") || hoje(), material:lerMaterial("r-mat"), tema:val("r-tema"), nota, tags:lerChips("r-tags"),
+    const nome = pareceNome([val("r-livre"), val("r-mud")].join(". "));
+    if(nome && !confirm(`“${nome}” parece um nome próprio. Confirme que ele não identifica nenhum estudante. Salvar assim mesmo?`)) return;
+    S.registros.push({id:uid(), criado:Date.now(), turmaId:tid, data:val("r-data") || hoje(), material:lerChips("r-mats").join(" + "), tema:val("r-tema"), nota, tags:lerChips("r-tags"),
       livre:val("r-livre"), mudaria:val("r-mud"), habilidades:val("r-habs")});
-    salvar(); toast("Aula registrada. A memória foi atualizada");
+    let aviso = "Aula registrada. A memória foi atualizada";
+    if(S.sinteses[tid] && S.sinteses[tid].trim()){
+      // a síntese foi editada à mão: o novo registro é acrescentado ao fim dela, para não ficar de fora do pacote
+      const r = S.registros[S.registros.length - 1];
+      S.sinteses[tid] = S.sinteses[tid].trimEnd() + `\n\nRegistro de ${dataBR(r.data)}: ${r.material || "Material"}${r.tema ? " — " + r.tema : ""} · nota ${r.nota}/5${r.tags.length ? " · " + r.tags.join("; ") : ""}${r.livre ? ` · "${r.livre}"` : ""}${r.mudaria ? " · mudaria: " + r.mudaria : ""}${r.habilidades ? " · habilidades: " + r.habilidades : ""}`;
+      aviso = "Aula registrada e acrescentada à sua síntese editada";
+    }
+    salvar(); toast(aviso);
     if(location.hash === "#caderno/" + tid) rota(); else location.hash = "caderno/" + tid;
   });
   $$("[data-del]").forEach(b => b.addEventListener("click", () => {
     if(!confirm("Apagar este registro?")) return;
     S.registros = S.registros.filter(r => r.id !== b.dataset.del); salvar(); rota();
   }));
-  $("#c-salvar-sint").addEventListener("click", () => { S.sinteses[tid] = $("#c-sint").value; salvar(); toast("Síntese salva"); rota(); });
+  $("#c-salvar-sint").addEventListener("click", () => {
+    const v = $("#c-sint").value;
+    if(!v.trim() || (!editada && v.trim() === sinteseAuto(tid).trim())){ toast("Nada mudou: a síntese continua automática"); return; }
+    S.sinteses[tid] = v; salvar(); toast("Síntese salva. Novos registros serão acrescentados ao fim dela"); rota();
+  });
   $("#c-regen").addEventListener("click", () => { delete S.sinteses[tid]; salvar(); toast("Síntese automática restaurada"); rota(); });
   $("#c-pedido-ia").addEventListener("click", () => {
     const txt = `Abaixo estão registros de aulas de uma turma (${t.nome}, ${t.etapa}), feitos pelo(a) professor(a), sem dados pessoais de estudantes.
@@ -1802,18 +1941,31 @@ function cardDados(){
     <div class="row"><button class="btn sm" id="d-exp">${ICO.baixar}Exportar</button>
     <label class="btn sm" style="cursor:pointer">${ICO.importar}Importar<input type="file" id="d-imp" accept="application/json,.json" hidden></label>
     <span class="spacer"></span><button class="btn sm danger" id="d-apagar">${ICO.lixo}Apagar tudo</button></div>
+    <div class="row" style="margin-top:12px"><button class="btn sm ghost" id="d-fim">${ICO.escudo}Terminar neste computador</button><span class="hint" style="font-size:12.5px; color:var(--faint)">Em computador compartilhado: baixa a cópia e apaga daqui.</span></div>
   </section>`;
 }
+function exportar(sufixo){ baixar(`caderno-de-contexto-${sufixo ? sufixo + "-" : ""}${hoje()}.json`, JSON.stringify(S, null, 2), "application/json"); }
+// Para computadores compartilhados (laboratório, oficina): guarda uma cópia e limpa o navegador
+function terminarAqui(){
+  if(!confirm("Terminar neste computador? O Caderno baixa uma cópia dos seus dados (guarde o arquivo) e depois apaga tudo deste navegador. Em outro aparelho, use Importar com esse arquivo.")) return;
+  exportar();
+  setTimeout(() => { S = VAZIO(); salvar(); toast("Cópia baixada e dados apagados deste computador"); location.hash = "inicio"; rota(); }, 600);
+}
 function ligarDados(){
-  $("#d-exp").addEventListener("click", () => baixar(`caderno-de-contexto-${hoje()}.json`, JSON.stringify(S, null, 2), "application/json"));
+  $("#d-exp").addEventListener("click", () => exportar());
+  $("#d-fim").addEventListener("click", terminarAqui);
   $("#d-imp").addEventListener("change", e => {
     const f = e.target.files[0]; if(!f) return;
     const rd = new FileReader();
     rd.onload = () => {
-      try { const d = JSON.parse(rd.result); if(!d || !Array.isArray(d.turmas)) throw 0;
-        if(!confirm("Substituir os dados deste aparelho pelos do arquivo?")) return;
-        S = Object.assign(VAZIO(), d); migrar(); salvar(); toast("Dados importados"); rota();
-      } catch(_) { toast("Arquivo inválido"); }
+      e.target.value = "";
+      let d;
+      try { d = JSON.parse(rd.result); } catch(_) { d = null; }
+      if(!d || typeof d !== "object" || !Array.isArray(d.turmas) || (d.perfil != null && typeof d.perfil !== "object")){ toast("Este arquivo não é uma cópia do Caderno de Contexto"); return; }
+      const temDados = S.turmas.length || S.escolas.length || S.registros.length || S.perfil.componentes;
+      if(!confirm(`Substituir os dados deste aparelho pelos do arquivo (${d.turmas.length} turma${d.turmas.length === 1 ? "" : "s"})?${temDados ? " Antes, o Caderno baixa uma cópia dos dados atuais, por segurança." : ""}`)) return;
+      if(temDados) exportar("copia-antes-de-importar");
+      S = normalizar(d); migrar(); salvar(); toast("Dados importados"); rota();
     };
     rd.readAsText(f);
   });
