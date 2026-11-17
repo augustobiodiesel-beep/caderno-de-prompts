@@ -225,6 +225,9 @@ input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accen
   border-radius:var(--r-s); padding:10px 12px; margin-top:6px;
 }
 .aviso svg{width:18px; height:18px; color:var(--warn); flex-shrink:0; margin-top:1px}
+.aviso.info{background:color-mix(in srgb, var(--accent) 9%, transparent); border-color:color-mix(in srgb, var(--accent) 35%, transparent)}
+.aviso.info svg{color:var(--accent)}
+.aviso a{color:var(--accent); font-weight:600}
 
 /* ---------- Botões ---------- */
 .btn{
@@ -314,6 +317,21 @@ input:focus, select:focus, textarea:focus{outline:none; border-color:var(--accen
 .camada pre{margin:0; padding:12px 14px; font-family:var(--mono); font-size:12.8px; line-height:1.6; white-space:pre-wrap; word-break:break-word; color:var(--text); max-height:280px; overflow:auto}
 .coment{font-size:13.5px; color:var(--muted); padding:10px 14px; border-top:1px dashed var(--border); background:color-mix(in srgb, var(--accent) 7%, transparent); display:flex; gap:9px}
 .coment svg{width:17px; height:17px; color:var(--accent); flex-shrink:0; margin-top:2px}
+/* Produção em lotes */
+.lotes-prog{display:flex; align-items:center; gap:10px; font-size:13.5px; color:var(--muted); margin:4px 0 14px}
+.lotes-prog .bar{flex:1; max-width:260px; height:8px; border-radius:8px; background:var(--border); overflow:hidden}
+.lotes-prog .bar i{display:block; height:100%; background:linear-gradient(90deg, var(--good), var(--accent)); border-radius:8px; transition:width .3s}
+.lotes{list-style:none; padding:0; margin:0; display:grid; gap:10px}
+.lote{border:1px solid var(--border); border-radius:var(--r-s); padding:12px 14px; background:var(--surface-solid); display:grid; grid-template-columns:30px 1fr auto; gap:4px 12px; align-items:start}
+:root[data-theme="escuro"] .lote{background:rgba(5,12,30,.55)}
+.lote .num{width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-size:12.5px; font-weight:700; border:1.5px solid var(--accent); color:var(--accent)}
+.lote.feito .num{background:var(--good); border-color:var(--good); color:#fff}
+.lote.atual{border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent)}
+.lote b{display:block; font-size:14.5px}
+.lote p{margin:2px 0 0; color:var(--muted); font-size:13.5px}
+.lote textarea{grid-column:2 / 4; min-height:64px; font-size:13px}
+.lote .btn{white-space:nowrap}
+@media (max-width:560px){ .lote{grid-template-columns:30px 1fr} .lote .btn{grid-column:2} .lote textarea{grid-column:1 / 3} }
 .ias{display:flex; flex-wrap:wrap; gap:10px; margin-top:6px}
 .ia{display:inline-flex; align-items:center; gap:8px; padding:9px 14px; border-radius:999px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); font:inherit; font-weight:600; font-size:14px; cursor:pointer; transition: all .15s}
 .ia:hover{border-color:var(--ia); box-shadow:0 0 0 1px var(--ia), 0 8px 26px -10px var(--ia); transform:translateY(-1px)}
@@ -1646,27 +1664,77 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
     `- Tema ou conteúdo: ${ped.tema || "(informe o tema)"}`,
     compsP.length && `- ${compsP.length > 1 ? "Competências" : "Competência"} da BNCC Computação em foco:\n${compsP.map(i => `  C${i + 1}. ${BNCC_COMPETENCIAS.em.itens[i]}`).join("\n")}\n  Escolha habilidades EM13CO ligadas a ${compsP.length > 1 ? "elas" : "ela"} e mostre no material como são trabalhadas.`,
     eixosP.length && `- ${eixosP.length > 1 ? "Eixos" : "Eixo"} em foco: ${eixosP.join(", ")}. Use habilidades ${eixosP.length > 1 ? "desses eixos" : "desse eixo"} e mostre no material como ${eixosP.length > 1 ? "cada um é trabalhado" : "é trabalhado"}.`,
-    ...linhasQuantidade(ped),
+    ...linhasQuantidade(ped, !!planoLotes(ped, t)),
     ped.detalhes && `- Detalhes: ${ped.detalhes}`,
+    ped.naoFazer && `- NÃO faça: ${ped.naoFazer}`,
+    ped.exemplo && `- Padrão esperado (exemplo do(a) professor(a); copie o nível de detalhe e a estrutura, não o conteúdo):\n"""\n${ped.exemplo}\n"""`,
     f && f.id && `- Formato${(ped.tipos || []).length > 1 ? " (todos os materiais)" : ""}: ${f.nome}. ${f.regra} O quadro de habilidades entra adaptado a este formato.`,
     ...linhasInclusao(t),
-    ...linhasEntrega(ped, t)].filter(Boolean);
+    ...linhasEntrega(ped, t),
+    ...linhasLotes(planoLotes(ped, t))].filter(Boolean);
   c.push({n:"7", nome:"Pedido", tipo:"pedido", txt:r7.join("\n"),
-    nota:"A única parte que muda a cada uso: o material, o tema, o formato e o arquivo que a IA deve entregar."});
+    nota:"A única parte que muda a cada uso: o material, o tema, o formato e o arquivo que a IA deve entregar. Em pedidos longos, termina com a produção em lotes: primeiro o sumário, depois um lote por resposta."});
   return c;
 }
+// PRODUÇÃO EM LOTES: cada resposta da IA tem um limite de tamanho; pedidos longos saem rasos se vierem de uma vez.
+// O Caderno divide o pedido em lotes (5 slides, 1 aula ou 1 material por lote), pede antes o sumário para aprovação
+// e uma FICHA DE CONSISTÊNCIA no fim de cada lote, que carrega a memória de um lote para o outro.
+const SLIDES_POR_LOTE = 5, MAX_LOTES = 12;
+function planoLotes(ped, t){
+  if(ped.lotes === "nao") return null;
+  const n = Math.max(1, +ped.aulas || 1), d = +ped.duracao || 50, tipos = ped.tipos || [];
+  if(!tipos.length) return null;
+  // Materiais em slides (ou tudo, se o formato pedido for slides): conta os slides; os demais materiais vão em lotes próprios
+  const deSlides = ped.formato === "slides" ? tipos.length : tipos.filter(m => /^Slides/.test(m)).length, outros = tipos.length - deSlides;
+  const sMin = Math.max(6, Math.round(d / 5)), sMax = Math.max(sMin + 2, Math.round(d / 3.5));
+  const adapt = (t.deficiencias || []).length;
+  let base, unidade;
+  if(deSlides){ base = Math.ceil(Math.round((sMin + sMax) / 2) * n * deSlides / SLIDES_POR_LOTE) + outros; unidade = `até ${SLIDES_POR_LOTE} slides${outros ? " (cada um dos outros materiais em lote próprio)" : ""}`; }
+  else if(n > 1){ base = n; unidade = "1 aula (com todos os materiais dela)"; }
+  else { base = tipos.length; unidade = "1 material"; }
+  let total = base + adapt;
+  if(total < 2) return null;
+  if(total > MAX_LOTES){ total = MAX_LOTES; unidade = "partes de tamanho parecido"; }
+  return {total, unidade, adapt, arquivo: ped.arquivo !== "chat"};
+}
+function linhasLotes(pl){
+  if(!pl) return [];
+  const L = pl.total;
+  return [`- PRODUÇÃO EM LOTES (obrigatório): este pedido é longo. Para não sair raso, será feito em ${L} lotes, um por resposta.`,
+    `  1. AGORA, NÃO produza o material. Responda só com o SUMÁRIO completo: títulos numerados de tudo o que será entregue (aulas, slides, atividades, questões${pl.adapt ? ", versões adaptadas" : ""}), já com as quantidades pedidas acima, dividido de “LOTE 1 de ${L}” a “LOTE ${L} de ${L}”, cada lote com ${pl.unidade}${pl.adapt ? "; as versões adaptadas em lotes próprios, depois do material comum" : ""}. Depois, pare e aguarde minha aprovação.`,
+    `  2. Em cada lote, use marcadores fixos ([AULA n], [SLIDE n], [ATIVIDADE n], [QUESTÃO n]), continue a numeração e mantenha o nível de detalhe do Lote 1 até o último. Nunca resuma os lotes finais.`,
+    `  3. Termine CADA lote com a FICHA DE CONSISTÊNCIA (até 10 linhas): termos-chave já definidos; exemplos, personagens e contextos já usados; recursos visuais já numerados; último item produzido; o que vem no próximo lote.`,
+    `  4. Quadro de habilidades, checklist de entrega, banco de recursos visuais consolidado e fontes ficam para o FECHAMENTO, depois do último lote.`,
+    pl.arquivo && `  5. Arquivos: entregue o arquivo de cada lote no fim do lote (ex.: parte-1-de-${L}); no fechamento, se puder, junte tudo num arquivo único.`].filter(Boolean);
+}
+function textoLote(k, L, ficha){
+  if(k === 1) return `Sumário aprovado. Produza agora o LOTE 1 de ${L}, exatamente como está no sumário, seguindo todas as camadas do contexto (regras, formato, marcadores e restrições). Não resuma. Termine com a FICHA DE CONSISTÊNCIA.`;
+  return `Produza agora o LOTE ${k} de ${L}, exatamente como está no sumário.
+${ficha ? `Use a FICHA do lote anterior:
+"""
+${ficha}
+"""
+` : "Use a FICHA DE CONSISTÊNCIA que você escreveu no fim do lote anterior.\n"}Mantenha exatamente as regras, o formato e o nível de detalhe do Lote 1. Não repita exemplos, personagens ou recursos visuais já usados; continue a numeração. Não resuma. Termine com a FICHA atualizada${k === L ? " e avise que este foi o último lote" : ""}.`;
+}
+function textoFechamento(pl){
+  return `Todos os ${pl.total} lotes foram produzidos. Agora, o FECHAMENTO:
+1. Revise o conjunto: aponte incoerências de termos, repetições, saltos de dificuldade entre os lotes e itens do sumário que faltaram. Não reescreva os itens: liste as correções (lote, item, o que mudar).
+2. Produza o que vale para o conjunto: QUADRO DE HABILIDADES (código | texto | por que | onde aparece), CHECKLIST DE ENTREGA, BANCO DE RECURSOS VISUAIS consolidado, FONTES CONSULTADAS e 3 ajustes possíveis.
+3. ${pl.arquivo ? "Se puder, junte todos os lotes, já com as correções, num arquivo único para baixar, no formato pedido no contexto." : "Não repita o material: só as correções e os itens acima."}`;
+}
+
 // Quantidade mínima por aula, para a IA não entregar um material curto dizendo que cobre todas as aulas
-function linhasQuantidade(ped){
+function linhasQuantidade(ped, emLotes){
   const n = +ped.aulas || 0, d = +ped.duracao || 50, tipos = ped.tipos || [];
   if(!n) return [];
   const sMin = Math.max(6, Math.round(d / 5)), sMax = Math.max(sMin + 2, Math.round(d / 3.5));
   const temSlides = ped.formato === "slides" || tipos.some(m => /^Slides/.test(m));
-  if(n === 1) return [`- Tempo: 1 aula de ${d} min, com o tempo de cada momento.${temSlides ? ` Slides: ${sMin} a ${sMax}.` : ""} No fim, CHECKLIST DE ENTREGA (o que foi entregue e em quantos minutos).${tipos.length > 1 ? " Se ficar longo, entregue um material por vez e peça CONTINUAR." : ""}`];
+  if(n === 1) return [`- Tempo: 1 aula de ${d} min, com o tempo de cada momento.${temSlides ? ` Slides: ${sMin} a ${sMax}.` : ""} No fim, CHECKLIST DE ENTREGA (o que foi entregue e em quantos minutos).${tipos.length > 1 && !emLotes ? " Se ficar longo, entregue um material por vez e peça CONTINUAR." : ""}`];
   return [`- Tempo: ${n} aulas de ${d} min (${n * d} min). OBRIGATÓRIO: material de TODAS as ${n} aulas, cada uma separada (“Aula 1 de ${n}: ...”), com momentos cronometrados somando ${d} min. Não resuma várias aulas em uma.`,
     tipos.includes("Sequência didática") && `  Sequência didática: as ${n} aulas detalhadas (objetivo, momentos, atividades, avaliação).`,
     tipos.includes("Plano de aula") && `  Plano de aula: ${n} planos completos, um por aula.`,
     temSlides && `  Slides: ${sMin} a ${sMax} por aula (mínimo ${sMin * n}), separados por aula.`,
-    `  No fim, CHECKLIST DE ENTREGA por aula (slides ou páginas, atividades, minutos); complete o que faltar. Se ficar longo, entregue a Aula 1 completa e peça CONTINUAR para a seguinte, até a Aula ${n}. Nunca encurte.`].filter(Boolean);
+    `  No fim, CHECKLIST DE ENTREGA por aula (slides ou páginas, atividades, minutos); complete o que faltar.${emLotes ? "" : ` Se ficar longo, entregue a Aula 1 completa e peça CONTINUAR para a seguinte, até a Aula ${n}.`} Nunca encurte.`].filter(Boolean);
 }
 function linhasInclusao(t){
   const defs = t.deficiencias || [];
@@ -1730,6 +1798,9 @@ function telaGerar(arg){
           <div class="field"><label for="g-fmt">Em que formato? (texto, tabela, slides, quiz...)</label><select id="g-fmt">${FORMATOS.map(f=>`<option value="${f.id}"${f.id===ped.formato?" selected":""}>${f.id ? esc(f.nome) : "Deixar a IA escolher"}</option>`).join("")}</select><div class="hint" id="g-fmt-dica"></div></div>
           ${campoTexto("g-comp", "Componente (já vem o da turma)", ped.componente || "", "", "full")}
           ${campoArea("g-det", "Detalhes do pedido", ped.detalhes, "Ex.: para a aula de revisão antes da prova; com uma atividade em dupla")}
+          ${campoArea("g-nao", "O que a IA NÃO deve fazer", ped.naoFazer, "Ex.: não usar listas com mais de 3 tópicos por slide; não resumir os conceitos técnicos", "", "Dizer o que não fazer é tão eficaz quanto dizer o que fazer: evita respostas genéricas.")}
+          ${campoArea("g-ex", "Exemplo do padrão que você quer (opcional)", ped.exemplo, "Cole 1 item pronto, no nível de detalhe desejado. Ex.: Slide 1 | Título: ... | Texto: ... | Imagem: ... | Nota do professor: ...", "", "Com um exemplo, a IA copia o nível de detalhe e a estrutura em todo o material.")}
+          <div class="field"><label for="g-lotes">Pedidos longos (muitos slides, várias aulas ou materiais)</label><select id="g-lotes"><option value=""${ped.lotes !== "nao" ? " selected" : ""}>Produzir em lotes (recomendado)</option><option value="nao"${ped.lotes === "nao" ? " selected" : ""}>Pedir tudo de uma vez</option></select><div class="hint">Em lotes, a IA mostra o sumário, entrega uma parte por resposta e mantém a consistência com uma ficha. O Caderno monta cada comando.</div></div>
           ${campoArea("g-habs", "Habilidades da BNCC do componente (cole do documento oficial)", ped.habsBNCC, "Ex.: EM13MAT101 — Interpretar criticamente situações econômicas...", "", `Copie do <a href="https://basenacionalcomum.mec.gov.br/" target="_blank" rel="noopener">site oficial da BNCC</a>. Com o texto oficial colado, a IA escolhe entre essas habilidades, como já acontece com as de Computação; sem ele, cita os códigos de memória e pode errar.`)}
         </div>
       </details>
@@ -1738,7 +1809,8 @@ function telaGerar(arg){
     <span class="lbl">Como usar</span>
     <ol class="passos-uso h"><li>Copie o pacote completo.</li><li>Abra a IA de sua preferência e cole como primeira mensagem.</li><li>Confira o material e valide as habilidades no quadro final.</li><li>Depois da aula, registre no Caderno: o próximo sai melhor.</li></ol>
   </section>
-  <section class="card" id="g-saida"></section>`;
+  <section class="card" id="g-saida"></section>
+  <section class="card" id="g-lotes-card" hidden></section>`;
   // Botão Copiar fixo no celular (fica fora da área animada, para não rolar com a página)
   const fixo = document.createElement("div"); fixo.className = "copiar-fixo"; fixo.id = "copiar-fixo";
   fixo.innerHTML = `<button class="btn pri" type="button" id="g-copiar-fixo">${ICO.copiar}Copiar pacote</button>`;
@@ -1746,10 +1818,12 @@ function telaGerar(arg){
   const celular = window.matchMedia("(max-width:860px)").matches;
   // No celular, as camadas 0 a 6 começam fechadas e só o pedido fica aberto
   const abertas = new Set(celular ? ["7"] : ["0","1","2","3","4","5","6","7"]);
-  let pacoteAtual = "";
+  let pacoteAtual = "", planoAtual = null;
+  // Produção em lotes: o que já foi copiado e as fichas coladas (só nesta tela)
+  const lotesFeitos = new Set(), fichas = {}; let chaveLotes = "";
   const atualizaAjustes = () => {
-    const n = [ped.formato, ped.detalhes, ped.habsBNCC, ped.componente && ped.componente !== (turmaG.componente || "")].filter(Boolean).length;
-    $("#g-aj-sum").textContent = n ? `Ajustes opcionais · ${n} preenchido${n > 1 ? "s" : ""}` : "Ajustes opcionais: formato, componente, detalhes e habilidades do componente";
+    const n = [ped.formato, ped.detalhes, ped.naoFazer, ped.exemplo, ped.lotes === "nao", ped.habsBNCC, ped.componente && ped.componente !== (turmaG.componente || "")].filter(Boolean).length;
+    $("#g-aj-sum").textContent = n ? `Ajustes opcionais · ${n} preenchido${n > 1 ? "s" : ""}` : "Ajustes opcionais: formato, componente, detalhes, o que não fazer, exemplo, lotes e habilidades";
   };
   // 7. Pedido incompleto: pergunta antes de copiar e leva ao campo que falta
   const podeSair = () => {
@@ -1761,19 +1835,20 @@ function telaGerar(arg){
     return false;
   };
   const marcar = () => { S.ultimo[turmaG.id] = {material:ped.tipo, tipos:ped.tipos, tema:ped.tema, formato:ped.formato}; salvar(); };
-  $("#g-copiar-fixo").addEventListener("click", () => { if(!podeSair()) return; marcar(); copiar(pacoteAtual, "Pacote completo copiado (camadas 0 a 7)"); });
+  const msgPacote = () => planoAtual ? "Pacote copiado. A IA vai responder com o sumário: depois, siga a Produção em lotes" : "Pacote completo copiado (camadas 0 a 7)";
+  $("#g-copiar-fixo").addEventListener("click", () => { if(!podeSair()) return; marcar(); copiar(pacoteAtual, msgPacote()); feitoLote(0); });
   const comp = $("#g-comp");
   const atualizaComp = () => { const t = turmaG; if(!ped.componente || ped._auto){ comp.value = t.componente || ""; ped._auto = true; } };
   atualizaComp();
   const ler = () => {
     const tipos = ordenaTipos(lerChips("g-tipos"));
-    Object.assign(ped, tempoG(), {turma:turmaG.id, tipos, tipo:tipos.join(" + "), eixos:comEixo ? EIXOS_CO.filter(x => lerChips("g-eixos").includes(x)) : [], compsCO:comComp ? COMPS_EM_ROT.filter(x => lerChips("g-comps").includes(x)) : [], componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, arquivo:$("#g-arq").value, detalhes:val("g-det"), habsBNCC:val("g-habs")});
+    Object.assign(ped, tempoG(), {turma:turmaG.id, tipos, tipo:tipos.join(" + "), eixos:comEixo ? EIXOS_CO.filter(x => lerChips("g-eixos").includes(x)) : [], compsCO:comComp ? COMPS_EM_ROT.filter(x => lerChips("g-comps").includes(x)) : [], componente:val("g-comp"), tema:val("g-tema"), formato:$("#g-fmt").value, arquivo:$("#g-arq").value, detalhes:val("g-det"), naoFazer:val("g-nao"), exemplo:val("g-ex"), lotes:$("#g-lotes").value, habsBNCC:val("g-habs")});
     S.pedido = Object.assign({}, ped); delete S.pedido._auto;
     if(ped.tipo || ped.tema) S.ultimo[ped.turma] = {material:ped.tipo, tipos:ped.tipos, tema:ped.tema, formato:ped.formato};
     salvar(); atualizaAjustes();
   };
   comp.addEventListener("input", () => { ped._auto = false; });
-  ["g-comp","g-tema","g-fmt","g-arq","g-det","g-habs"].forEach(id => $("#"+id).addEventListener("input", () => { ler(); desenhar(); }));
+  ["g-comp","g-tema","g-fmt","g-arq","g-det","g-nao","g-ex","g-lotes","g-habs"].forEach(id => $("#"+id).addEventListener("input", () => { ler(); desenhar(); }));
   ligarChips($(".pedido-card"));
   const tiposBox = $('[data-chips="g-tipos"]');
   const tiposTxt = () => { const n = lerChips("g-tipos").length; $("#g-tipos-txt").textContent = n > 1 ? `${n} materiais no mesmo pedido: a IA produz um conjunto articulado, do planejamento à avaliação.` : "Clique para marcar. Marque vários para gerar um conjunto (ex.: sequência didática + planos de aula + slides + avaliação)."; };
@@ -1808,6 +1883,7 @@ function telaGerar(arg){
     const cs = montarCamadas(t, ped);
     const pacote = textoCamadas(cs);
     pacoteAtual = pacote;
+    planoAtual = planoLotes(ped, t);
     const palavras = contaPalavras(pacote);
     const pct = Math.min(100, Math.round(palavras / 2500 * 100));
     const ok = (ped.tipos || []).length && ped.tema;
@@ -1820,6 +1896,7 @@ function telaGerar(arg){
         <label class="check"><input type="checkbox" id="g-com" ${ped.comentada?"checked":""}> Versão comentada</label>
       </div>
       ${ok ? "" : `<div class="aviso">${ICO.alerta}<span>Marque ao menos um material e informe o tema para completar o pedido.</span></div>`}
+      ${planoAtual ? `<div class="aviso info" style="margin-bottom:12px">${ICO.camadas}<span><b>Pedido longo: sai em ${planoAtual.total} lotes.</b> Cole o pacote na IA: ela responde só com o sumário. Depois, siga a <a href="#" data-ir-lotes>Produção em lotes</a>, logo abaixo, que tem cada comando pronto.</span></div>` : ""}
       <div class="acoes">
         <div class="row">
           <button class="btn pri" data-copiar="pacote">${ICO.copiar}Copiar pacote completo</button>
@@ -1845,11 +1922,11 @@ function telaGerar(arg){
       d.addEventListener("toggle", () => { if(d.isConnected) d.open ? abertas.add(d.dataset.n) : abertas.delete(d.dataset.n); });
     });
     const textos = {pacote};
-    $$("[data-copiar]").forEach(b => b.addEventListener("click", () => { if(!podeSair()) return; marcar(); copiar(textos[b.dataset.copiar], "Pacote completo copiado (camadas 0 a 7)"); }));
+    $$("#g-saida [data-copiar]").forEach(b => b.addEventListener("click", () => { if(!podeSair()) return; marcar(); copiar(textos[b.dataset.copiar], msgPacote()); feitoLote(0); }));
     $$("[data-ia]").forEach(b => b.addEventListener("click", () => {
       if(!podeSair()) return;
-      marcar(); const ia = IAS[b.dataset.ia];
-      copiar(pacote, `Pacote completo copiado! Cole no ${ia.nome}`);
+      marcar(); const ia = IAS[b.dataset.ia]; feitoLote(0);
+      copiar(pacote, `Pacote completo copiado! Cole no ${ia.nome}${planoAtual ? " e aguarde o sumário" : ""}`);
       window.open(ia.url, "_blank", "noopener");
     }));
     $("#g-md").addEventListener("click", () => {
@@ -1858,6 +1935,41 @@ function telaGerar(arg){
       const nome = (t.nome || "turma").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/gi,"-").toLowerCase();
       baixar(`contexto-${nome}.md`, pacote);
     });
+    const ir = $("#g-saida [data-ir-lotes]");
+    if(ir) ir.addEventListener("click", e => { e.preventDefault(); $("#g-lotes-card").scrollIntoView({behavior:"smooth", block:"start"}); });
+    desenharLotes(t);
+  }
+  // Passo k concluído (0 = pacote, 1..L = lotes, L+1 = fechamento)
+  function feitoLote(k){ if(!planoAtual) return; lotesFeitos.add(k); desenharLotes(S.turmas.find(x => x.id === ped.turma)); }
+  function desenharLotes(t){
+    const box = $("#g-lotes-card"), pl = planoAtual;
+    if(!pl){ box.hidden = true; box.innerHTML = ""; return; }
+    const L = pl.total, chave = [ped.turma, (ped.tipos || []).join("+"), ped.tema, ped.aulas, ped.duracao, L].join("|");
+    if(chave !== chaveLotes){ if(chaveLotes) { lotesFeitos.clear(); Object.keys(fichas).forEach(k => delete fichas[k]); } chaveLotes = chave; }
+    const passos = [{k:0, tit:"Pacote e sumário", txt:"Cole o pacote como 1ª mensagem. A IA responde só com o sumário, dividido em lotes. Confira e, se quiser, peça ajustes antes de aprovar.", btn:"Copiar pacote"}];
+    for(let k = 1; k <= L; k++) passos.push({k, tit:`Lote ${k} de ${L}`, txt: k === 1 ? "Aprova o sumário e pede o primeiro lote." : "Na mesma conversa. Cole abaixo a FICHA que a IA escreveu no fim do lote anterior: ela mantém termos, exemplos e regras iguais.", btn:"Copiar comando", ficha: k > 1});
+    passos.push({k:L + 1, tit:"Fechamento", txt:"Revisão do conjunto (sem reescrever), quadro de habilidades, checklist, recursos visuais e fontes.", btn:"Copiar fechamento"});
+    const feitos = passos.filter(p => lotesFeitos.has(p.k)).length, atual = passos.find(p => !lotesFeitos.has(p.k));
+    box.hidden = false;
+    box.innerHTML = `
+      <h2><span class="ico-chip">${ICO.camadas}</span>Produção em lotes</h2>
+      <p class="sub">Pedido longo: ${L} lotes de ${esc(pl.unidade)}${pl.adapt ? `, mais as versões adaptadas` : ""}. Copie um comando por vez e cole na mesma conversa com a IA.</p>
+      <div class="lotes-prog" aria-live="polite"><span class="bar"><i style="width:${Math.round(feitos / passos.length * 100)}%"></i></span><span>${atual ? `Agora: <b>${esc(atual.tit)}</b> · passo ${passos.indexOf(atual) + 1} de ${passos.length}` : "Tudo pronto! Confira o material e registre a aula no Caderno."}</span></div>
+      <ol class="lotes">${passos.map((p, i) => `<li class="lote${lotesFeitos.has(p.k) ? " feito" : ""}${p === atual ? " atual" : ""}">
+          <span class="num">${lotesFeitos.has(p.k) ? "✓" : i + 1}</span>
+          <div><b>${esc(p.tit)}</b><p>${esc(p.txt)}</p></div>
+          <button class="btn sm${p === atual ? " pri" : ""}" type="button" data-lote="${p.k}">${ICO.copiar}${p.btn}</button>
+          ${p.ficha ? `<textarea data-ficha="${p.k}" aria-label="FICHA do lote ${p.k - 1}" placeholder="Cole aqui a FICHA do lote ${p.k - 1} (recomendado)">${esc(fichas[p.k] || "")}</textarea>` : ""}
+        </li>`).join("")}</ol>
+      ${ped.comentada ? `<div class="coment" style="margin-top:14px; border-radius:var(--r-s)">${ICO.luz}<span>Por que em lotes? Cada resposta da IA tem um limite de tamanho: pedir 15 slides de uma vez faz cada um sair raso; em lotes, cada parte ganha espaço. O risco é a deriva: a partir do 3º lote, a IA tende a mudar o tom, repetir exemplos ou esquecer regras. O sumário aprovado fixa a estrutura, a ficha de consistência leva a memória de um lote para o outro e o fechamento revisa o conjunto.</span></div>` : ""}`;
+    $$("#g-lotes-card [data-ficha]").forEach(a => a.addEventListener("input", () => { fichas[a.dataset.ficha] = a.value.trim(); }));
+    $$("#g-lotes-card [data-lote]").forEach(b => b.addEventListener("click", () => {
+      const k = +b.dataset.lote;
+      if(k === 0){ if(!podeSair()) return; marcar(); copiar(pacoteAtual, msgPacote()); }
+      else if(k <= L) copiar(textoLote(k, L, fichas[k]), k === 1 ? "Comando do Lote 1 copiado: cole depois do sumário" : `Comando do Lote ${k} copiado${fichas[k] ? ", com a ficha" : ""}`);
+      else copiar(textoFechamento(pl), "Comando de fechamento copiado");
+      feitoLote(k);
+    }));
   }
   desenhar();
 }
