@@ -787,7 +787,7 @@ function linhasEntrega(ped, t){
   const tipos = ped.tipos || [];
   if(ped.arquivo === "chat") return [`- Entrega: em texto na conversa, completo e visual (tabelas, esquemas, emojis com moderação), indicando onde entram imagens, GIFs e vídeos.`];
   const varios = tipos.length > 1, adapt = ((t.deficiencias || []).length || t.acessibilidade);
-  const extra = adapt ? "; versões adaptadas em arquivos próprios" : "";
+  const extra = adapt ? "; as sugestões para a inclusão vão no mesmo arquivo, nunca em arquivo à parte" : "";
   const fecho = plano => `  Sem ferramenta de arquivos? Diga isso na 1ª linha e entregue ${plano}. Nunca entregue resumo ou esboço.`;
   if(ped.arquivo){
     const a = arqDe(ped.arquivo);
@@ -1670,7 +1670,7 @@ ${comSlides ? `   SLIDES: entregue os slides completos, com as figuras prontas (
     ped.naoFazer && `- NÃO faça: ${ped.naoFazer}`,
     ped.exemplo && `- Padrão esperado (exemplo do(a) professor(a); copie o nível de detalhe e a estrutura, não o conteúdo):\n"""\n${ped.exemplo}\n"""`,
     f && f.id && `- Formato${(ped.tipos || []).length > 1 ? " (todos os materiais)" : ""}: ${f.nome}. ${f.regra} O quadro de habilidades entra adaptado a este formato.`,
-    ...linhasInclusao(t),
+    ...linhasInclusao(t, ped),
     ...linhasEntrega(ped, t),
     ...linhasLotes(planoLotes(ped, t))].filter(Boolean);
   c.push({n:"7", nome:"Pedido", tipo:"pedido", txt:r7.join("\n"),
@@ -1701,8 +1701,8 @@ function planoLotes(ped, t){
   if(deSlides){ base = lotesSlides + outros; unidade = `exatamente ${SLIDES_POR_LOTE} slides completos, com as figuras${outros ? " (cada um dos outros materiais em lote próprio)" : ""}`; }
   else if(n > 1){ base = n; unidade = "1 aula (com todos os materiais dela)"; }
   else { base = tipos.length; unidade = "1 material"; }
-  // Versões adaptadas em lotes próprios; slides adaptados também de 5 em 5
-  let total = base + adapt * (deSlides ? lotesSlides + (outros ? 1 : 0) : 1);
+  // Inclusão não gera lotes extras: é um material só, com as sugestões no mesmo documento
+  let total = base;
   if(total < 2) return null;
   const teto = deSlides ? MAX_LOTES_SLIDES : MAX_LOTES;
   if(total > teto){ total = teto; if(!deSlides) unidade = "partes de tamanho parecido"; }
@@ -1712,11 +1712,11 @@ function linhasLotes(pl){
   if(!pl) return [];
   const L = pl.total;
   return [`- PRODUÇÃO EM LOTES (obrigatório): ${pl.slides ? `os slides saem SEMPRE de ${SLIDES_POR_LOTE} em ${SLIDES_POR_LOTE}, completos e com as figuras (${pl.slides} slides = ${pl.lotesSlides} lotes de ${SLIDES_POR_LOTE}).` : "este pedido é longo."} Para não sair raso, será feito em ${L} lotes, um por resposta.`,
-    `  1. AGORA, NÃO produza o material. Responda só com o SUMÁRIO completo: títulos numerados de tudo o que será entregue (aulas, slides, atividades, questões${pl.adapt ? ", versões adaptadas" : ""}), já com as quantidades pedidas acima, dividido de “LOTE 1 de ${L}” a “LOTE ${L} de ${L}”, cada lote com ${pl.unidade}${pl.adapt ? `; as versões adaptadas em lotes próprios, depois do material comum${pl.slides ? ` (slides adaptados também de ${SLIDES_POR_LOTE} em ${SLIDES_POR_LOTE})` : ""}` : ""}. Depois, pare e aguarde minha aprovação.`,
+    `  1. AGORA, NÃO produza o material. Responda só com o SUMÁRIO completo: títulos numerados de tudo o que será entregue (aulas, slides, atividades, questões${pl.adapt ? ", sugestões para a inclusão" : ""}), já com as quantidades pedidas acima, dividido de “LOTE 1 de ${L}” a “LOTE ${L} de ${L}”, cada lote com ${pl.unidade}${pl.adapt ? "; um único material comum, sem versões separadas por deficiência" : ""}. Depois, pare e aguarde minha aprovação.`,
     `  2. Em cada lote, use marcadores fixos ([AULA n], [SLIDE n], [ATIVIDADE n], [QUESTÃO n]), continue a numeração e mantenha o nível de detalhe do Lote 1 até o último. Nunca resuma os lotes finais.`,
     pl.slides && `  Slides: cada lote traz ${SLIDES_POR_LOTE} slides PRONTOS, cada um com título, texto, a FIGURA já gerada e inserida no próprio slide e as notas do professor. Gere as imagens com sua ferramenta de imagens (ou use imagens livres reais, com crédito). NÃO entregue no lugar da figura marcadores [IMG n], prompts de imagem, descrições ou código.`,
     `  3. Termine CADA lote com a FICHA DE CONSISTÊNCIA (até 10 linhas): termos-chave já definidos; exemplos, personagens e contextos já usados; ${pl.slides ? "figuras e estilo visual já usados" : "recursos visuais já numerados"}; último item produzido; o que vem no próximo lote.`,
-    `  4. Quadro de habilidades, checklist de entrega${pl.soSlides ? "" : ", banco de recursos visuais consolidado"} e fontes ficam para o FECHAMENTO, depois do último lote.`,
+    `  4. ${pl.adapt ? "Sugestões para a inclusão (seção completa), q" : "Q"}uadro de habilidades, checklist de entrega${pl.soSlides ? "" : ", banco de recursos visuais consolidado"} e fontes ficam para o FECHAMENTO, depois do último lote.`,
     pl.arquivo && `  5. Arquivos: entregue o arquivo de cada lote no fim do lote (ex.: parte-1-de-${L}); no fechamento, se puder, junte tudo num arquivo único.`].filter(Boolean);
 }
 function textoLote(k, L, ficha, slides){
@@ -1731,7 +1731,7 @@ ${ficha}
 function textoFechamento(pl){
   return `Todos os ${pl.total} lotes foram produzidos. Agora, o FECHAMENTO:
 1. Revise o conjunto: aponte incoerências de termos, repetições, saltos de dificuldade entre os lotes e itens do sumário que faltaram. Não reescreva os itens: liste as correções (lote, item, o que mudar).
-2. Produza o que vale para o conjunto: QUADRO DE HABILIDADES (código | texto | por que | onde aparece), CHECKLIST DE ENTREGA${pl.soSlides ? "" : ", BANCO DE RECURSOS VISUAIS consolidado"}, FONTES CONSULTADAS e 3 ajustes possíveis.
+2. Produza o que vale para o conjunto: QUADRO DE HABILIDADES (código | texto | por que | onde aparece), ${pl.adapt ? "SUGESTÕES PARA A INCLUSÃO (para cada necessidade da turma, como trabalhar este conteúdo com o estudante, no mesmo documento), " : ""}CHECKLIST DE ENTREGA${pl.soSlides ? "" : ", BANCO DE RECURSOS VISUAIS consolidado"}, FONTES CONSULTADAS e 3 ajustes possíveis.
 3. ${pl.arquivo ? "Se puder, junte todos os lotes, já com as correções, num arquivo único para baixar, no formato pedido no contexto." : "Não repita o material: só as correções e os itens acima."}`;
 }
 
@@ -1747,16 +1747,20 @@ function linhasQuantidade(ped, emLotes){
     temSlides && `  Slides: ${pa} por aula (${pa * n} no total${tipos.length > 1 ? ", por material de slides" : ""}), separados por aula.`,
     `  No fim, CHECKLIST DE ENTREGA por aula (slides ou páginas, atividades, minutos); complete o que faltar.${emLotes ? "" : ` Se ficar longo, entregue a Aula 1 completa e peça CONTINUAR para a seguinte, até a Aula ${n}.`} Nunca encurte.`].filter(Boolean);
 }
-function linhasInclusao(t){
+// Inclusão: UM material comum, acessível a todos (DUA), com sugestões para os estudantes com deficiência no mesmo documento
+// (decisão do professor: nada de uma versão separada para cada deficiência)
+function linhasInclusao(t, ped){
   const defs = t.deficiencias || [];
   if(!defs.length && !t.acessibilidade) return [];
-  if(!defs.length) return [`- Acessibilidade: além do material comum, uma versão adaptada e separada para o descrito na camada 4, igualmente visual.`];
-  return [`- Inclusão (obrigatório): primeiro o material comum; depois uma versão separada para cada necessidade (“Versão adaptada: ${defs[0]}”), com o mesmo tema, habilidades e objetivo, mudando acesso, apresentação e resposta, e uma dica ao(à) professor(a) para aplicá-la sem expor o estudante:`,
+  const slides = ped && temSlidesPed(ped);
+  const onde = slides ? "no fim do mesmo arquivo (e dicas curtas nas notas do professor dos slides em que couberem)" : "no fim do mesmo documento";
+  if(!defs.length) return [`- Acessibilidade: um único material comum, acessível a toda a turma, sem versões separadas. Inclua a seção “SUGESTÕES PARA A INCLUSÃO” ${onde}, dizendo como trabalhar este conteúdo considerando o descrito na camada 4.`];
+  return [`- Inclusão (obrigatório): produza UM ÚNICO material, comum a toda a turma; NÃO crie versões separadas por deficiência. O material comum já nasce acessível (DUA). Inclua a seção “SUGESTÕES PARA A INCLUSÃO” ${onde}: para cada necessidade abaixo, como trabalhar o que está sendo estudado com o estudante (mediação, apoios, ajustes na tarefa, no tempo e na avaliação, recursos), sem expor o estudante:`,
     ...defs.map(d => `  • ${d}${DEFICIENCIAS[d] ? ": " + DEFICIENCIAS[d] : ""}.`),
     t.acessibilidade ? `  Considere também: ${t.acessibilidade}` : null,
-    `  As versões adaptadas são tão visuais quanto o material comum: pictogramas, ícones, passos ilustrados, infográficos simples, imagens grandes e alto contraste.`,
+    `  O material comum é visual e acessível a todos: pictogramas, ícones, passos ilustrados, infográficos simples, imagens grandes e alto contraste.`,
     defs.some(d => /TEA|TDAH|intelectual/.test(d)) ? `  TEA, TDAH ou deficiência intelectual: visual organizado e previsível, cores fixas por tipo de tarefa, um elemento por vez; animações suaves só por ação do estudante, nada que pisque ou toque som sozinho.` : null,
-    defs.some(d => /Cegueira|Surdocegueira/.test(d)) ? `  Cegueira: o lúdico vem do áudio, do tato e da narrativa; descreva toda imagem, GIF e vídeo.` : null].filter(Boolean);
+    defs.some(d => /Cegueira|Surdocegueira/.test(d)) ? `  Cegueira: descreva toda imagem, GIF e vídeo; nas sugestões, indique como levar o conteúdo para o áudio, o tato e a narrativa.` : null].filter(Boolean);
 }
 function linhasMateriais(tipos){
   if(!tipos.length) return ["- Material: (escolha o material)"];
@@ -1964,7 +1968,7 @@ function telaGerar(arg){
     box.hidden = false;
     box.innerHTML = `
       <h2><span class="ico-chip">${ICO.camadas}</span>Produção em lotes</h2>
-      <p class="sub">${pl.slides ? `${pl.slides} slides, sempre de ${SLIDES_POR_LOTE} em ${SLIDES_POR_LOTE}, completos e com as figuras: ${L} lotes` : `Pedido longo: ${L} lotes de ${esc(pl.unidade)}`}${pl.adapt ? `, mais as versões adaptadas` : ""}. Copie um comando por vez e cole na mesma conversa com a IA.</p>
+      <p class="sub">${pl.slides ? `${pl.slides} slides, sempre de ${SLIDES_POR_LOTE} em ${SLIDES_POR_LOTE}, completos e com as figuras: ${L} lotes` : `Pedido longo: ${L} lotes de ${esc(pl.unidade)}`}${pl.adapt ? ", com as sugestões para a inclusão no mesmo documento" : ""}. Copie um comando por vez e cole na mesma conversa com a IA.</p>
       <div class="lotes-prog" aria-live="polite"><span class="bar"><i style="width:${Math.round(feitos / passos.length * 100)}%"></i></span><span>${atual ? `Agora: <b>${esc(atual.tit)}</b> · passo ${passos.indexOf(atual) + 1} de ${passos.length}` : "Tudo pronto! Confira o material e registre a aula no Caderno."}</span></div>
       <ol class="lotes">${passos.map((p, i) => `<li class="lote${lotesFeitos.has(p.k) ? " feito" : ""}${p === atual ? " atual" : ""}">
           <span class="num">${lotesFeitos.has(p.k) ? "✓" : i + 1}</span>
