@@ -1651,7 +1651,7 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
 5. Siga o DUA: várias formas de representação, engajamento e expressão.
 6. Material lúdico e muito visual: figuras, ícones, infográficos, tabelas, GIFs, vídeos curtos e motion design com propósito; jogos, personagens e desafios por fases. Texto alternativo e legendas sempre.
 ${BUSCA_TXT}
-${comSlides ? `   SLIDES: entregue os slides completos, com as figuras inseridas em cada slide (de preferência recursos prontos de repositórios livres, com crédito no próprio slide; criadas só se não houver); nunca marcadores, prompts ou código no lugar da figura.${soSlides ? "" : "\n" + BANCO_TXT}` : BANCO_TXT}
+${comSlides ? `   SLIDES: entregue os slides completos, com as figuras inseridas em cada slide (de preferência recursos prontos de repositórios livres, com crédito no próprio slide; criadas só se não houver); nunca marcadores, prompts ou código no lugar da figura.\n   ${ENTREGA_SLIDES}${soSlides ? "" : "\n" + BANCO_TXT}` : BANCO_TXT}
 7. Ética: nenhum dado pessoal de estudante, nenhum estereótipo; cite fontes, respeite direitos autorais e marque [VERIFICAR] o que precisa ser conferido.
 8. Pesquisa: se o professor não indicou fontes e faltar uma informação necessária (conceitos, dados, leis, exemplos atuais ou do território), pesquise na internet antes de produzir, em fontes confiáveis (MEC, BNCC, sites .gov.br, universidades, IBGE, artigos científicos). No fim, liste as FONTES CONSULTADAS com link. Se não puder navegar, avise e marque [VERIFICAR]; nunca invente fontes, dados ou links.
 9. Se faltar algo essencial que a pesquisa não resolva, faça até 2 perguntas; se não, produza direto.
@@ -1681,6 +1681,9 @@ ${comSlides ? `   SLIDES: entregue os slides completos, com as figuras inseridas
 // Recursos visuais: primeiro BUSCAR prontos em repositórios públicos e gratuitos; criar só quando não houver (pedido do professor)
 const BUSCA_TXT = `   BUSCAR ANTES DE CRIAR (obrigatório): para figuras, fotos, ícones, infográficos, GIFs, vídeos, mapas e simulações, procure primeiro recursos prontos em repositórios públicos e gratuitos da web: Wikimedia Commons, Openverse, Pixabay, Unsplash, Pexels, Flaticon (com atribuição), GIPHY, NASA Image Library, IBGE Educa, PhET (simulações), MEC RED, Khan Academy e canais educativos do YouTube. Use só o que for de uso livre (domínio público ou Creative Commons) e informe fonte, autor, licença e link de cada recurso. Crie (gere a imagem) SOMENTE quando não houver um recurso pronto adequado, e marque “criado por IA”. Se não puder navegar na web, avise e então crie. Nunca invente links.`;
 const BANCO_TXT = `   BANCO DE RECURSOS VISUAIS: marque no material onde entra cada recurso ([IMG 1], [GIF 2], [VÍDEO 3], [ÍCONE 4], [INFOGRÁFICO 5]) e, no fim de cada aula ou material, liste cada um com: onde entra; o recurso pronto encontrado (link, fonte, autor e licença) ou, só se nenhum servir, a imagem criada por você (ou um prompt pronto em português para gerá-la), com estilo e proporção; e texto alternativo.`;
+// Slides: a IA tem de ENTREGAR os slides, no formato pedido ou no melhor formato de slides que tiver (teste do professor:
+// a IA escolheu as figuras, organizou tudo e não gerou os slides)
+const ENTREGA_SLIDES = `ENTREGA DOS SLIDES (obrigatório): os slides PRONTOS, não um plano. Use o melhor formato que você tiver, nesta ordem: 1) o arquivo pedido (.pptx ou Google Apresentações); 2) se não puder, outro formato de slides que você consiga gerar (apresentação em Canvas, Artefato ou página HTML, exportação para Google Apresentações, Markdown no padrão Marp ou texto pronto para o Gamma); 3) no mínimo, os slides montados na própria conversa, um por vez, com título, texto, a figura exibida e as notas do professor. Diga na 1ª linha qual formato usou. Selecionar figuras ou organizar o conteúdo NÃO é entregar: a resposta só termina quando os slides existirem.`;
 // PRODUÇÃO EM LOTES: cada resposta da IA tem um limite de tamanho; pedidos longos saem rasos se vierem de uma vez.
 // O Caderno divide o pedido em lotes (5 slides, 1 aula ou 1 material por lote), pede antes o sumário para aprovação
 // e uma FICHA DE CONSISTÊNCIA no fim de cada lote, que carrega a memória de um lote para o outro.
@@ -1715,9 +1718,9 @@ function linhasLotes(pl){
   if(!pl) return [];
   const L = pl.total;
   return [`- PRODUÇÃO EM LOTES (obrigatório): ${pl.slides ? `os slides saem SEMPRE de ${SLIDES_POR_LOTE} em ${SLIDES_POR_LOTE}, completos e com as figuras (${pl.slides} slides = ${pl.lotesSlides} lotes de ${SLIDES_POR_LOTE}).` : "este pedido é longo."} Para não sair raso, será feito em ${L} lotes, um por resposta.`,
-    `  1. AGORA, NÃO produza o material. Responda só com o SUMÁRIO completo: títulos numerados de tudo o que será entregue (aulas, slides, atividades, questões${pl.adapt ? ", sugestões para a inclusão" : ""}), já com as quantidades pedidas acima, dividido de “LOTE 1 de ${L}” a “LOTE ${L} de ${L}”, cada lote com ${pl.unidade}${pl.adapt ? "; um único material comum, sem versões separadas por deficiência" : ""}. Depois, pare e aguarde minha aprovação.`,
+    `  1. AGORA, nesta primeira resposta: escreva o SUMÁRIO (curto: títulos numerados de tudo o que será entregue, como aulas, slides, atividades, questões${pl.adapt ? ", sugestões para a inclusão" : ""}; já com as quantidades pedidas acima; dividido de “LOTE 1 de ${L}” a “LOTE ${L} de ${L}”, cada lote com ${pl.unidade}${pl.adapt ? "; um único material comum, sem versões separadas por deficiência" : ""}) e, NA MESMA RESPOSTA, produza já o LOTE 1 completo${pl.slides ? `, com os ${SLIDES_POR_LOTE} slides prontos` : ""}. Não pare no planejamento. Se eu pedir ajustes no sumário, aplique-os nos lotes seguintes.`,
     `  2. Em cada lote, use marcadores fixos ([AULA n], [SLIDE n], [ATIVIDADE n], [QUESTÃO n]), continue a numeração e mantenha o nível de detalhe do Lote 1 até o último. Nunca resuma os lotes finais.`,
-    pl.slides && `  Slides: cada lote traz ${SLIDES_POR_LOTE} slides PRONTOS, cada um com título, texto, a FIGURA inserida no próprio slide (com crédito: fonte e licença) e as notas do professor. Busque primeiro figuras, infográficos e GIFs prontos em repositórios públicos e gratuitos (camada 6); crie com sua ferramenta de imagens só quando não houver um adequado. NÃO entregue no lugar da figura marcadores [IMG n], prompts de imagem, descrições ou código.`,
+    pl.slides && `  Slides: cada lote traz ${SLIDES_POR_LOTE} slides PRONTOS, cada um com título, texto, a FIGURA inserida no próprio slide (com crédito: fonte e licença) e as notas do professor. Busque primeiro figuras, infográficos e GIFs prontos em repositórios públicos e gratuitos (camada 6); crie com sua ferramenta de imagens só quando não houver um adequado. NÃO entregue no lugar da figura marcadores [IMG n], prompts de imagem, descrições ou código. Siga a ENTREGA DOS SLIDES da camada 6 em todo lote: se o formato pedido não estiver disponível, use o formato de slides que você tiver.`,
     `  3. Termine CADA lote com a FICHA DE CONSISTÊNCIA (até 10 linhas): termos-chave já definidos; exemplos, personagens e contextos já usados; ${pl.slides ? "figuras e estilo visual já usados" : "recursos visuais já numerados"}; último item produzido; o que vem no próximo lote.`,
     `  4. ${pl.adapt ? "Sugestões para a inclusão (seção completa), q" : "Q"}uadro de habilidades, checklist de entrega${pl.soSlides ? "" : ", banco de recursos visuais consolidado"} e fontes ficam para o FECHAMENTO, depois do último lote.`,
     pl.arquivo && `  5. Arquivos: entregue o arquivo de cada lote no fim do lote (ex.: parte-1-de-${L}); no fechamento, se puder, junte tudo num arquivo único.`].filter(Boolean);
@@ -1729,11 +1732,11 @@ ${ficha ? `Use a FICHA do lote anterior:
 """
 ${ficha}
 """
-` : "Use a FICHA DE CONSISTÊNCIA que você escreveu no fim do lote anterior.\n"}Mantenha exatamente as regras, o formato e o nível de detalhe do Lote 1.${slides ? ` Se o lote for de slides: ${SLIDES_POR_LOTE} slides completos, com as figuras inseridas em cada slide (buscadas primeiro em repositórios livres, criadas só se não houver), no mesmo estilo visual.` : ""} Não repita exemplos, personagens ou recursos visuais já usados; continue a numeração. Não resuma. Termine com a FICHA atualizada${k === L ? " e avise que este foi o último lote" : ""}.`;
+` : "Use a FICHA DE CONSISTÊNCIA que você escreveu no fim do lote anterior.\n"}Mantenha exatamente as regras, o formato e o nível de detalhe do Lote 1.${slides ? ` Se o lote for de slides: entregue os ${SLIDES_POR_LOTE} slides PRONTOS, com as figuras inseridas em cada slide (buscadas primeiro em repositórios livres, criadas só se não houver), no mesmo estilo visual, no formato pedido ou, se ele não estiver disponível, no melhor formato de slides que você tiver; não pare em selecionar figuras ou organizar.` : ""} Não repita exemplos, personagens ou recursos visuais já usados; continue a numeração. Não resuma. Termine com a FICHA atualizada${k === L ? " e avise que este foi o último lote" : ""}.`;
 }
 function textoFechamento(pl){
   return `Todos os ${pl.total} lotes foram produzidos. Agora, o FECHAMENTO:
-1. Revise o conjunto: aponte incoerências de termos, repetições, saltos de dificuldade entre os lotes e itens do sumário que faltaram. Não reescreva os itens: liste as correções (lote, item, o que mudar).
+${pl.slides ? "0. Se algum lote ficou sem os slides prontos (só plano, lista de figuras ou organização), gere agora esses slides, no melhor formato que tiver.\n" : ""}1. Revise o conjunto: aponte incoerências de termos, repetições, saltos de dificuldade entre os lotes e itens do sumário que faltaram. Não reescreva os itens: liste as correções (lote, item, o que mudar).
 2. Produza o que vale para o conjunto: QUADRO DE HABILIDADES (código | texto | por que | onde aparece), ${pl.adapt ? "SUGESTÕES PARA A INCLUSÃO (para cada necessidade da turma, como trabalhar este conteúdo com o estudante, no mesmo documento), " : ""}CHECKLIST DE ENTREGA${pl.soSlides ? "" : ", BANCO DE RECURSOS VISUAIS consolidado"}, CRÉDITOS DAS FIGURAS E RECURSOS (fonte, autor, licença e link de cada um; “criado por IA” nos que foram criados), FONTES CONSULTADAS e 3 ajustes possíveis.
 3. ${pl.arquivo ? "Se puder, junte todos os lotes, já com as correções, num arquivo único para baixar, no formato pedido no contexto." : "Não repita o material: só as correções e os itens acima."}`;
 }
@@ -1853,7 +1856,7 @@ function telaGerar(arg){
     return false;
   };
   const marcar = () => { S.ultimo[turmaG.id] = {material:ped.tipo, tipos:ped.tipos, tema:ped.tema, formato:ped.formato}; salvar(); };
-  const msgPacote = () => planoAtual ? "Pacote copiado. A IA vai responder com o sumário: depois, siga a Produção em lotes" : "Pacote completo copiado (camadas 0 a 7)";
+  const msgPacote = () => planoAtual ? "Pacote copiado. A IA responde com o sumário e o Lote 1: depois, siga a Produção em lotes" : "Pacote completo copiado (camadas 0 a 7)";
   $("#g-copiar-fixo").addEventListener("click", () => { if(!podeSair()) return; marcar(); copiar(pacoteAtual, msgPacote()); feitoLote(0); });
   const comp = $("#g-comp");
   const atualizaComp = () => { const t = turmaG; if(!ped.componente || ped._auto){ comp.value = t.componente || ""; ped._auto = true; } };
@@ -1914,7 +1917,7 @@ function telaGerar(arg){
         <label class="check"><input type="checkbox" id="g-com" ${ped.comentada?"checked":""}> Versão comentada</label>
       </div>
       ${ok ? "" : `<div class="aviso">${ICO.alerta}<span>Marque ao menos um material e informe o tema para completar o pedido.</span></div>`}
-      ${planoAtual ? `<div class="aviso info" style="margin-bottom:12px">${ICO.camadas}<span><b>${planoAtual.slides ? `Slides de ${SLIDES_POR_LOTE} em ${SLIDES_POR_LOTE}, com as figuras: sai em ${planoAtual.total} lotes.` : `Pedido longo: sai em ${planoAtual.total} lotes.`}</b> Cole o pacote na IA: ela responde só com o sumário. Depois, siga a <a href="#" data-ir-lotes>Produção em lotes</a>, logo abaixo, que tem cada comando pronto.</span></div>` : ""}
+      ${planoAtual ? `<div class="aviso info" style="margin-bottom:12px">${ICO.camadas}<span><b>${planoAtual.slides ? `Slides de ${SLIDES_POR_LOTE} em ${SLIDES_POR_LOTE}, com as figuras: sai em ${planoAtual.total} lotes.` : `Pedido longo: sai em ${planoAtual.total} lotes.`}</b> Cole o pacote na IA: ela responde com o sumário e já entrega o Lote 1. Depois, siga a <a href="#" data-ir-lotes>Produção em lotes</a>, logo abaixo, que tem cada comando pronto.</span></div>` : ""}
       <div class="acoes">
         <div class="row">
           <button class="btn pri" data-copiar="pacote">${ICO.copiar}Copiar pacote completo</button>
@@ -1944,7 +1947,7 @@ function telaGerar(arg){
     $$("[data-ia]").forEach(b => b.addEventListener("click", () => {
       if(!podeSair()) return;
       marcar(); const ia = IAS[b.dataset.ia]; feitoLote(0);
-      copiar(pacote, `Pacote completo copiado! Cole no ${ia.nome}${planoAtual ? " e aguarde o sumário" : ""}`);
+      copiar(pacote, `Pacote completo copiado! Cole no ${ia.nome}${planoAtual ? ": vem o sumário e o Lote 1" : ""}`);
       window.open(ia.url, "_blank", "noopener");
     }));
     $("#g-md").addEventListener("click", () => {
@@ -1964,8 +1967,8 @@ function telaGerar(arg){
     if(!pl){ box.hidden = true; box.innerHTML = ""; return; }
     const L = pl.total, chave = [ped.turma, (ped.tipos || []).join("+"), ped.tema, ped.aulas, ped.duracao, L].join("|");
     if(chave !== chaveLotes){ if(chaveLotes) { lotesFeitos.clear(); Object.keys(fichas).forEach(k => delete fichas[k]); } chaveLotes = chave; }
-    const passos = [{k:0, tit:"Pacote e sumário", txt:"Cole o pacote como 1ª mensagem. A IA responde só com o sumário, dividido em lotes. Confira e, se quiser, peça ajustes antes de aprovar.", btn:"Copiar pacote"}];
-    for(let k = 1; k <= L; k++) passos.push({k, tit:`Lote ${k} de ${L}`, txt: k === 1 ? "Aprova o sumário e pede o primeiro lote." : "Na mesma conversa. Cole abaixo a FICHA que a IA escreveu no fim do lote anterior: ela mantém termos, exemplos e regras iguais.", btn:"Copiar comando", ficha: k > 1});
+    const passos = [{k:0, tit:`Pacote, sumário e Lote 1 de ${L}`, txt:`Cole o pacote como 1ª mensagem. A IA responde com o sumário e já entrega o Lote 1${pl.slides ? ` (${SLIDES_POR_LOTE} slides prontos)` : ""}. Se quiser mudar o sumário, peça antes do Lote 2.`, btn:"Copiar pacote"}];
+    for(let k = 2; k <= L; k++) passos.push({k, tit:`Lote ${k} de ${L}`, txt:"Na mesma conversa. Cole abaixo a FICHA que a IA escreveu no fim do lote anterior: ela mantém termos, exemplos e regras iguais.", btn:"Copiar comando", ficha:true});
     passos.push({k:L + 1, tit:"Fechamento", txt:"Revisão do conjunto (sem reescrever), quadro de habilidades, checklist, recursos visuais e fontes.", btn:"Copiar fechamento"});
     const feitos = passos.filter(p => lotesFeitos.has(p.k)).length, atual = passos.find(p => !lotesFeitos.has(p.k));
     box.hidden = false;
@@ -1984,7 +1987,7 @@ function telaGerar(arg){
     $$("#g-lotes-card [data-lote]").forEach(b => b.addEventListener("click", () => {
       const k = +b.dataset.lote;
       if(k === 0){ if(!podeSair()) return; marcar(); copiar(pacoteAtual, msgPacote()); }
-      else if(k <= L) copiar(textoLote(k, L, fichas[k], !!pl.slides), k === 1 ? "Comando do Lote 1 copiado: cole depois do sumário" : `Comando do Lote ${k} copiado${fichas[k] ? ", com a ficha" : ""}`);
+      else if(k <= L) copiar(textoLote(k, L, fichas[k], !!pl.slides), `Comando do Lote ${k} copiado${fichas[k] ? ", com a ficha" : ""}`);
       else copiar(textoFechamento(pl), "Comando de fechamento copiado");
       feitoLote(k);
     }));
