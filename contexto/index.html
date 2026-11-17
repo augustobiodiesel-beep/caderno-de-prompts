@@ -755,13 +755,13 @@ const ARQUIVOS = [
    plano:"o conteúdo completo formatado para colar no Word ou no Google Documentos e salvar em PDF"},
   {id:"pptx", nome:"PowerPoint (.pptx)", ext:".pptx", como:"arquivo .pptx (PowerPoint, notas do apresentador nas anotações; via código: python-pptx)",
    visual:"imagens grandes, ícones, infográficos, GIFs e vídeos, transições e animações de entrada",
-   plano:"os slides completos, de 5 em 5, com as figuras geradas e mostradas na conversa junto de cada slide, para montar no PowerPoint, no Google Apresentações ou no Gamma"},
+   plano:"os slides completos, de 5 em 5, com as figuras (prontas de repositórios livres, com link e crédito, ou criadas quando não houver) junto de cada slide, para montar no PowerPoint, no Google Apresentações ou no Gamma"},
   {id:"gdocs", nome:"Google Documentos", ext:".docx", como:"Google Documentos (exporte direto ou gere um .docx, que o Drive converte)",
    visual:"ícones, infográficos, tabelas coloridas, caixas de destaque e QR codes para os vídeos",
    plano:"o conteúdo completo formatado para colar no Google Documentos"},
   {id:"gslides", nome:"Google Apresentações", ext:".pptx", como:"Google Apresentações (exporte direto ou gere um .pptx, que o Drive converte; notas do apresentador nas anotações)",
    visual:"imagens grandes, ícones, infográficos, GIFs e vídeos, transições e animações de entrada",
-   plano:"os slides completos, de 5 em 5, com as figuras geradas e mostradas na conversa junto de cada slide, para montar no Google Apresentações ou no Gamma"},
+   plano:"os slides completos, de 5 em 5, com as figuras (prontas de repositórios livres, com link e crédito, ou criadas quando não houver) junto de cada slide, para montar no Google Apresentações ou no Gamma"},
   {id:"html", nome:"Página web (.html)", ext:".html", como:"um único arquivo .html com o CSS embutido, que funcione no celular e imprima bem",
    visual:"ícones em SVG, vídeos incorporados e animações em CSS que respeitem a preferência de movimento reduzido",
    plano:"o código HTML completo em um único bloco, para salvar como .html"},
@@ -1650,7 +1650,8 @@ ${Object.entries(porEixo).map(([x, hs]) => (x && x !== "null" && x !== "undefine
 4. Dê progressão à memória da turma (camada 5). Use ${ehEI ? "o brincar, as interações" : "metodologias ativas"}, o território${trabalho ? ", o mundo do trabalho" : ""} e os recursos da escola (camada 3).
 5. Siga o DUA: várias formas de representação, engajamento e expressão.
 6. Material lúdico e muito visual: figuras, ícones, infográficos, tabelas, GIFs, vídeos curtos e motion design com propósito; jogos, personagens e desafios por fases. Texto alternativo e legendas sempre.
-${comSlides ? `   SLIDES: entregue os slides completos, com as figuras prontas (geradas por você ou imagens livres reais, com crédito) inseridas em cada slide; nunca marcadores, prompts ou código no lugar da figura.${soSlides ? "" : "\n" + BANCO_TXT}` : BANCO_TXT}
+${BUSCA_TXT}
+${comSlides ? `   SLIDES: entregue os slides completos, com as figuras inseridas em cada slide (de preferência recursos prontos de repositórios livres, com crédito no próprio slide; criadas só se não houver); nunca marcadores, prompts ou código no lugar da figura.${soSlides ? "" : "\n" + BANCO_TXT}` : BANCO_TXT}
 7. Ética: nenhum dado pessoal de estudante, nenhum estereótipo; cite fontes, respeite direitos autorais e marque [VERIFICAR] o que precisa ser conferido.
 8. Pesquisa: se o professor não indicou fontes e faltar uma informação necessária (conceitos, dados, leis, exemplos atuais ou do território), pesquise na internet antes de produzir, em fontes confiáveis (MEC, BNCC, sites .gov.br, universidades, IBGE, artigos científicos). No fim, liste as FONTES CONSULTADAS com link. Se não puder navegar, avise e marque [VERIFICAR]; nunca invente fontes, dados ou links.
 9. Se faltar algo essencial que a pesquisa não resolva, faça até 2 perguntas; se não, produza direto.
@@ -1677,7 +1678,9 @@ ${comSlides ? `   SLIDES: entregue os slides completos, com as figuras prontas (
     nota:"A única parte que muda a cada uso: o material, o tema, o formato e o arquivo que a IA deve entregar. Em pedidos longos, termina com a produção em lotes: primeiro o sumário, depois um lote por resposta."});
   return c;
 }
-const BANCO_TXT = `   BANCO DE RECURSOS VISUAIS (obrigatório, mesmo que você gere as imagens): marque no material onde entra cada recurso ([IMG 1], [GIF 2], [VÍDEO 3], [ÍCONE 4], [INFOGRÁFICO 5]) e, no fim de cada aula ou material, liste cada um com: onde entra (ex.: Slide 3), prompt pronto em português para gerador de imagem ou vídeo (ChatGPT, Gemini, Canva, Bing), estilo, proporção (16:9, 1:1...) e texto alternativo. Para vídeos reais, dê termos de busca no YouTube; nunca invente links.`;
+// Recursos visuais: primeiro BUSCAR prontos em repositórios públicos e gratuitos; criar só quando não houver (pedido do professor)
+const BUSCA_TXT = `   BUSCAR ANTES DE CRIAR (obrigatório): para figuras, fotos, ícones, infográficos, GIFs, vídeos, mapas e simulações, procure primeiro recursos prontos em repositórios públicos e gratuitos da web: Wikimedia Commons, Openverse, Pixabay, Unsplash, Pexels, Flaticon (com atribuição), GIPHY, NASA Image Library, IBGE Educa, PhET (simulações), MEC RED, Khan Academy e canais educativos do YouTube. Use só o que for de uso livre (domínio público ou Creative Commons) e informe fonte, autor, licença e link de cada recurso. Crie (gere a imagem) SOMENTE quando não houver um recurso pronto adequado, e marque “criado por IA”. Se não puder navegar na web, avise e então crie. Nunca invente links.`;
+const BANCO_TXT = `   BANCO DE RECURSOS VISUAIS: marque no material onde entra cada recurso ([IMG 1], [GIF 2], [VÍDEO 3], [ÍCONE 4], [INFOGRÁFICO 5]) e, no fim de cada aula ou material, liste cada um com: onde entra; o recurso pronto encontrado (link, fonte, autor e licença) ou, só se nenhum servir, a imagem criada por você (ou um prompt pronto em português para gerá-la), com estilo e proporção; e texto alternativo.`;
 // PRODUÇÃO EM LOTES: cada resposta da IA tem um limite de tamanho; pedidos longos saem rasos se vierem de uma vez.
 // O Caderno divide o pedido em lotes (5 slides, 1 aula ou 1 material por lote), pede antes o sumário para aprovação
 // e uma FICHA DE CONSISTÊNCIA no fim de cada lote, que carrega a memória de um lote para o outro.
@@ -1714,24 +1717,24 @@ function linhasLotes(pl){
   return [`- PRODUÇÃO EM LOTES (obrigatório): ${pl.slides ? `os slides saem SEMPRE de ${SLIDES_POR_LOTE} em ${SLIDES_POR_LOTE}, completos e com as figuras (${pl.slides} slides = ${pl.lotesSlides} lotes de ${SLIDES_POR_LOTE}).` : "este pedido é longo."} Para não sair raso, será feito em ${L} lotes, um por resposta.`,
     `  1. AGORA, NÃO produza o material. Responda só com o SUMÁRIO completo: títulos numerados de tudo o que será entregue (aulas, slides, atividades, questões${pl.adapt ? ", sugestões para a inclusão" : ""}), já com as quantidades pedidas acima, dividido de “LOTE 1 de ${L}” a “LOTE ${L} de ${L}”, cada lote com ${pl.unidade}${pl.adapt ? "; um único material comum, sem versões separadas por deficiência" : ""}. Depois, pare e aguarde minha aprovação.`,
     `  2. Em cada lote, use marcadores fixos ([AULA n], [SLIDE n], [ATIVIDADE n], [QUESTÃO n]), continue a numeração e mantenha o nível de detalhe do Lote 1 até o último. Nunca resuma os lotes finais.`,
-    pl.slides && `  Slides: cada lote traz ${SLIDES_POR_LOTE} slides PRONTOS, cada um com título, texto, a FIGURA já gerada e inserida no próprio slide e as notas do professor. Gere as imagens com sua ferramenta de imagens (ou use imagens livres reais, com crédito). NÃO entregue no lugar da figura marcadores [IMG n], prompts de imagem, descrições ou código.`,
+    pl.slides && `  Slides: cada lote traz ${SLIDES_POR_LOTE} slides PRONTOS, cada um com título, texto, a FIGURA inserida no próprio slide (com crédito: fonte e licença) e as notas do professor. Busque primeiro figuras, infográficos e GIFs prontos em repositórios públicos e gratuitos (camada 6); crie com sua ferramenta de imagens só quando não houver um adequado. NÃO entregue no lugar da figura marcadores [IMG n], prompts de imagem, descrições ou código.`,
     `  3. Termine CADA lote com a FICHA DE CONSISTÊNCIA (até 10 linhas): termos-chave já definidos; exemplos, personagens e contextos já usados; ${pl.slides ? "figuras e estilo visual já usados" : "recursos visuais já numerados"}; último item produzido; o que vem no próximo lote.`,
     `  4. ${pl.adapt ? "Sugestões para a inclusão (seção completa), q" : "Q"}uadro de habilidades, checklist de entrega${pl.soSlides ? "" : ", banco de recursos visuais consolidado"} e fontes ficam para o FECHAMENTO, depois do último lote.`,
     pl.arquivo && `  5. Arquivos: entregue o arquivo de cada lote no fim do lote (ex.: parte-1-de-${L}); no fechamento, se puder, junte tudo num arquivo único.`].filter(Boolean);
 }
 function textoLote(k, L, ficha, slides){
-  if(k === 1) return `Sumário aprovado. Produza agora o LOTE 1 de ${L}, exatamente como está no sumário, seguindo todas as camadas do contexto (regras, formato, marcadores e restrições).${slides ? ` Se o lote for de slides: ${SLIDES_POR_LOTE} slides completos, com as figuras geradas e inseridas em cada slide (nada de marcadores, prompts ou código no lugar das figuras).` : ""} Não resuma. Termine com a FICHA DE CONSISTÊNCIA.`;
+  if(k === 1) return `Sumário aprovado. Produza agora o LOTE 1 de ${L}, exatamente como está no sumário, seguindo todas as camadas do contexto (regras, formato, marcadores e restrições).${slides ? ` Se o lote for de slides: ${SLIDES_POR_LOTE} slides completos, com as figuras inseridas em cada slide, buscadas primeiro em repositórios livres e criadas só se não houver (nada de marcadores, prompts ou código no lugar das figuras).` : ""} Não resuma. Termine com a FICHA DE CONSISTÊNCIA.`;
   return `Produza agora o LOTE ${k} de ${L}, exatamente como está no sumário.
 ${ficha ? `Use a FICHA do lote anterior:
 """
 ${ficha}
 """
-` : "Use a FICHA DE CONSISTÊNCIA que você escreveu no fim do lote anterior.\n"}Mantenha exatamente as regras, o formato e o nível de detalhe do Lote 1.${slides ? ` Se o lote for de slides: ${SLIDES_POR_LOTE} slides completos, com as figuras geradas e inseridas em cada slide, no mesmo estilo visual.` : ""} Não repita exemplos, personagens ou recursos visuais já usados; continue a numeração. Não resuma. Termine com a FICHA atualizada${k === L ? " e avise que este foi o último lote" : ""}.`;
+` : "Use a FICHA DE CONSISTÊNCIA que você escreveu no fim do lote anterior.\n"}Mantenha exatamente as regras, o formato e o nível de detalhe do Lote 1.${slides ? ` Se o lote for de slides: ${SLIDES_POR_LOTE} slides completos, com as figuras inseridas em cada slide (buscadas primeiro em repositórios livres, criadas só se não houver), no mesmo estilo visual.` : ""} Não repita exemplos, personagens ou recursos visuais já usados; continue a numeração. Não resuma. Termine com a FICHA atualizada${k === L ? " e avise que este foi o último lote" : ""}.`;
 }
 function textoFechamento(pl){
   return `Todos os ${pl.total} lotes foram produzidos. Agora, o FECHAMENTO:
 1. Revise o conjunto: aponte incoerências de termos, repetições, saltos de dificuldade entre os lotes e itens do sumário que faltaram. Não reescreva os itens: liste as correções (lote, item, o que mudar).
-2. Produza o que vale para o conjunto: QUADRO DE HABILIDADES (código | texto | por que | onde aparece), ${pl.adapt ? "SUGESTÕES PARA A INCLUSÃO (para cada necessidade da turma, como trabalhar este conteúdo com o estudante, no mesmo documento), " : ""}CHECKLIST DE ENTREGA${pl.soSlides ? "" : ", BANCO DE RECURSOS VISUAIS consolidado"}, FONTES CONSULTADAS e 3 ajustes possíveis.
+2. Produza o que vale para o conjunto: QUADRO DE HABILIDADES (código | texto | por que | onde aparece), ${pl.adapt ? "SUGESTÕES PARA A INCLUSÃO (para cada necessidade da turma, como trabalhar este conteúdo com o estudante, no mesmo documento), " : ""}CHECKLIST DE ENTREGA${pl.soSlides ? "" : ", BANCO DE RECURSOS VISUAIS consolidado"}, CRÉDITOS DAS FIGURAS E RECURSOS (fonte, autor, licença e link de cada um; “criado por IA” nos que foram criados), FONTES CONSULTADAS e 3 ajustes possíveis.
 3. ${pl.arquivo ? "Se puder, junte todos os lotes, já com as correções, num arquivo único para baixar, no formato pedido no contexto." : "Não repita o material: só as correções e os itens acima."}`;
 }
 
